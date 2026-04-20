@@ -1,6 +1,8 @@
+import "dotenv/config";
 import express from 'express';
-
+import { connectDB } from "./config/mongoose.js";
 const app = express();
+connectDB();
 
 app.get("/", (req, res) => {
 	res.send("Hello World");
