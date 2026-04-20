@@ -1,0 +1,43 @@
+check the raw file/preview and copypaste this when creating a pull request
+
+## Summary
+
+<!-- Brief description of what this PR does. 1-2 sentences. -->
+
+## Type of Change
+
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Refactor (no functional changes)
+- [ ] UI/Styling
+- [ ] Documentation
+- [ ] Performance
+- [ ] Security
+
+## Changes Made
+
+<!-- List the specific changes. Be precise. -->
+
+-
+
+## Screenshots
+
+<!-- If UI changes, paste before/after screenshots. Delete this section if not applicable. -->
+
+| Before | After |
+| ------ | ----- |
+|        |       |
+
+## Testing
+
+- [ ] Tested locally with `npm run dev`
+- [ ] Passes build checks (`npm run build`)
+- [ ] Tested on mobile viewport (if UI change)
+
+## Related Issues
+
+<!-- Link any related issues: Closes #123, Fixes #456 -->
+
+## Notes for Reviewers
+
+<!-- Anything the reviewer should know — edge cases, tradeoffs, areas of concern. -->
