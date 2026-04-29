@@ -1,0 +1,89 @@
+/* ===== CSS Variables ===== */
+:root {
+  --green-900: #1a3a1a;
+  --green-800: #1e4d1e;
+  --green-700: #2d6a2d;
+  --green-600: #3a8a3a;
+  --green-500: #4caf4c;
+  --green-400: #6abf6a;
+  --green-300: #8fd08f;
+  --green-200: #c2e5c2;
+  --green-100: #e8f5e8;
+  --green-50: #f4fbf4;
+
+  --accent: #5ab545;
+  --accent-hover: #4a9d38;
+  --accent-light: #d6f0cf;
+
+  --text-primary: #1a2e1a;
+  --text-secondary: #4a5e4a;
+  --text-muted: #8a9e8a;
+
+  --surface: #ffffff;
+  --surface-raised: #f8fdf8;
+  --border: #ddeedd;
+  --border-strong: #b8d4b8;
+
+  --sidebar-bg: #ffffff;
+  --topbar-bg: #ffffff;
+  --page-bg: #f2f8f2;
+  --card-bg: #ffffff;
+
+  --shadow-sm: 0 1px 3px rgba(40, 80, 40, 0.08);
+  --shadow-md: 0 4px 12px rgba(40, 80, 40, 0.1);
+  --shadow-lg: 0 8px 24px rgba(40, 80, 40, 0.12);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+
+  --font-body: 'DM Sans', sans-serif;
+  --font-display: 'Syne', sans-serif;
+
+  --transition: 0.18s ease;
+}
+
+/* ===== Reset & Base ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  font-family: var(--font-body);
+  background: var(--page-bg);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== App Layout ===== */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--green-200);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--green-300);
+}
