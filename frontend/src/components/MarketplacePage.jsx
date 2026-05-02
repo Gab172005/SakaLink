@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import SearchBar from './SearchBar';
-import SortBar from './SortBar';
 import ProductGrid from './ProductGrid';
 import ProductDetailModal from './ProductDetailModal';
 import { PRODUCTS } from '../data/products';
@@ -15,6 +14,9 @@ export default function MarketplacePage() {
     categories: ['Vegetables'],
     certifications: ['Organic'],
     regions: ['CAR / Cordillera'],
+    ratings: [],
+    units: [],
+    sellerTypes: [],
     maxPrice: 300,
   });
   const [cart, setCart] = useState([]);
@@ -33,6 +35,22 @@ export default function MarketplacePage() {
         }
       }
       if (p.price > (filters.maxPrice ?? 500)) return false;
+      
+      // Filter by ratings
+      if (filters.ratings?.length && !filters.ratings.includes(p.rating)) {
+        return false;
+      }
+      
+      // Filter by weight/volume units
+      if (filters.units?.length && !filters.units.includes(p.unit)) {
+        return false;
+      }
+      
+      // Filter by seller types
+      if (filters.sellerTypes?.length && !filters.sellerTypes.includes(p.seller)) {
+        return false;
+      }
+      
       return true;
     });
 
@@ -70,8 +88,7 @@ export default function MarketplacePage() {
       <div className={styles.layout}>
         <Sidebar filters={filters} onFilterChange={setFilters} />
         <main className={styles.main}>
-          <SearchBar query={query} onSearch={setQuery} total={filtered.length} />
-          <SortBar sortBy={sortBy} onSortChange={setSortBy} />
+          <SearchBar query={query} onSearch={setQuery} total={filtered.length} sortBy={sortBy} onSortChange={setSortBy} filters={filters} onFilterChange={setFilters} />
           <div className={styles.gridWrapper}>
             <ProductGrid products={filtered} onAddToCart={handleAddToCart} onSelectProduct={setSelectedProduct} />
           </div>
