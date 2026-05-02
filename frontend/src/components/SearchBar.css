@@ -1,0 +1,115 @@
+.searchbar-wrapper {
+  background: var(--green-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 10px 14px;
+  margin-bottom: 18px;
+}
+
+.searchbar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.searchbar-result-info {
+  font-size: 0.83rem;
+  color: var(--text-secondary);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.searchbar-result-info strong {
+  color: var(--text-primary);
+}
+
+.searchbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.searchbar-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchbar-icon {
+  position: absolute;
+  left: 10px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.searchbar-input {
+  height: 36px;
+  padding: 0 14px 0 34px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  font-size: 0.84rem;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  outline: none;
+  min-width: 200px;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.searchbar-input:focus {
+  border-color: var(--green-primary);
+  box-shadow: 0 0 0 3px rgba(74, 140, 42, 0.12);
+}
+
+.searchbar-input::placeholder {
+  color: var(--text-muted);
+}
+
+.searchbar-filter-btn {
+  height: 36px;
+  padding: 0 16px;
+  background: var(--green-primary);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.84rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background var(--transition);
+}
+
+.searchbar-filter-btn:hover {
+  background: var(--green-dark);
+}
+
+.searchbar-sort-wrap {
+  position: relative;
+}
+
+.searchbar-sort {
+  height: 36px;
+  padding: 0 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  font-size: 0.83rem;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234a5e32' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+.searchbar-sort:focus {
+  border-color: var(--green-primary);
+}

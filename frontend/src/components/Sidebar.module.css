@@ -1,0 +1,102 @@
+.sidebar {
+  width: 220px;
+  min-width: 200px;
+  flex-shrink: 0;
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.section { padding: 0 0 14px 0; }
+
+.sectionTitle {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  font-family: var(--font-display);
+}
+
+.sectionContent {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.checkLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  transition: color var(--transition);
+}
+.checkLabel:hover { color: var(--accent); }
+
+.checkbox {
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border: 1.5px solid var(--border);
+  border-radius: 3px;
+  background: white;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  transition: border-color var(--transition), background var(--transition);
+}
+.checkbox:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 1px;
+  width: 5px;
+  height: 8px;
+  border: 2px solid white;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+.checkText { flex: 1; font-weight: 500; }
+.count {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* Range slider */
+.priceTrack { display: flex; flex-direction: column; gap: 6px; }
+.rangeInput {
+  width: 100%;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--accent) 0%, var(--accent) 60%, var(--border) 60%);
+  outline: none;
+  cursor: pointer;
+}
+.rangeInput::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+.priceLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}

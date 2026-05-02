@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap');
+
+:root {
+  --green-900: #1a3a1a;
+  --green-800: #2d5a2d;
+  --green-700: #3d7a3d;
+  --green-600: #4a9a3f;
+  --green-500: #5cb85c;
+  --green-400: #7acc5f;
+  --green-300: #a8dc8a;
+  --green-200: #c8edbb;
+  --green-100: #e8f7e0;
+  --green-50:  #f4fbf0;
+
+  --accent: #4a9a3f;
+  --accent-hover: #3d7a3d;
+  --surface: #ffffff;
+  --surface-muted: #f7faf5;
+  --border: #d4e8cc;
+  --border-light: #eaf4e4;
+  --text-primary: #1a2e1a;
+  --text-secondary: #4a6a42;
+  --text-muted: #7a9a72;
+
+  --font-display: 'Sora', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --shadow-sm: 0 1px 3px rgba(30,80,20,0.08);
+  --shadow-md: 0 4px 12px rgba(30,80,20,0.10);
+  --shadow-lg: 0 8px 24px rgba(30,80,20,0.14);
+
+  --transition: 0.18s ease;
+}
