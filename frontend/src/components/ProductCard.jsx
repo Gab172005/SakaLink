@@ -17,17 +17,22 @@ function ProductImage({ id, name }) {
   );
 }
 
-export default function ProductCard({ product, onAddToCart }) {
+export default function ProductCard({ product, onAddToCart, onSelectProduct }) {
   const [added, setAdded] = useState(false);
 
-  const handleAdd = () => {
+  const handleAdd = (e) => {
+    e.stopPropagation();
     setAdded(true);
     onAddToCart?.(product);
     setTimeout(() => setAdded(false), 1500);
   };
 
+  const handleCardClick = () => {
+    onSelectProduct?.(product);
+  };
+
   return (
-    <article className={styles.card}>
+    <article className={styles.card} onClick={handleCardClick}>
       <ProductImage id={product.id} name={product.name} />
       <div className={styles.body}>
         <div className={styles.info}>

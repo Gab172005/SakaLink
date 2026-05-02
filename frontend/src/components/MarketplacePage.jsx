@@ -2,12 +2,15 @@ import { useState, useMemo } from 'react';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import SearchBar from './SearchBar';
+import SortBar from './SortBar';
 import ProductGrid from './ProductGrid';
+import ProductDetailModal from './ProductDetailModal';
 import { PRODUCTS } from '../data/products';
 import styles from './MarketplacePage.module.css';
 
 export default function MarketplacePage() {
   const [query, setQuery] = useState('');
+  const [sortBy, setSortBy] = useState('name-asc');
   const [filters, setFilters] = useState({
     categories: ['Vegetables'],
     certifications: ['Organic'],
@@ -15,9 +18,10 @@ export default function MarketplacePage() {
     maxPrice: 300,
   });
   const [cart, setCart] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const filtered = useMemo(() => {
-    return PRODUCTS.filter(p => {
+    let result = PRODUCTS.filter(p => {
       if (query && !p.name.toLowerCase().includes(query.toLowerCase())) return false;
       if (filters.categories?.length && !filters.categories.includes(p.category)) {
         // allow all if no category matches (Fruits not in Vegetables, just show all for demo)
@@ -31,7 +35,30 @@ export default function MarketplacePage() {
       if (p.price > (filters.maxPrice ?? 500)) return false;
       return true;
     });
-  }, [query, filters]);
+
+    // Apply sorting
+    switch (sortBy) {
+      case 'name-asc':
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'name-desc':
+        result.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case 'price-asc':
+        result.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-desc':
+        result.sort((a, b) => b.price - a.price);
+        break;
+      case 'location':
+        result.sort((a, b) => a.location.localeCompare(b.location));
+        break;
+      default:
+        break;
+    }
+
+    return result;
+  }, [query, filters, sortBy]);
 
   const handleAddToCart = (product) => {
     setCart(prev => [...prev, product]);
@@ -44,11 +71,13 @@ export default function MarketplacePage() {
         <Sidebar filters={filters} onFilterChange={setFilters} />
         <main className={styles.main}>
           <SearchBar query={query} onSearch={setQuery} total={filtered.length} />
+          <SortBar sortBy={sortBy} onSortChange={setSortBy} />
           <div className={styles.gridWrapper}>
-            <ProductGrid products={filtered} onAddToCart={handleAddToCart} />
+            <ProductGrid products={filtered} onAddToCart={handleAddToCart} onSelectProduct={setSelectedProduct} />
           </div>
         </main>
       </div>
+      <ProductDetailModal product={selectedProduct} onClose={() => setSelectedProduct(null)} onAddToCart={handleAddToCart} />
     </div>
   );
 }
