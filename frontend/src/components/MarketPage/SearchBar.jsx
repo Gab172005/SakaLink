@@ -7,9 +7,10 @@ export default function SearchBar({ query, onSearch, total, sortBy, onSortChange
   const [filterOpen, setFilterOpen] = useState(false);
   const filterBtnRef = useRef(null);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSearch(value);
+  const handleChange = (e) => {
+    const newValue = e.target.value;
+    setValue(newValue); 
+    onSearch(newValue); 
   };
 
   const sortOptions = [
@@ -28,17 +29,17 @@ export default function SearchBar({ query, onSearch, total, sortBy, onSortChange
         Showing <strong>{total}</strong> results for <strong>"{query}"</strong>
       </div>
       <div className={styles.controls}>
-        <form className={styles.searchForm} onSubmit={handleSubmit}>
+        <form className={styles.searchForm} onSubmit={(e) => e.preventDefault()}>
+        <input
+          type="text"
+          className={styles.input}
+          placeholder="Search products..."
+          value={value}
+          onChange={handleChange} // Triggered on every keystroke
+        />
           <svg className={styles.searchIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
           </svg>
-          <input
-            type="text"
-            className={styles.input}
-            placeholder="Search products..."
-            value={value}
-            onChange={e => setValue(e.target.value)}
-          />
         </form>
         <div style={{ position: 'relative' }}>
           <button 

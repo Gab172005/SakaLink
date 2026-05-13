@@ -1,24 +1,61 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+/* 1. Import the Theme Variables */
 @import './styles/variables.css';
 
+/* 2. Global Reset */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+/* 3. Base Layout */
 html, body, #root {
   width: 100%;
-  min-height: 100vh;
-}
-
-body {
+  height: 100%; /* Use height: 100% for full-screen layouts */
   font-family: var(--font-body);
-  background: var(--gray-50);
+  background: var(--page-bg);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden; /* Prevent horizontal accidental scrolls */
 }
 
-button, input, select {
+/* 4. Global Element Defaults */
+button, input, select, textarea {
   font-family: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* 5. App Layout (The shell for Sidebar + Main) */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* 6. Custom Scrollbar (UPLB Green Style) */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--green-200);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--green-300);
 }

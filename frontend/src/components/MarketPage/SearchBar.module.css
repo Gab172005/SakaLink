@@ -1,3 +1,4 @@
+
 .wrapper {
   display: flex;
   align-items: center;
@@ -59,10 +60,10 @@
   align-items: center;
   gap: 7px;
   padding: 8px 16px;
-  background: var(--accent);
+  background: var(--green-mid);
   color: white;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   font-size: 0.875rem;
   font-weight: 600;
   white-space: nowrap;
@@ -70,10 +71,10 @@
   position: relative;
   cursor: pointer;
 }
-.filterBtn:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.filterBtn:hover { background: #65b43d; transform: translateY(-1px); }
 .filterBtn:active { transform: translateY(0); }
 .filterBtn.active {
-  background: var(--accent-hover);
+  background: #5a9e39;
 }
 
 .badge {

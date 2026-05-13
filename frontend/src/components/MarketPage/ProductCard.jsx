@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import styles from './ProductCard.module.css';
 
 const LEAF_COLORS = [
@@ -17,16 +16,7 @@ function ProductImage({ id, name }) {
   );
 }
 
-export default function ProductCard({ product, onAddToCart, onSelectProduct }) {
-  const [added, setAdded] = useState(false);
-
-  const handleAdd = (e) => {
-    e.stopPropagation();
-    setAdded(true);
-    onAddToCart?.(product);
-    setTimeout(() => setAdded(false), 1500);
-  };
-
+export default function ProductCard({ product, onSelectProduct }) {
   const handleCardClick = () => {
     onSelectProduct?.(product);
   };
@@ -45,17 +35,9 @@ export default function ProductCard({ product, onAddToCart, onSelectProduct }) {
           </p>
         </div>
         <div className={styles.footer}>
-          <span className={styles.price}>₱{product.price} <span className={styles.unit}>/ {product.unit}</span></span>
-          <button
-            className={`${styles.addBtn} ${added ? styles.added : ''}`}
-            onClick={handleAdd}
-            title="Add to cart"
-          >
-            {added
-              ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M20 6 9 17l-5-5"/></svg>
-              : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M12 5v14M5 12h14"/></svg>
-            }
-          </button>
+          <span className={styles.price}>
+            ₱{product.price} <span className={styles.unit}>/ {product.unit}</span>
+          </span>
         </div>
       </div>
     </article>

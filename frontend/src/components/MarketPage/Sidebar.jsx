@@ -1,7 +1,7 @@
 import styles from './Sidebar.module.css';
-import { CATEGORIES, CERTIFICATIONS, REGIONS } from '../data/products';
+import { CATEGORIES, CERTIFICATIONS, REGIONS } from '../../data/products';
 
-export default function Sidebar({ filters, onFilterChange }) {
+export default function Sidebar({ filters = {}, onFilterChange }) {
   const toggle = (group, value) => {
     const current = filters[group] || [];
     const next = current.includes(value)
@@ -33,17 +33,31 @@ export default function Sidebar({ filters, onFilterChange }) {
 
       <FilterSection title="PRICE RANGE">
         <div className={styles.priceTrack}>
-          <input
-            type="range"
-            min={0}
-            max={500}
-            value={filters.maxPrice ?? 500}
-            onChange={handlePriceChange}
-            className={styles.rangeInput}
-          />
+          {/* 1. Calculate the percentage for the green bar */}
+          {(() => {
+            const maxLimit = 500;
+            const currentVal = filters.maxPrice ?? maxLimit;
+            const percentage = (currentVal / maxLimit) * 100;
+            
+            return (
+              <input
+                type="range"
+                min={0}
+                max={maxLimit}
+                value={currentVal}
+                onChange={handlePriceChange}
+                className={styles.rangeInput}
+                /* 2. Dynamically apply the green gradient */
+                style={{
+                  background: `linear-gradient(to right, #22c55e ${percentage}%, #e5e7eb ${percentage}%)`
+                }}
+              />
+            );
+          })()}
+          
           <div className={styles.priceLabels}>
             <span>₱0</span>
-            <span>₱{filters.maxPrice ?? 300}</span>
+            <span>₱{filters.maxPrice ?? 500}</span>
             <span>₱500</span>
           </div>
         </div>

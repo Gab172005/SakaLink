@@ -33,7 +33,7 @@ export default function Navbar({ cartCount = 0 }) {
         </button>
         <button className={styles.toggleBtn}>
           <span className={styles.toggleDot}></span>
-          <span className={styles.toggleLabel}>User</span>
+          <span className={styles.toggleLabel}>User Account</span>
         </button>
         <button className={styles.iconBtn} title="Notifications">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

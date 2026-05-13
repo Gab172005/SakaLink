@@ -34,7 +34,7 @@
   color: var(--text-secondary);
   transition: color var(--transition);
 }
-.checkLabel:hover { color: var(--accent); }
+.checkLabel:hover { color: var(--green-mid); }
 
 .checkbox {
   appearance: none;
@@ -49,8 +49,8 @@
   transition: border-color var(--transition), background var(--transition);
 }
 .checkbox:checked {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--green-mid);
+  border-color: var(--green-mid);
 }
 .checkbox:checked::after {
   content: '';
@@ -79,7 +79,7 @@
   appearance: none;
   height: 4px;
   border-radius: 2px;
-  background: linear-gradient(to right, var(--accent) 0%, var(--accent) 60%, var(--border) 60%);
+  background: linear-gradient(to right, var(--green-mid) 0%, var(--green-mid) 60%, var(--border) 60%);
   outline: none;
   cursor: pointer;
 }
@@ -88,7 +88,7 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--green-mid);
   border: 2px solid white;
   box-shadow: 0 1px 4px rgba(0,0,0,0.2);
   cursor: pointer;

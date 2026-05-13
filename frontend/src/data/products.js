@@ -24,3 +24,10 @@ export const REGIONS = ["CAR / Cordillera", "Central Luzon", "Mindanao", "Visaya
 export const RATINGS = [4, 5];
 export const UNITS = ["kg", "crate", "box"];
 export const SELLER_TYPES = ["Individual Farmer", "Cooperative", "Commercial Distributor"];
+
+export const SORT_OPTIONS = [
+  { value: "popular", label: "Most Popular" },
+  { value: "price-asc", label: "Price: Low to High" },
+  { value: "price-desc", label: "Price: High to Low" },
+  { value: "rating", label: "Highest Rating" },
+];

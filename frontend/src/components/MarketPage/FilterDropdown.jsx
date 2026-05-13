@@ -1,5 +1,5 @@
 import styles from './FilterDropdown.module.css';
-import { RATINGS, UNITS, SELLER_TYPES } from '../data/products';
+import { RATINGS, UNITS, SELLER_TYPES } from '../../data/products';
 
 export default function FilterDropdown({ filters, onFilterChange, isOpen, onClose }) {
   const toggle = (group, value) => {
