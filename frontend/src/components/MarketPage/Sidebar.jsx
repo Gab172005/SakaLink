@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import styles from './Sidebar.module.css';
-import { CATEGORIES, CERTIFICATIONS, REGIONS } from '../data/products';
+import { CATEGORIES, CERTIFICATIONS, REGIONS } from '../../data/products';
 
 export default function Sidebar({ filters, onFilterChange }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -28,7 +28,7 @@ export default function Sidebar({ filters, onFilterChange }) {
           <span></span>
           <span></span>
           <span></span>
-          </div>
+        </div>
       </button>
 
       <div className={styles.sidebarContent}>

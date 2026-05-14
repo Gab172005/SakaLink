@@ -71,6 +71,15 @@
 }
 .location svg { flex-shrink: 0; color: var(--accent); }
 
+.locationText {
+  font-size: 0.75rem;
+  font-weight: 500;                /* Matches the name's boldness */
+  color: var(--text-muted);        /* Keeps it secondary to the name */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;         /* Handles long text like "Phys Sci Building" */
+  max-width: 100px;                /* Prevents it from crushing the price */
+}
 .footer {
   display: flex;
   align-items: center;
@@ -90,19 +99,3 @@
   color: var(--text-muted);
 }
 
-.addBtn {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: white;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background var(--transition), transform var(--transition);
-  flex-shrink: 0;
-}
-.addBtn:hover { background: var(--accent-hover); transform: scale(1.1); }
-.addBtn:active { transform: scale(0.95); }
-.addBtn.added { background: var(--green-700); }

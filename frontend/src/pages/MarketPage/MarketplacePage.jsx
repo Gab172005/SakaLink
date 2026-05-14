@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
-import Sidebar from './components/Sidebar';
-import SearchBar from './components/SearchBar';
-import ProductGrid from './components/ProductGrid';
-import ProductDetailModal from './components/ProductDetailModal';
-import { PRODUCTS } from './data/products';
-import styles from './components/MarketplacePage.module.css';
+import Sidebar from '../../components/MarketPage/Sidebar';
+import SearchBar from '../../components/MarketPage/SearchBar';
+import ProductGrid from '../../components/MarketPage/ProductGrid';
+import ProductDetailModal from '../../components/MarketPage/ProductDetailModal';
+import { PRODUCTS } from '../../data/products';
+import styles from './MarketplacePage.module.css';
 
 export default function MarketplacePage({ addToCart }) {
   const [query, setQuery] = useState('');

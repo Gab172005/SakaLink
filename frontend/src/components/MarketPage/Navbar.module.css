@@ -50,7 +50,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: var(--accent);
+  background: var(--green-mid);
   border: none;
   border-radius: 20px;
   padding: 5px 14px 5px 6px;
@@ -60,7 +60,7 @@
   font-family: var(--font-body);
   transition: background var(--transition);
 }
-.toggleBtn:hover { background: var(--accent-hover); }
+.toggleBtn:hover { background: #2d4a1e; }
 .toggleDot {
   width: 18px;
   height: 18px;

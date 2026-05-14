@@ -1,11 +1,9 @@
 import { useState, useMemo } from 'react';
-import Navbar from './Navbar';
-import Sidebar from './Sidebar';
-import SearchBar from './SearchBar';
-import ProductGrid from './ProductGrid';
-import ProductDetailModal from './ProductDetailModal';
-import { PRODUCTS } from '../data/products';
-import styles from './MarketplacePage.module.css';
+import Navbar from '../../components/MarketPage/Navbar'; // Update path
+import Sidebar from '../../components/MarketPage/Sidebar'; // Update path
+import SearchBar from '../../components/MarketPage/SearchBar'; // Update path
+import ProductGrid from '../../components/MarketPage/ProductGrid'; // Update path
+import ProductDetailModal from '../../components/MarketPage/ProductDetailModal'; // Update path
 
 export default function MarketplacePage() {
   const [query, setQuery] = useState('');

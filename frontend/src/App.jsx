@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
-import Footer from "./components/Footer";
-import LoginModal from "./components/LoginModal";
-import SignupModal from "./components/SignupModal";
+import Navbar from "./components/MarketPage/Navbar";
+import Hero from "./components/HeroPage/Hero";
+import Footer from "./components/HeroPage/Footer";
+import LoginModal from "./components/HeroPage/LoginModal";
+import SignupModal from "./components/HeroPage/SignupModal";
 import Toast from "./components/Toast";
-import MarketplacePage from "./MarketplacePage";
+import MarketplacePage from "./pages/MarketPage/MarketplacePage";
 import "./App.css";
 
 function LandingPage({ openModal }) {
@@ -54,7 +54,6 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<LandingPage openModal={openModal} />} />
         <Route path="/shop" element={<MarketplacePage addToCart={addToCart} />} />
-        {/* Redirect any unknown routes to home */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
