@@ -30,16 +30,18 @@ export default function SearchBar({ query, onSearch, total, sortBy, onSortChange
       </div>
       <div className={styles.controls}>
         <form className={styles.searchForm} onSubmit={(e) => e.preventDefault()}>
-        <input
-          type="text"
-          className={styles.input}
-          placeholder="Search products..."
-          value={value}
-          onChange={handleChange} // Triggered on every keystroke
-        />
-          <svg className={styles.searchIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-          </svg>
+          <div className={styles.searchBarContainer}>
+            <svg className={styles.searchIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input
+              type="text"
+              className={styles.input}
+              placeholder="    Search products..."
+              value={value}
+              onChange={handleChange}
+            />
+          </div>
         </form>
         <div style={{ position: 'relative' }}>
           <button 

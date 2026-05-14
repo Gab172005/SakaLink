@@ -1,114 +1,119 @@
 
 .wrapper {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background: var(--green-100);
-  border-radius: var(--radius-lg);
-  margin-bottom: 16px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
 }
 
 .resultInfo {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  white-space: nowrap;
+  font-size: 0.9rem;
+  color: var(--text-muted);
 }
-.resultInfo strong { color: var(--text-primary); }
 
 .controls {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-width: 0;
+  gap: 16px;
+  width: 100%;
 }
 
 .searchForm {
   flex: 1;
   position: relative;
-  display: flex;
-  align-items: center;
-  min-width: 160px;
 }
-.searchIcon {
-  position: absolute;
-  left: 12px;
-  color: var(--text-muted);
-  pointer-events: none;
-}
-.input {
-  width: 100%;
-  padding: 8px 12px 8px 36px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  background: white;
-  outline: none;
-  transition: border-color var(--transition), box-shadow var(--transition);
-}
-.input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(74,154,63,0.12);
-}
-.input::placeholder { color: var(--text-muted); }
 
-.filterBtn {
+.searchBarContainer {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 16px;
-  background: var(--green-mid);
-  color: white;
-  border: none;
-  border-radius: var(--radius-lg);
-  font-size: 0.875rem;
-  font-weight: 600;
-  white-space: nowrap;
-  transition: background var(--transition), transform var(--transition);
+  background: white;
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 0 16px;
+  transition: border-color var(--transition), box-shadow var(--transition);
   position: relative;
-  cursor: pointer;
+  overflow: hidden;
 }
-.filterBtn:hover { background: #65b43d; transform: translateY(-1px); }
-.filterBtn:active { transform: translateY(0); }
+
+/* The Green Bar behind the search */
+.searchBarContainer::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 45px;
+  background: var(--green-600);
+  z-index: 0;
+}
+
+.searchIcon {
+  color: white; /* Contrast with green bar */
+  z-index: 1;
+  margin-right: 12px;
+}
+
+.input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 12px 0;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  outline: none;
+  z-index: 1;
+}
+
+.searchBarContainer:focus-within {
+  border-color: var(--green-600);
+  box-shadow: 0 0 0 4px var(--green-100);
+}
+
+.filterBtn, .sortBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: white;
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.filterBtn:hover, .sortBtn:hover {
+  border-color: var(--green-300);
+  background: var(--green-50);
+}
+
 .filterBtn.active {
-  background: #5a9e39;
+  background: var(--green-600);
+  border-color: var(--green-600);
+  color: white;
 }
 
 .badge {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 18px;
+  width: 18px;
   height: 18px;
-  padding: 0 5px;
   background: white;
-  color: var(--accent);
-  border-radius: 10px;
+  color: var(--green-600);
+  border-radius: 50%;
   font-size: 0.7rem;
   font-weight: 700;
 }
 
 .sortBtn {
-  padding: 8px 12px;
-  background: white;
-  color: var(--text-primary);
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
-  font-weight: 500;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: border-color var(--transition), box-shadow var(--transition);
-}
-.sortBtn:hover {
-  border-color: var(--accent);
-  box-shadow: var(--shadow-sm);
-}
-.sortBtn:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(122, 204, 95, 0.1);
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234a6a42' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
 }

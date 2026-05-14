@@ -2,7 +2,7 @@
 // Central API layer — all fetch calls go through here.
 // Base URL reads from Vite env var; falls back to localhost for dev.
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 // ── Token helpers ──────────────────────────────────────────────────────────
 export const getToken = () => localStorage.getItem("sakalink_token");

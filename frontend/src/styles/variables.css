@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap');
 
 :root {
-  --green-900: #1a3a1a;
-  --green-800: #2d5a2d;
-  --green-700: #3d7a3d;
-  --green-600: #4a9a3f;
+  --green-900: #0e2a0e;
+  --green-800: #1a4a1a;
+  --green-700: #2d6a2d;
+  --green-600: #42a442; /* Main Green */
   --green-500: #5cb85c;
   --green-400: #7acc5f;
   --green-300: #a8dc8a;
@@ -12,8 +12,8 @@
   --green-100: #e8f7e0;
   --green-50:  #f4fbf0;
 
-  --accent: #4a9a3f;
-  --accent-hover: #3d7a3d;
+  --accent: #42a442;
+  --accent-hover: #2d6a2d;
   --surface: #ffffff;
   --surface-muted: #f7faf5;
   --border: #d4e8cc;

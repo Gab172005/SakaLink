@@ -1,78 +1,84 @@
-import React, { useState, useMemo } from "react";
-import Navbar from "../../components/MarketPage/Navbar.jsx";
-import Sidebar from "../../components/MarketPage/Sidebar.jsx";
-import SearchBar from "../../components/MarketPage/SearchBar.jsx";
-import ProductGrid from "../../components/MarketPage/ProductGrid.jsx";
-import { PRODUCTS, SORT_OPTIONS } from "../../data/products.js";
-import "./MarketplacePage.css";
-import ProductDetailModal from "../../components/MarketPage/ProductDetailModal.jsx";
-function toggleSet(arr, value) {
-  return arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value];
-}
+import { useState, useMemo } from 'react';
+import Sidebar from '../../components/MarketPage/Sidebar';
+import SearchBar from '../../components/MarketPage/SearchBar';
+import ProductGrid from '../../components/MarketPage/ProductGrid';
+import ProductDetailModal from '../../components/MarketPage/ProductDetailModal';
+import { PRODUCTS } from '../../data/products';
+import styles from './MarketplacePage.module.css';
 
-export default function MarketplacePage() {
+export default function MarketplacePage({ addToCart }) {
+  const [query, setQuery] = useState('');
+  const [sortBy, setSortBy] = useState('name-asc');
+  const [filters, setFilters] = useState({
+    categories: [],
+    certifications: [],
+    regions: [],
+    ratings: [],
+    units: [],
+    sellerTypes: [],
+    maxPrice: 500,
+  });
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [query, setQuery] = useState(""); 
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const [priceRange, setPriceRange] = useState([0, 500]);
-  const [selectedCertifications, setSelectedCertifications] = useState([]);
-  const [selectedRegions, setSelectedRegions] = useState([]);
-  const [activeSort, setActiveSort] = useState("popular");
 
   const filtered = useMemo(() => {
-    let result = PRODUCTS.filter((p) => {
-      const matchesQuery =
-        !query || p.name.toLowerCase().includes(query.toLowerCase());
-      const matchesPrice =
-        p.price >= priceRange[0] && p.price <= priceRange[1];
-      const matchesCert =
-        selectedCertifications.length === 0 ||
-        selectedCertifications.some((c) => p.certifications.includes(c));
-      return matchesQuery && matchesPrice && matchesCert;
+    let result = PRODUCTS.filter(p => {
+      if (query && !p.name.toLowerCase().includes(query.toLowerCase())) return false;
+      if (filters.categories?.length && !filters.categories.includes(p.category)) return false;
+      if (filters.certifications?.length && !filters.certifications.some(c => p.certifications.includes(c))) return false;
+      if (p.price > (filters.maxPrice ?? 500)) return false;
+      if (filters.ratings?.length && !filters.ratings.includes(p.rating)) return false;
+      if (filters.units?.length && !filters.units.includes(p.unit)) return false;
+      if (filters.sellerTypes?.length && !filters.sellerTypes.includes(p.seller)) return false;
+      return true;
     });
 
-    if (activeSort === "price-asc") result = [...result].sort((a, b) => a.price - b.price);
-    else if (activeSort === "price-desc") result = [...result].sort((a, b) => b.price - a.price);
+    // Apply sorting
+    switch (sortBy) {
+      case 'name-asc':
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'name-desc':
+        result.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case 'price-asc':
+        result.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-desc':
+        result.sort((a, b) => b.price - a.price);
+        break;
+      case 'location':
+        result.sort((a, b) => a.location.localeCompare(b.location));
+        break;
+      default:
+        break;
+    }
 
     return result;
-  }, [query, priceRange, selectedCertifications, activeSort]);
+  }, [query, filters, sortBy]);
+
+  const handleAddToCart = (product) => {
+    addToCart(product);
+  };
 
   return (
-    <div className="marketplace-root">
-      <Navbar />
-      <div className="marketplace-layout">
-        <Sidebar
-          filters={{
-            categories: selectedCategories,
-            maxPrice: priceRange[1],
-            certifications: selectedCertifications,
-            regions: selectedRegions,
-          }}
-          onFilterChange={(newFilters) => {
-            if (newFilters.categories) setSelectedCategories(newFilters.categories);
-            if (newFilters.maxPrice !== undefined) setPriceRange([0, newFilters.maxPrice]);
-            if (newFilters.certifications) setSelectedCertifications(newFilters.certifications);
-            if (newFilters.regions) setSelectedRegions(newFilters.regions);
-          }}
-        />
-        <main className="marketplace-main">
-          <SearchBar
-              query={query}
-              onSearch={setQuery} // Use setQuery here to update the list
-              total={filtered.length}
-              sortBy={activeSort}
-              onSortChange={setActiveSort}
-              filters={{
-                ratings: [],      // Or your actual ratings state
-                units: [],        // Or your actual units state
-                sellerTypes: []   // Or your actual sellerTypes state
-              }}
-              onFilterChange={() => {}} // Placeholder for now
-            />
-          <div className="marketplace-grid-area">
+    <div className={styles.page}>
+      <div className={styles.layout}>
+        <Sidebar filters={filters} onFilterChange={setFilters} />
+        <main className={styles.main}>
+          <SearchBar 
+            query={query} 
+            onSearch={setQuery} 
+            total={filtered.length} 
+            sortBy={sortBy} 
+            onSortChange={setSortBy} 
+            filters={filters} 
+            onFilterChange={setFilters} 
+          />
+          <div className={styles.gridWrapper}>
             <ProductGrid 
               products={filtered} 
-              onSelectProduct={setSelectedProduct} // This was missing!
+              onAddToCart={handleAddToCart} 
+              onSelectProduct={setSelectedProduct} 
             />
           </div>
         </main>
@@ -81,10 +87,7 @@ export default function MarketplacePage() {
         <ProductDetailModal 
           product={selectedProduct} 
           onClose={() => setSelectedProduct(null)} 
-          onAddToCart={(product) => {
-            console.log("Added to cart:", product.name);
-            // Your cart logic here
-          }}
+          onAddToCart={handleAddToCart} 
         />
       )}
     </div>

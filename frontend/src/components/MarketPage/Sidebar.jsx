@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import styles from './Sidebar.module.css';
 import { CATEGORIES, CERTIFICATIONS, REGIONS } from '../../data/products';
 
-export default function Sidebar({ filters = {}, onFilterChange }) {
+export default function Sidebar({ filters, onFilterChange }) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   const toggle = (group, value) => {
     const current = filters[group] || [];
     const next = current.includes(value)
@@ -15,81 +18,93 @@ export default function Sidebar({ filters = {}, onFilterChange }) {
   };
 
   return (
-    <aside className={styles.sidebar}>
-      <FilterSection title="CATEGORIES">
-        {CATEGORIES.map(cat => (
-          <label key={cat.name} className={styles.checkLabel}>
-            <input
-              type="checkbox"
-              className={styles.checkbox}
-              checked={(filters.categories || []).includes(cat.name)}
-              onChange={() => toggle('categories', cat.name)}
-            />
-            <span className={styles.checkText}>{cat.name}</span>
-            <span className={styles.count}>{cat.count}</span>
-          </label>
-        ))}
-      </FilterSection>
-
-      <FilterSection title="PRICE RANGE">
-        <div className={styles.priceTrack}>
-          {/* 1. Calculate the percentage for the green bar */}
-          {(() => {
-            const maxLimit = 500;
-            const currentVal = filters.maxPrice ?? maxLimit;
-            const percentage = (currentVal / maxLimit) * 100;
-            
-            return (
-              <input
-                type="range"
-                min={0}
-                max={maxLimit}
-                value={currentVal}
-                onChange={handlePriceChange}
-                className={styles.rangeInput}
-                /* 2. Dynamically apply the green gradient */
-                style={{
-                  background: `linear-gradient(to right, #22c55e ${percentage}%, #e5e7eb ${percentage}%)`
-                }}
-              />
-            );
-          })()}
-          
-          <div className={styles.priceLabels}>
-            <span>₱0</span>
-            <span>₱{filters.maxPrice ?? 500}</span>
-            <span>₱500</span>
-          </div>
+    <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
+      <button 
+        className={styles.toggleBtn} 
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+      >
+        <div className={styles.hamburger}>
+          <span></span>
+          <span></span>
+          <span></span>
         </div>
-      </FilterSection>
+      </button>
 
-      <FilterSection title="CERTIFICATIONS">
-        {CERTIFICATIONS.map(cert => (
-          <label key={cert} className={styles.checkLabel}>
-            <input
-              type="checkbox"
-              className={styles.checkbox}
-              checked={(filters.certifications || []).includes(cert)}
-              onChange={() => toggle('certifications', cert)}
-            />
-            <span className={styles.checkText}>{cert}</span>
-          </label>
-        ))}
-      </FilterSection>
+      <div className={styles.sidebarContent}>
+        <FilterSection title="CATEGORIES">
+          {CATEGORIES.map(cat => (
+            <label key={cat.name} className={styles.checkLabel}>
+              <div className={styles.checkboxWrapper}>
+                <input
+                  type="checkbox"
+                  className={styles.checkbox}
+                  checked={(filters.categories || []).includes(cat.name)}
+                  onChange={() => toggle('categories', cat.name)}
+                />
+                <span className={styles.customCheckbox}></span>
+              </div>
+              <span className={styles.checkText}>{cat.name}</span>
+              <span className={styles.count}>{cat.count}</span>
+            </label>
+          ))}
+        </FilterSection>
 
-      <FilterSection title="REGION">
-        {REGIONS.map(region => (
-          <label key={region} className={styles.checkLabel}>
+        <FilterSection title="PRICE RANGE">
+          <div className={styles.priceTrack}>
             <input
-              type="checkbox"
-              className={styles.checkbox}
-              checked={(filters.regions || []).includes(region)}
-              onChange={() => toggle('regions', region)}
+              type="range"
+              min={0}
+              max={500}
+              value={filters.maxPrice ?? 500}
+              onChange={handlePriceChange}
+              className={styles.rangeInput}
+              style={{
+                background: `linear-gradient(to right, var(--green-600) 0%, var(--green-600) ${((filters.maxPrice ?? 500) / 500) * 100}%, var(--border) ${((filters.maxPrice ?? 500) / 500) * 100}%, var(--border) 100%)`
+              }}
             />
-            <span className={styles.checkText}>{region}</span>
-          </label>
-        ))}
-      </FilterSection>
+            <div className={styles.priceLabels}>
+              <span>₱0</span>
+              <span>₱{filters.maxPrice ?? 500}</span>
+              <span>₱500</span>
+            </div>
+          </div>
+        </FilterSection>
+
+        <FilterSection title="CERTIFICATIONS">
+          {CERTIFICATIONS.map(cert => (
+            <label key={cert} className={styles.checkLabel}>
+              <div className={styles.checkboxWrapper}>
+                <input
+                  type="checkbox"
+                  className={styles.checkbox}
+                  checked={(filters.certifications || []).includes(cert)}
+                  onChange={() => toggle('certifications', cert)}
+                />
+                <span className={styles.customCheckbox}></span>
+              </div>
+              <span className={styles.checkText}>{cert}</span>
+            </label>
+          ))}
+        </FilterSection>
+
+        <FilterSection title="REGION">
+          {REGIONS.map(region => (
+            <label key={region} className={styles.checkLabel}>
+              <div className={styles.checkboxWrapper}>
+                <input
+                  type="checkbox"
+                  className={styles.checkbox}
+                  checked={(filters.regions || []).includes(region)}
+                  onChange={() => toggle('regions', region)}
+                />
+                <span className={styles.customCheckbox}></span>
+              </div>
+              <span className={styles.checkText}>{region}</span>
+            </label>
+          ))}
+        </FilterSection>
+      </div>
     </aside>
   );
 }
