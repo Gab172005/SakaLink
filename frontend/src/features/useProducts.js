@@ -31,7 +31,7 @@ export function useProducts(params = { sortBy: "productName", order: "asc" }) {
           if (Array.isArray(data) && data.length > 2) {
             setProducts(data);
           } else {
-            console.warn("No products found in database, using fallback.");
+            console.warn("Less than 3 products found in database, using fallback.");
             setProducts(FALLBACK_PRODUCTS);
           }
         }
