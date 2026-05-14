@@ -6,7 +6,7 @@ import Hero from "./components/HeroPage/Hero";
 import Footer from "./components/HeroPage/Footer";
 import LoginModal from "./components/HeroPage/LoginModal";
 import SignupModal from "./components/HeroPage/SignupModal";
-import Toast from "./components/Toast";
+import Toast from "./components/HeroPage/Toast";
 import MarketplacePage from "./pages/MarketPage/MarketplacePage";
 import "./App.css";
 
