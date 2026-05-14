@@ -58,14 +58,12 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // You can also use the custom method you built in your schema here! 
-    // Example: const match = await user.comparePassword(password);
-    const match = await bcrypt.compare(password, user.password);
+    const match = await user.comparePassword(password);
+
     if (!match) {
       res.status(400).json({ message: 'Invalid credentials' });
       return;
     }
-
     const token = jwt.sign(
       { id: user._id, email: user.email, userType: user.userType },
       process.env.JWT_SECRET as string,
