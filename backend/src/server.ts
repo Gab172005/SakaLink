@@ -2,7 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
-
+import cookieParser from 'cookie-parser'
 import authRoutes    from './routes/auth.js';
 import productRoutes from './routes/products.js';
 import orderRoutes   from './routes/orders.js';
@@ -20,7 +20,6 @@ const ALLOWED_ORIGINS = [
 ];
 
 const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI || "mongodb://localhost:27017/test";
-
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -35,7 +34,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-
+app.use(cookieParser());
 app.use(express.json());
 
 app.use('/api/auth',     authRoutes);

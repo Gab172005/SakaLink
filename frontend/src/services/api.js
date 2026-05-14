@@ -18,17 +18,18 @@ export const clearSession = () => {
   localStorage.removeItem("sakalink_userType");
 };
 
-// ── Core fetch wrapper ─────────────────────────────────────────────────────
-async function request(path, options = {}) {
-  const token = getToken();
-
+async function request(path, options = {}) {  
   const headers = {
     "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   };
 
-  const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+  const res = await fetch(`${BASE_URL}${path}`, { 
+    ...options, 
+    headers,
+    credentials: "include"//get the cookie
+  });
+
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
@@ -40,26 +41,26 @@ async function request(path, options = {}) {
 
 // ── Auth ───────────────────────────────────────────────────────────────────
 export const authAPI = {
-  /**
-   * POST /api/auth/login
-   * Body: { email, password }
-   * Returns: { token, userType, user? }
-   */
   login: (email, password) =>
     request("/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
     }),
 
-  /**
-   * POST /api/auth/register
-   * Body: { firstName, lastName, email, password }
-   * Returns: { message } or { token, userType }
-   */
   register: (firstName, lastName, email, password) =>
     request("/auth/register", {
       method: "POST",
       body: JSON.stringify({ firstName, lastName, email, password }),
+    }),
+
+  getProfile: () =>
+    request("/auth/profile", {
+      method: "GET",
+    }),
+
+  logout: () =>
+    request("/auth/logout", {
+      method: "POST",
     }),
 };
 

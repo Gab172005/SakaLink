@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-import Navbar from "./components/MarketPage/Navbar";
+import ProtectedRoute from "./components/common/ProtectedRoute";
+import Navbar from "./components/common/Navbar";
 import Hero from "./components/HeroPage/Hero";
 import Footer from "./components/HeroPage/Footer";
 import LoginModal from "./components/HeroPage/LoginModal";
@@ -53,11 +54,20 @@ function AppContent() {
       
       <Routes>
         <Route path="/" element={<LandingPage openModal={openModal} />} />
-        <Route path="/shop" element={<MarketplacePage addToCart={addToCart} />} />
+        
+        <Route 
+          path="/shop" 
+          element={
+            <ProtectedRoute>
+              <MarketplacePage addToCart={addToCart} />
+            </ProtectedRoute>
+          } 
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
       <Toast visible={toast.visible} message={toast.message} />
+      
       <LoginModal
         active={modal === "login"}
         onClose={closeModal}

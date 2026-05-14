@@ -7,46 +7,63 @@ import { getToken, getUserType, saveSession, clearSession, authAPI } from "../se
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [token, setToken]       = useState(() => getToken());
+  // We check for userType or a 'loggedIn' flag in localStorage 
+  // since we can't 'read' the HttpOnly cookie via JS.
   const [userType, setUserType] = useState(() => getUserType());
-  const [user, setUser]         = useState(null);
-
-  const isAuthenticated = !!token;
-
-  // Restore user info from token on page load (optional — backend must support GET /api/auth/me)
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem("user_info");
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [loading, setLoading] = useState(true);
+  const isAuthenticated = !!user;
+  
+  //restore user info from token on page load
   useEffect(() => {
-    if (!token) return;
-    // If your backend exposes /api/auth/me, uncomment this block:
-    // fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/auth/me`, {
-    //   headers: { Authorization: `Bearer ${token}` },
-    // })
-    //   .then((r) => r.json())
-    //   .then((data) => setUser(data))
-    //   .catch(() => logout());
-  }, [token]);
+    const checkAuth = async () => {
+      const savedType = localStorage.getItem("user_type");
+      if (!savedType) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const response = await authAPI.getProfile(); 
+        if (response && response.data) {
+          setUser(response.data); 
+          localStorage.setItem("user_info", JSON.stringify(response.data));
+        }
+      } catch (err) {
+        if (err.response?.status === 401) {
+          handleLocalLogout();
+        }
+      } finally {
+        // Stop the loading state regardless of success or failure
+        setLoading(false); 
+      }
+    };
 
-  /**
-   * Call this after a successful login API response.
-   * data = { token, userType, user? }
-   */
+    checkAuth();
+  }, []);
   const login = (data) => {
-    saveSession(data.token, data.userType);
-    setToken(data.token);
+    localStorage.setItem("user_type", data.userType);
+    localStorage.setItem("user_info", JSON.stringify(data.user));
+    
+    setUser(data.user);
     setUserType(data.userType);
-    if (data.user) setUser(data.user);
   };
 
-  const logout = () => {
-    clearSession();
-    setToken(null);
-    setUserType(null);
+  const logout = async () => {
+    await authAPI.logout(); 
+        localStorage.removeItem("user_type");
+    localStorage.removeItem("user_info");
+    
     setUser(null);
+    setUserType(null);
   };
 
   return (
-    <AuthContext.Provider value={{ token, userType, user, isAuthenticated, login, logout }}>
-      {children}
-    </AuthContext.Provider>
+  <AuthContext.Provider value={{ userType, user, isAuthenticated, loading, login, logout }}> 
+    {children}
+  </AuthContext.Provider>
   );
 }
 
