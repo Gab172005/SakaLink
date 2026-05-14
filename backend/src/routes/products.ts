@@ -1,4 +1,4 @@
-import { Router, type Response } from 'express';
+import { Router, type Request, type Response } from 'express';
 import {Product} from '../models/product.model.js';
 import { protect, adminOnly } from '../middleware/auth.js';
 import { type AuthRequest, type SortOrder } from '../types/index.js';
@@ -7,7 +7,7 @@ const router = Router();
 
 
 // GET /api/products?sortBy=price&order=asc
-router.get('/', protect, async (req: AuthRequest, res: Response): Promise<void> => {
+router.get('/', async (req: Request, res: Response): Promise<void> => {
   const sortBy  = (req.query.sortBy  as string) || 'productName';
   const order   = (req.query.order   as SortOrder) || 'asc';
   const sortVal = order === 'desc' ? -1 : 1;

@@ -27,12 +27,13 @@ export function useProducts(params = { sortBy: "productName", order: "asc" }) {
       setError(null);
       try {
         const data = await productsAPI.getAll(params);
-        if (!cancelled) setProducts(Array.isArray(data) ? data : FALLBACK_PRODUCTS);
-      } catch (err) {
         if (!cancelled) {
-          console.warn("Products API unavailable, using fallback data.", err.message);
-          setProducts(FALLBACK_PRODUCTS);
-          setError(err.message);
+          if (Array.isArray(data) && data.length > 2) {
+            setProducts(data);
+          } else {
+            console.warn("No products found in database, using fallback.");
+            setProducts(FALLBACK_PRODUCTS);
+          }
         }
       } finally {
         if (!cancelled) setLoading(false);
