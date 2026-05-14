@@ -1,102 +1,205 @@
 .sidebar {
-  width: 220px;
-  min-width: 200px;
-  flex-shrink: 0;
-  padding: 20px 0;
+  width: 280px;
+  background: white;
+  border-right: 1.5px solid var(--border-light);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  transition: width 0.3s ease, padding 0.3s ease;
+  position: relative;
+  height: calc(100vh - 80px); /* Adjust based on navbar height */
+  overflow: visible;
+  flex-shrink: 0;
 }
 
-.section { padding: 0 0 14px 0; }
+.collapsed {
+  width: 50px;
+  padding: 0;
+}
+
+.collapsed .sidebarContent {
+  display: none;
+}
+
+.toggleBtn {
+  position: absolute;
+  top: 20px;
+  right: -10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--green-600);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  z-index: 100;
+  transition: transform var(--transition), background var(--transition);
+  font-size: 1.1rem;
+}
+
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.hamburger span {
+  display: block;
+  width: 14px;
+  height: 2px;
+  background-color: white;
+  border-radius: 1px;
+}
+.toggleBtn:hover {
+  transform: scale(1.1);
+  background: var(--green-700);
+}
+
+.sidebarContent {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.section {
+  margin-bottom: 32px;
+}
 
 .sectionTitle {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
   color: var(--text-muted);
-  margin-bottom: 10px;
+  letter-spacing: 0.05em;
+  margin-bottom: 16px;
   font-family: var(--font-display);
 }
 
 .sectionContent {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 12px;
 }
 
 .checkLabel {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--text-secondary);
   transition: color var(--transition);
 }
-.checkLabel:hover { color: var(--accent); }
+
+.checkLabel:hover {
+  color: var(--text-primary);
+}
+
+.checkboxWrapper {
+  position: relative;
+  width: 18px;
+  height: 18px;
+}
 
 .checkbox {
-  appearance: none;
-  width: 15px;
-  height: 15px;
-  border: 1.5px solid var(--border);
-  border-radius: 3px;
-  background: white;
-  cursor: pointer;
-  flex-shrink: 0;
-  position: relative;
-  transition: border-color var(--transition), background var(--transition);
-}
-.checkbox:checked {
-  background: var(--accent);
-  border-color: var(--accent);
-}
-.checkbox:checked::after {
-  content: '';
   position: absolute;
-  left: 3px;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.customCheckbox {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 18px;
+  width: 18px;
+  background-color: white;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  transition: background-color var(--transition), border-color var(--transition);
+}
+
+.checkbox:checked ~ .customCheckbox {
+  background-color: var(--green-600);
+  border-color: var(--green-600);
+}
+
+.customCheckbox:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.checkbox:checked ~ .customCheckbox:after {
+  display: block;
+}
+
+.customCheckbox:after {
+  left: 5px;
   top: 1px;
   width: 5px;
-  height: 8px;
-  border: 2px solid white;
-  border-top: none;
-  border-left: none;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
   transform: rotate(45deg);
 }
 
-.checkText { flex: 1; font-weight: 500; }
+.checkText {
+  flex: 1;
+}
+
 .count {
   font-size: 0.75rem;
   color: var(--text-muted);
-  font-weight: 400;
+  background: var(--surface-muted);
+  padding: 2px 8px;
+  border-radius: 10px;
 }
 
-/* Range slider */
-.priceTrack { display: flex; flex-direction: column; gap: 6px; }
+/* Price Range Slider */
+.priceTrack {
+  padding: 10px 4px;
+}
+
 .rangeInput {
+  -webkit-appearance: none;
   width: 100%;
-  appearance: none;
-  height: 4px;
-  border-radius: 2px;
-  background: linear-gradient(to right, var(--accent) 0%, var(--accent) 60%, var(--border) 60%);
+  height: 6px;
+  border-radius: 3px;
   outline: none;
   cursor: pointer;
 }
+
 .rangeInput::-webkit-slider-thumb {
+  -webkit-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: var(--accent);
-  border: 2px solid white;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  background: white;
+  border: 2px solid var(--green-600);
   cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.rangeInput::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid var(--green-600);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
 }
 
 .priceLabels {
   display: flex;
   justify-content: space-between;
-  font-size: 0.72rem;
-  color: var(--text-muted);
+  margin-top: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
 }

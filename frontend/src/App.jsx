@@ -1,22 +1,84 @@
-import React from 'react'
-import { Routes, Route } from 'react-router-dom'
-import { Toaster } from 'react-hot-toast'
+import { useState, useEffect } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import Navbar from "./components/Navbar";
+import Hero from "./components/Hero";
+import Footer from "./components/Footer";
+import LoginModal from "./components/LoginModal";
+import SignupModal from "./components/SignupModal";
+import Toast from "./components/Toast";
+import MarketplacePage from "./MarketplacePage";
+import "./App.css";
 
-import './styles/global.css'
-import MarketplacePage from './components/MarketplacePage'
-
-function App() {
+function LandingPage({ openModal }) {
   return (
-    <div className="app-container">
-      <Toaster position="top-center" reverseOrder={false} />
-      <main>
-        <Routes>
-          <Route path="/browse" element={<MarketplacePage />} />
-          <Route path="*" element={<div style={{ padding: '2rem' }}>Page Not Found</div>} />
-        </Routes>
-      </main>
-    </div>
-  )
+    <>
+      <Hero openModal={openModal} />
+      <Footer />
+    </>
+  );
 }
 
-export default App
+function AppContent() {
+  const [modal, setModal] = useState(null);
+  const [toast, setToast] = useState({ visible: false, message: "" });
+  const [cart, setCart] = useState([]);
+
+  const openModal = (type) => setModal(type);
+  const closeModal = () => setModal(null);
+
+  const showToast = (message) => {
+    setToast({ visible: true, message });
+    setTimeout(() => setToast({ visible: false, message: "" }), 3000);
+  };
+
+  const addToCart = (product) => {
+    setCart(prev => [...prev, product]);
+    showToast(`Added ${product.name} to cart! 🛒`);
+  };
+
+  useEffect(() => {
+    const handler = (e) => { if (e.key === "Escape") closeModal(); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = modal ? "hidden" : "";
+  }, [modal]);
+
+  return (
+    <>
+      <Navbar openModal={openModal} cartCount={cart.length} />
+      
+      <Routes>
+        <Route path="/" element={<LandingPage openModal={openModal} />} />
+        <Route path="/shop" element={<MarketplacePage addToCart={addToCart} />} />
+        {/* Redirect any unknown routes to home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+
+      <Toast visible={toast.visible} message={toast.message} />
+      <LoginModal
+        active={modal === "login"}
+        onClose={closeModal}
+        onSwitch={() => openModal("signup")}
+        showToast={showToast}
+      />
+      <SignupModal
+        active={modal === "signup"}
+        onClose={closeModal}
+        onSwitch={() => openModal("login")}
+        showToast={showToast}
+      />
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}
