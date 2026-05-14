@@ -1,16 +1,15 @@
 import mongoose, { Schema, Document } from "mongoose";
-import bcrypt from "bcrypt";//used for security by hashing the password
+import bcrypt from "bcrypt"; // used for security by hashing the password
 
 export interface userDocument extends Document {
   firstName: string;
-  middleName?: string;//optional
+  middleName?: string; // optional
   lastName: string;
-  role: 'admin' | 'customer';
+  userType: 'admin' | 'customer'; // Changed from 'role' to 'userType'
   email: string;
   password: string;
   cart: Map<string, number>;
-  comparePassword: (password: string) => Promise<boolean>;//promise is asynchronous, because bsync is time-consuming, promise is used so the website doesn't freeze for other users
-  //while it's checking the password.
+  comparePassword: (password: string) => Promise<boolean>; 
 }
 
 const userSchema = new Schema<userDocument>(
@@ -18,7 +17,7 @@ const userSchema = new Schema<userDocument>(
     firstName: { type: String, required: true },
     middleName: { type: String },
     lastName: { type: String, required: true },
-    role: {
+    userType: { // Changed from 'role' to 'userType'
       type: String,
       enum: ['admin', 'customer'],
       default: "customer",
@@ -33,10 +32,10 @@ const userSchema = new Schema<userDocument>(
     password: {
       type: String,
       required: true,
-      select: false,//exclude the pw from the query for security stuff
+      select: false, // exclude the pw from the query for security stuff
     },
-    cart: {//adds persistency for the project spec
-      type: Map,//this is a map of productId to quantity, i.e a key-value pair. w/ productid and quantity
+    cart: { 
+      type: Map, 
       of: Number,
       default: {},
     },
@@ -45,10 +44,10 @@ const userSchema = new Schema<userDocument>(
 );
 
 userSchema.pre('save', async function () {
-  if (!this.isModified('password') || !this.password) {//doesn't hash if password wasnt changed
+  if (!this.isModified('password') || !this.password) { 
     return;
   }
-  const salt = await bcrypt.genSalt(10);//the number of hashing rounds
+  const salt = await bcrypt.genSalt(10); 
   this.password = await bcrypt.hash(this.password, salt);
 });
 
