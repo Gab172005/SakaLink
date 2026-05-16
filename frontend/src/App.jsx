@@ -11,6 +11,7 @@ import SignupModal from "./components/HeroPage/SignupModal";
 import Toast from "./components/HeroPage/Toast";
 import MarketplacePage from "./pages/MarketPage/MarketplacePage";
 import CartModal from "./components/MarketPage/CartModal";
+import UserProfilePage from "./pages/ProfilePage/UserProfilePage";
 import "./App.css";
 
 function LandingPage({ openModal }) {
@@ -58,6 +59,14 @@ function AppContent() {
               <MarketplacePage showToast={showToast} />
             </ProtectedRoute>
           } 
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <UserProfilePage />
+            </ProtectedRoute>
+          }
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
