@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useCart } from '../../context/CartContext';
 import Sidebar from '../../components/MarketPage/Sidebar';
 import SearchBar from '../../components/MarketPage/SearchBar';
 import ProductGrid from '../../components/MarketPage/ProductGrid';
@@ -6,7 +7,8 @@ import ProductDetailModal from '../../components/MarketPage/ProductDetailModal';
 import { PRODUCTS } from '../../data/products';
 import styles from './MarketplacePage.module.css';
 
-export default function MarketplacePage({ addToCart }) {
+export default function MarketplacePage({ showToast }) {
+  const { addToCart } = useCart();
   const [query, setQuery] = useState('');
   const [sortBy, setSortBy] = useState('name-asc');
   const [filters, setFilters] = useState({
@@ -56,8 +58,9 @@ export default function MarketplacePage({ addToCart }) {
     return result;
   }, [query, filters, sortBy]);
 
-  const handleAddToCart = (product) => {
-    addToCart(product);
+  const handleAddToCart = (product, quantity = 1) => {
+    addToCart(product, quantity);
+    showToast(`Added ${product.name} to cart! 🛒`);
   };
 
   return (
@@ -79,6 +82,7 @@ export default function MarketplacePage({ addToCart }) {
               products={filtered} 
               onAddToCart={handleAddToCart} 
               onSelectProduct={setSelectedProduct} 
+              showToast={showToast}
             />
           </div>
         </main>

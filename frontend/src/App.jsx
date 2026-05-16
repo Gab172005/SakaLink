@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { CartProvider } from "./context/CartContext";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import Navbar from "./components/common/Navbar";
 import Hero from "./components/HeroPage/Hero";
@@ -9,6 +10,7 @@ import LoginModal from "./components/HeroPage/LoginModal";
 import SignupModal from "./components/HeroPage/SignupModal";
 import Toast from "./components/HeroPage/Toast";
 import MarketplacePage from "./pages/MarketPage/MarketplacePage";
+import CartModal from "./components/MarketPage/CartModal";
 import "./App.css";
 
 function LandingPage({ openModal }) {
@@ -23,7 +25,6 @@ function LandingPage({ openModal }) {
 function AppContent() {
   const [modal, setModal] = useState(null);
   const [toast, setToast] = useState({ visible: false, message: "" });
-  const [cart, setCart] = useState([]);
 
   const openModal = (type) => setModal(type);
   const closeModal = () => setModal(null);
@@ -31,11 +32,6 @@ function AppContent() {
   const showToast = (message) => {
     setToast({ visible: true, message });
     setTimeout(() => setToast({ visible: false, message: "" }), 3000);
-  };
-
-  const addToCart = (product) => {
-    setCart(prev => [...prev, product]);
-    showToast(`Added ${product.name} to cart! 🛒`);
   };
 
   useEffect(() => {
@@ -50,7 +46,7 @@ function AppContent() {
 
   return (
     <>
-      <Navbar openModal={openModal} cartCount={cart.length} />
+      <Navbar openModal={openModal} openCart={() => openModal("cart")} />
       
       <Routes>
         <Route path="/" element={<LandingPage openModal={openModal} />} />
@@ -59,7 +55,7 @@ function AppContent() {
           path="/shop" 
           element={
             <ProtectedRoute>
-              <MarketplacePage addToCart={addToCart} />
+              <MarketplacePage showToast={showToast} />
             </ProtectedRoute>
           } 
         />
@@ -80,6 +76,11 @@ function AppContent() {
         onSwitch={() => openModal("login")}
         showToast={showToast}
       />
+      <CartModal 
+        isOpen={modal === "cart"} 
+        onClose={closeModal} 
+        showToast={showToast} 
+      />
     </>
   );
 }
@@ -87,7 +88,9 @@ function AppContent() {
 export default function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <CartProvider>
+        <AppContent />
+      </CartProvider>
     </AuthProvider>
   );
 }

@@ -14,18 +14,22 @@ const app  = express();
 const PORT = process.env.PORT || 5000;
 
 const ALLOWED_ORIGINS = [
-  "http://localhost:3000",  // Vite dev server
-  "http://localhost:4173",  // Vite preview
-  "http://localhost:5173",  // Vite default
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://localhost:5173",
+  "http://localhost:4173",
 ];
 
 const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI || "mongodb://localhost:27017/test";
+
+
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin || ALLOWED_ORIGINS.includes(origin)) {
         callback(null, true);
       } else {
+        console.warn(`CORS: origin ${origin} not allowed`);
         callback(new Error(`CORS: origin ${origin} not allowed`));
       }
     },
@@ -42,10 +46,16 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders',   orderRoutes);
 app.use('/api/admin',    adminRoutes);
 
+console.log('Connecting to MongoDB...');
 mongoose
   .connect(MONGO_URI)
   .then(() => {
-    console.log('MongoDB connected');
+    console.log('MongoDB connected successfully');
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   })
-  .catch((err) => console.error('DB connection error:', err));
+  .catch((err) => {
+    console.error('CRITICAL: DB connection error:', err.message);
+    console.log('Ensure MongoDB is running and your MONGO_URI is correct.');
+    // Start server anyway so frontend can at least get a 500 instead of "failed to fetch"
+    app.listen(PORT, () => console.log(`Server running on port ${PORT} (WITHOUT DB CONNECTION)`));
+  });

@@ -9,8 +9,8 @@ const seed = async (): Promise<void> => {
   await mongoose.connect(process.env.MONGO_URI as string);
 
   const existing = await User.findOne({ userType: 'admin' });
+  const hashed = await bcrypt.hash('admin123', 10);
   if (!existing) {
-    const hashed = await bcrypt.hash('admin123', 10);
     await User.create({
       firstName: 'DA',
       lastName:  'Admin',
