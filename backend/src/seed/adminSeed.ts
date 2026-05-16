@@ -14,11 +14,12 @@ const seed = async (): Promise<void> => {
 
   const existing = await User.findOne({ userType: 'admin' });
   if (!existing) {
+    const hashed = await bcrypt.hash('admin123', 10);
     await User.create({
       firstName: 'DA',
       lastName:  'Admin',
       email:     'admin@da.gov.ph',
-      password:  'admin123',
+      password:  hashed,
       userType:  'admin',
     });
     console.log('Admin account seeded!');
