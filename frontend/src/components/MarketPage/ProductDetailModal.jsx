@@ -23,7 +23,7 @@ export default function ProductDetailModal({ product, onClose, onAddToCart }) {
   if (!product) return null;
 
   const handleAddToCart = () => {
-    onAddToCart({ ...product, quantity });
+    onAddToCart(product, quantity);
     setQuantity(1);
     onClose(); // Optional: closes modal after adding
   };

@@ -1,9 +1,11 @@
 import { useNavigate, useLocation } from "react-router-dom"; 
 import { useAuth } from "../../context/AuthContext";
+import { useCart } from "../../context/CartContext";
 import styles from './Navbar.module.css';
 
-export default function Navbar({ openModal, cartCount = 0 }) {
+export default function Navbar({ openModal, openCart }) {
   const { isAuthenticated, loading, user, logout } = useAuth();
+  const { cartCount } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -48,7 +50,7 @@ export default function Navbar({ openModal, cartCount = 0 }) {
               className={`${styles.iconBtn} ${isActive('/cart') ? styles.activeLink : ''}`} 
               title="Cart" 
               style={{ position: 'relative' }} 
-              onClick={() => goTo('/cart')}
+              onClick={openCart}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useCart } from '../../context/CartContext';
 import styles from './ProductCard.module.css';
 
 const LEAF_COLORS = ['#7acc5f', '#8dd96a', '#6abb52', '#93d96f', '#5fb848'];
@@ -15,7 +16,15 @@ function ProductImage({ id }) {
   );
 }
 
-export default function ProductCard({ product, onSelectProduct }) {
+export default function ProductCard({ product, onSelectProduct, showToast }) {
+  const { addToCart } = useCart();
+
+  const handleAddToCart = (e) => {
+    e.stopPropagation();
+    addToCart(product);
+    showToast?.(`Added ${product.name} to cart! 🛒`);
+  };
+
   return (
     <article className={styles.card} onClick={() => onSelectProduct?.(product)}>
       <ProductImage id={product.id} />
@@ -39,9 +48,12 @@ export default function ProductCard({ product, onSelectProduct }) {
             <span className={styles.unit}>/{product.unit}</span>
           </div>
 
-          <span className={styles.locationText}>
-            {product.location || "Phys Sci"}
-          </span>
+          <button className={styles.cartBtn} onClick={handleAddToCart} title="Add to Cart">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+          </button>
         </div>
       </div>
     </article>

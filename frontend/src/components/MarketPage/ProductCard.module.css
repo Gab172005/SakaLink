@@ -71,15 +71,26 @@
 }
 .location svg { flex-shrink: 0; color: var(--accent); }
 
-.locationText {
-  font-size: 0.75rem;
-  font-weight: 500;                /* Matches the name's boldness */
-  color: var(--text-muted);        /* Keeps it secondary to the name */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;         /* Handles long text like "Phys Sci Building" */
-  max-width: 100px;                /* Prevents it from crushing the price */
+.cartBtn {
+  background: var(--green-100);
+  color: var(--green-700);
+  border: none;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
 }
+
+.cartBtn:hover {
+  background: var(--green-600);
+  color: white;
+  transform: scale(1.05);
+}
+
 .footer {
   display: flex;
   align-items: center;
