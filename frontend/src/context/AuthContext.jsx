@@ -44,8 +44,6 @@ export function AuthProvider({ children }) {
 
   const login = (data) => {
     if (!data) return;
-
-    // Extract the user profile dynamically whether it's nested (login) or flat (profile/custom)
     const activeUser = data.user ? data.user : data;
     const activeType = data.userType || activeUser.userType || "customer";
 
@@ -54,7 +52,7 @@ export function AuthProvider({ children }) {
     
     setUser(activeUser);
     setUserType(activeType);
-    setLoading(false); // Force loading off immediately on active login action
+    setLoading(false);
   };
 
   const handleLocalLogout = () => {
