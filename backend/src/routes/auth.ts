@@ -121,23 +121,34 @@ router.get('/profile', async (req: Request, res: Response): Promise<void> => {
 });
 
 // PATCH /api/auth/profile
-// Updates first name and last name only.
+// Updates first name and last name.
 router.patch('/profile', async (req: Request, res: Response): Promise<void> => {
   try {
     const token = req.cookies.token;
-    if (!token) { res.status(401).json({ message: 'Not authenticated' }); return; }
+ 
+    if (!token) {
+      res.status(401).json({ message: 'Not authenticated' });
+      return;
+    }
+ 
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
  
-    const { firstName, lastName } = req.body;
+    // explicit string cast: prevents ".trim is not a function" if body sends non-strings
+    const firstName = String(req.body.firstName ?? '');
+    const lastName  = String(req.body.lastName  ?? '');
  
-    if (!firstName?.trim() || !lastName?.trim()) {
+    if (!firstName.trim() || !lastName.trim()) {
       res.status(400).json({ message: 'First name and last name are required.' });
       return;
     }
  
+    // only name fields are updated (email and password are intentionally excluded)
     const updated = await User.findByIdAndUpdate(
       decoded.id,
-      { firstName: firstName.trim(), lastName: lastName.trim() },
+      {
+        firstName: firstName.trim(),
+        lastName:  lastName.trim(),
+      },
       { new: true, runValidators: true }
     ).select('firstName lastName email userType');
  

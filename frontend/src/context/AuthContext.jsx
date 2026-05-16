@@ -26,10 +26,13 @@ export function AuthProvider({ children }) {
         return;
       }
       try {
-        const response = await authAPI.getProfile(); 
-        if (response && response.data) {
-          setUser(response.data); 
-          localStorage.setItem("user_info", JSON.stringify(response.data));
+        // FIX: getProfile() returns the user object directly, not wrapped in .data.
+        // The original response.data check caused user to be set to undefined,
+        // which made EditProfileForm crash with "firstName?.trim is not a function".
+        const profile = await authAPI.getProfile(); 
+        if (profile && profile.firstName) {
+          setUser(profile); 
+          localStorage.setItem("user_info", JSON.stringify(profile));
         }
       } catch (err) {
         if (err.response?.status === 401) {

@@ -64,7 +64,8 @@ export const authAPI = {
     }),
 
   // PATCH /api/auth/profile
-  updateProfile: (firstName, lastName) =>
+  // FIX: accepts a { firstName, lastName } object, matching the call in EditProfileForm
+  updateProfile: ({ firstName, lastName} ) =>
     request("/auth/profile", {
       method: "PATCH",
       body: JSON.stringify({ firstName, lastName}),
@@ -96,7 +97,7 @@ export const ordersAPI = {
    * GET /api/orders  (requires auth)
    * Returns: Order[]
    */
-  getMyOrders: () => request("/orders"),
+  getMyOrders: () => request("/orders/my-orders"),
 
   /**
    * POST /api/orders  (requires auth)
