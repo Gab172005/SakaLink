@@ -22,11 +22,6 @@ const ALLOWED_ORIGINS = [
 
 const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI || "mongodb://localhost:27017/test";
 
-// Ensure JWT_SECRET has a value for development
-if (!process.env.JWT_SECRET) {
-  console.warn("WARNING: JWT_SECRET is not defined. Using 'dev_secret' as fallback. NOT SECURE FOR PRODUCTION.");
-  process.env.JWT_SECRET = "dev_secret";
-}
 
 app.use(
   cors({

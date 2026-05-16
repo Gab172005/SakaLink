@@ -3,7 +3,7 @@
   inset: 0;
   background: rgba(26, 43, 16, 0.55);
   backdrop-filter: blur(4px);
-  z-index: 200;
+  z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -23,13 +23,14 @@
   padding: 30px;
   width: 100%;
   max-width: 500px;
-  max-height: 90vh;
+  max-height: 85vh;
   display: flex;
   flex-direction: column;
   box-shadow: 0 24px 64px rgba(45, 74, 30, 0.25);
   transform: translateY(20px) scale(0.97);
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
+  overflow: hidden;
 }
 
 .overlay.active .modal {
@@ -53,12 +54,40 @@
   font-weight: 700;
   margin-bottom: 20px;
   color: #1a2b10;
+  flex-shrink: 0;
 }
 
 .cartList {
   flex: 1;
   overflow-y: auto;
   margin-bottom: 20px;
+  padding-right: 10px;
+}
+
+/* Custom scrollbar for better look */
+.cartList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cartList::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.cartList::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+
+.cartList::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+.checkoutForm {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   padding-right: 10px;
 }
 

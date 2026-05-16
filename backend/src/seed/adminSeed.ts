@@ -6,11 +6,7 @@ import {User} from '../models/user.model.js';
 dotenv.config();
 
 const seed = async (): Promise<void> => {
-  const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
-  if (!uri) {
-    throw new Error('MONGODB_URI or MONGO_URI must be defined in .env');
-  }
-  await mongoose.connect(uri);
+  await mongoose.connect(process.env.MONGO_URI as string);
 
   const existing = await User.findOne({ userType: 'admin' });
   const hashed = await bcrypt.hash('admin123', 10);

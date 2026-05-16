@@ -113,7 +113,7 @@ export default function CartModal({ isOpen, onClose, showToast }) {
         ← Back to Cart
       </button>
       <h2 className={styles.title}>Checkout</h2>
-      <form onSubmit={handleCheckout}>
+      <form onSubmit={handleCheckout} className={styles.checkoutForm}>
         <div className={styles.formGroup}>
           <label>Delivery Address</label>
           <input 

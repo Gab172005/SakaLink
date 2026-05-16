@@ -22,7 +22,7 @@ export default function ProductCard({ product, onSelectProduct, showToast }) {
   const handleAddToCart = (e) => {
     e.stopPropagation();
     addToCart(product);
-    showToast?.(`Added ${product.name} to cart! 🛒`);
+    showToast?.(`Successfully added to cart`);
   };
 
   return (
