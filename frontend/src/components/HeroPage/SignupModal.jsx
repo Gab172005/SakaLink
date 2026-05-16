@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import { authAPI } from "../../services/api";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import "./Modal.css";
 
 export default function SignupModal({ active, onClose, onSwitch, showToast }) {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -52,10 +56,11 @@ export default function SignupModal({ active, onClose, onSwitch, showToast }) {
 
     setLoading(true);
     try {
-      await authAPI.register(firstName, lastName, email, password);
+      const data = await authAPI.register(firstName, lastName, email, password);
+      login(data);
       onClose();
-      showToast("Account created! Please sign in 🌾");
-      setTimeout(onSwitch, 500);
+      showToast("Welcome to SakaLink!");
+      navigate("/shop");
     } catch (err) {
       setError(err.message);
     } finally {

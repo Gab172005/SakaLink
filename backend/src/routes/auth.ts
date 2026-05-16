@@ -4,6 +4,15 @@ import { User } from '../models/user.model.js';
 
 const router = Router();
 
+const getJwtSecret = (res: Response): string | null => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    res.status(500).json({ message: 'Internal Server Configuration Error' });
+    return null;
+  }
+  return secret;
+};
+
 // POST /api/auth/register
 router.post('/register', async (req: Request, res: Response): Promise<void> => {
   try {
@@ -20,7 +29,7 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    await User.create({
+    const newUser = await User.create({
       firstName, 
       middleName, 
       lastName,
@@ -29,7 +38,31 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
       userType: 'customer',
     });
 
-    res.status(201).json({ message: 'Registered successfully' });
+    const jwtSecret = getJwtSecret(res);
+    if (!jwtSecret) return;
+
+    const token = jwt.sign(
+      { id: newUser._id, email: newUser.email, userType: newUser.userType },
+      jwtSecret,
+      { expiresIn: '7d' }
+    );
+
+    res.cookie('token', token, {
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax', 
+      maxAge: 7 * 24 * 60 * 60 * 1000 
+    });
+
+    res.status(201).json({ 
+      userType: newUser.userType,
+      user: {
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email
+      }
+    });
+
   } catch (err) {
     res.status(500).json({ message: (err as Error).message });
   }
@@ -59,9 +92,13 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       res.status(400).json({ message: 'Invalid credentials' });
       return;
     }
+
+    const jwtSecret = getJwtSecret(res);
+    if (!jwtSecret) return;
+
     const token = jwt.sign(
       { id: user._id, email: user.email, userType: user.userType },
-      process.env.JWT_SECRET as string,
+      jwtSecret,
       { expiresIn: '7d' }
     );
 
@@ -105,7 +142,10 @@ router.get('/profile', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as any;
+    const jwtSecret = getJwtSecret(res);
+    if (!jwtSecret) return;
+
+    const decoded = jwt.verify(token, jwtSecret) as any;
 
     const user = await User.findById(decoded.id).select('firstName lastName email userType');
 

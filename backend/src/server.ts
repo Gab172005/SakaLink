@@ -9,7 +9,6 @@ import orderRoutes   from './routes/orders.js';
 import adminRoutes   from './routes/admin.js';
 
 dotenv.config();
-
 const app  = express();
 const PORT = process.env.PORT || 5000;
 

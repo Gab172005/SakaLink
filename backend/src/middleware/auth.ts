@@ -3,19 +3,27 @@ import jwt from 'jsonwebtoken';
 import { type AuthRequest, type JwtPayload } from '../types/index.js';
 
 export const protect = (req: AuthRequest, res: Response, next: NextFunction): void => {
-  const token = req.headers.authorization?.split(' ')[1];
+  // Read strictly from cookies since you dropped authorization headers
+  const token = req.cookies?.token;
 
   if (!token) {
-    res.status(401).json({ message: 'No token, access denied' });
+    res.status(401).json({ message: 'No session token, access denied' });
     return;
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error("CRITICAL: JWT_SECRET environment variable is missing.");
+      res.status(500).json({ message: 'Server configuration error' });
+      return;
+    }
+
+    const decoded = jwt.verify(token, secret) as JwtPayload;
     req.user = decoded;
     next();
   } catch {
-    res.status(401).json({ message: 'Invalid token' });
+    res.status(401).json({ message: 'Invalid or expired session' });
   }
 };
 
