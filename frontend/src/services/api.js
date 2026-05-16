@@ -62,6 +62,13 @@ export const authAPI = {
     request("/auth/logout", {
       method: "POST",
     }),
+
+  // PATCH /api/auth/profile
+  updateProfile: (firstName, lastName) =>
+    request("/auth/profile", {
+      method: "PATCH",
+      body: JSON.stringify({ firstName, lastName}),
+    }),
 };
 
 // ── Products ───────────────────────────────────────────────────────────────
