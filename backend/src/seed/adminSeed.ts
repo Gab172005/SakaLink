@@ -13,12 +13,13 @@ const seed = async (): Promise<void> => {
   await mongoose.connect(uri);
 
   const existing = await User.findOne({ userType: 'admin' });
+  const hashed = await bcrypt.hash('admin123', 10);
   if (!existing) {
     await User.create({
       firstName: 'DA',
       lastName:  'Admin',
       email:     'admin@da.gov.ph',
-      password:  'admin123',
+      password:  hashed,
       userType:  'admin',
     });
     console.log('Admin account seeded!');
