@@ -37,7 +37,7 @@ router.post('/', protect, async (req: AuthRequest, res: Response): Promise<void>
 
     res.status(201).json(order);
 
-    // Notify all admins of the new order
+    // Notify all admins of the new pending order
     const admins = await User.find({ userType: 'admin' }).select('_id');
     await Notification.insertMany(
       admins.map((a) => ({
@@ -144,16 +144,43 @@ router.patch('/:id/confirm', protect, adminOnly, async (req: AuthRequest, res: R
     res.json(order);
 
     // Notify the customer their order was confirmed
-    const product2 = await Product.findById(order.productId);
     await Notification.create({
       userId:  order.user,
       type:    'order_confirmed',
-      message: `Your order for "${product2?.name ?? 'an item'}" has been confirmed!`,
+      message: `Your order for "${product.name}" has been confirmed!`,
     });
-
+ 
+    // If product is now out of stock, notify all customers with pending orders for it
+    if (product.quantity === 0) {
+      const affectedOrders = await Order.find({
+        productId: product._id,
+        status:    0, // pending only
+      });
+ 
+      if (affectedOrders.length > 0) {
+        await Notification.insertMany(
+          affectedOrders.map((o) => ({
+            userId:  o.user,
+            type:    'out_of_stock',
+            message: `"${product.name}" is now out of stock. Your pending order may be affected.`,
+          }))
+        );
+      }
+    }
   } catch (err) {
     res.status(500).json({ message: (err as Error).message });
   }
 });
-
+ 
+// GET /api/orders/pending-count — Pending order count (admin)
+// Used by the notifications route to generate the pending orders summary
+router.get('/pending-count', protect, adminOnly, async (_req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const count = await Order.countDocuments({ status: 0 });
+    res.json({ count });
+  } catch (err) {
+    res.status(500).json({ message: (err as Error).message });
+  }
+});
+ 
 export default router;
