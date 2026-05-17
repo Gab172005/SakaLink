@@ -157,3 +157,15 @@ export const adminAPI = {
   deleteProduct: (id) =>
     request(`/admin/products/${id}`, { method: "DELETE" }),
 };
+
+// ── Notifications ──────────────────────────────────────────────────────────
+export const notificationsAPI = {
+  // GET /api/notifications — fetch caller's notifications
+  getAll: () => request("/notifications"),
+ 
+  // PATCH /api/notifications/:id/read — mark one as read
+  markRead: (id) => request(`/notifications/${id}/read`, { method: "PATCH" }),
+ 
+  // PATCH /api/notifications/read-all — mark all as read
+  markAllRead: () => request("/notifications/read-all", { method: "PATCH" }),
+};
