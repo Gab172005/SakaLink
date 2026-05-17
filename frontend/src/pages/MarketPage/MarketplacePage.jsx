@@ -51,6 +51,7 @@ export default function MarketplacePage({ showToast }) {
       if (query && !p.name.toLowerCase().includes(query.toLowerCase())) return false;
       if (filters.categories?.length && !filters.categories.includes(p.category)) return false;
       if (filters.certifications?.length && !filters.certifications.some(c => (p.certifications || []).includes(c))) return false;
+      if (filters.regions?.length && !filters.regions.includes(p.location)) return false;
       if (p.price > (filters.maxPrice ?? 1000)) return false;
       return true;
     });
