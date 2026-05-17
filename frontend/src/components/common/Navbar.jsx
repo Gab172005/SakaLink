@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom"; 
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
@@ -8,10 +9,26 @@ export default function Navbar({ openModal, openCart }) {
   const { cartCount } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
+  // close dropdown when clicking outside
+  // FIX: useEffect must be called before any early return (Rules of Hooks)
+  useEffect(() => {
+    const handler = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // early return goes here (AFTER all hooks)
   if (loading) return null;
 
   const handleLogout = async () => {
+    setDropdownOpen(false);
     await logout();
     navigate("/");
   };
@@ -59,21 +76,34 @@ export default function Navbar({ openModal, openCart }) {
               {cartCount > 0 && <span className={styles.cartBadge}>{cartCount}</span>}
             </button>
 
-            <button
-              className={`${styles.iconBtn} ${isActive('/profile') ? styles.activeLink : ''}`}
-              title="My Profile"
-              onClick={() => goTo('/profile')}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="8" r="4"/>
-                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-              </svg>
-            </button>
+            {/* Pill button opens dropdown with My Profile + Logout */}
+            <div className={styles.pillWrapper} ref={dropdownRef}>
+              <button
+                className={styles.pillBox}
+                onClick={() => setDropdownOpen((o) => !o)}
+                title="Account"
+              >
+                <span className={styles.pillDot} style={{ background: '#ffffff' }}></span>
+                <span className={styles.pillLabel}>{user?.firstName}</span>
+              </button>
 
-            <button className={styles.pillBox} onClick={handleLogout} title="Logout">
-              <span className={styles.pillDot} style={{ background: '#ffffff' }}></span>
-              <span className={styles.pillLabel}>{user?.firstName}</span>
-            </button>
+              {dropdownOpen && (
+                <div className={styles.dropdown}>
+                  <button
+                    className={styles.dropdownItem}
+                    onClick={() => { setDropdownOpen(false); goTo('/profile'); }}
+                  >
+                    My Profile
+                  </button>
+                  <button
+                    className={`${styles.dropdownItem} ${styles.dropdownLogout}`}
+                    onClick={handleLogout}
+                  >
+                    Log Out
+                  </button>
+                </div>
+              )}
+            </div>
 
             <button 
               className={`${styles.iconBtn} ${isActive('/notifications') ? styles.activeLink : ''}`} 
