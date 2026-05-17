@@ -25,9 +25,11 @@ export default function SearchBar({ query, onSearch, total, sortBy, onSortChange
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.resultInfo}>
-        Showing <strong>{total}</strong> results for <strong>"{query}"</strong>
-      </div>
+      {query && (
+          <div className={styles.resultInfo}>
+            Showing <strong>{total}</strong> results for <strong>"{query}"</strong>
+          </div>
+        )}
       <div className={styles.controls}>
         <form className={styles.searchForm} onSubmit={(e) => e.preventDefault()}>
           <div className={styles.searchBarContainer}>
@@ -44,7 +46,7 @@ export default function SearchBar({ query, onSearch, total, sortBy, onSortChange
           </div>
         </form>
         <div style={{ position: 'relative' }}>
-          <button 
+          {/* <button 
             ref={filterBtnRef}
             className={`${styles.filterBtn} ${filterOpen ? styles.active : ''}`}
             onClick={() => setFilterOpen(!filterOpen)}
@@ -54,13 +56,13 @@ export default function SearchBar({ query, onSearch, total, sortBy, onSortChange
             </svg>
             Filter
             {activeFilterCount > 0 && <span className={styles.badge}>{activeFilterCount}</span>}
-          </button>
-          <FilterDropdown 
+          </button> */}
+          {/* <FilterDropdown 
             filters={filters} 
             onFilterChange={onFilterChange} 
             isOpen={filterOpen} 
             onClose={() => setFilterOpen(false)} 
-          />
+          /> */}
         </div>
         <select 
           className={styles.sortBtn} 

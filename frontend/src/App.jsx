@@ -12,7 +12,8 @@ import Toast from "./components/HeroPage/Toast";
 import MarketplacePage from "./pages/MarketPage/MarketplacePage";
 import CartModal from "./components/MarketPage/CartModal";
 import UserProfilePage from "./pages/ProfilePage/UserProfilePage";
-import AdminDashboard from "./components/admin/AdminDashboard";
+import SettingsPage from "./pages/SettingsPage/SettingsPage";
+import AdminDashboard from "./components/admin/AdminDashboard"; 
 import "./App.css";
 
 function LandingPage({ openModal }) {
@@ -50,21 +51,30 @@ function AppContent() {
   return (
     <>
       <Navbar openModal={openModal} openCart={() => openModal("cart")} />
+      
       <Routes>
         <Route path="/" element={<LandingPage openModal={openModal} />} />
-        <Route
-          path="/shop"
+        <Route 
+          path="/shop" 
           element={
             <ProtectedRoute>
               <MarketplacePage showToast={showToast} />
             </ProtectedRoute>
-          }
+          } 
         />
         <Route
           path="/profile"
           element={
             <ProtectedRoute>
               <UserProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <SettingsPage showToast={showToast} />
             </ProtectedRoute>
           }
         />
@@ -83,7 +93,6 @@ function AppContent() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <Toast visible={toast.visible} message={toast.message} />
-
       <LoginModal
         active={modal === "login"}
         onClose={closeModal}

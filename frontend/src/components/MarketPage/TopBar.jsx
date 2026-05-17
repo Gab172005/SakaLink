@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import "./TopBar.css";
 
 const LeafIcon = () => (
@@ -26,6 +27,8 @@ const SettingsIcon = () => (
 );
 
 export default function TopBar() {
+  const navigate = useNavigate();
+  
   return (
     <header className="topbar">
       <div className="topbar-brand">
@@ -38,7 +41,7 @@ export default function TopBar() {
       </div>
 
       <div className="topbar-actions">
-        <button className="topbar-icon-btn" aria-label="Settings">
+        <button className="topbar-icon-btn" aria-label="Settings" onClick={() => navigate('/settings')}>
           <SettingsIcon />
         </button>
 

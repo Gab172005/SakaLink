@@ -9,6 +9,7 @@
   transition: box-shadow var(--transition), transform var(--transition), border-color var(--transition);
   cursor: pointer;
   animation: fadeIn 0.3s ease both;
+  position: relative;
 }
 .card:hover {
   box-shadow: var(--shadow-md);
@@ -108,5 +109,41 @@
   font-size: 0.75rem;
   font-weight: 500;
   color: var(--text-muted);
+}
+
+.promotedBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  border-radius: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+  z-index: 10;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.promotedIcon {
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.card:hover .promotedBadge {
+  animation: none;
 }
 

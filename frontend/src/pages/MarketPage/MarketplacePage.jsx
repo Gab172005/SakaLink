@@ -28,7 +28,7 @@ export default function MarketplacePage({ showToast }) {
     ratings: [],
     units: [],
     sellerTypes: [],
-    maxPrice: 1000, // Increased default for real products
+    maxPrice: 500, // Increased default for real products
   });
   const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -41,16 +41,19 @@ export default function MarketplacePage({ showToast }) {
       rating: p.rating || 5,
       seller: p.seller || 'Local Farmer',
       location: p.location || p.region,
+      region: p.region || p.location,   // ← add this line
       stock: p.stock ?? p.quantity ?? 0,
       unit: p.unit || 'kg'
     }));
   }, [rawProducts]);
 
+  console.log(rawProducts[0]);
   const filtered = useMemo(() => {
     let result = products.filter(p => {
       if (query && !p.name.toLowerCase().includes(query.toLowerCase())) return false;
       if (filters.categories?.length && !filters.categories.includes(p.category)) return false;
-      if (filters.certifications?.length && !filters.certifications.some(c => (p.certifications || []).includes(c))) return false;
+      if (filters.certifications?.length && !filters.certifications.every(c => (p.certifications || []).includes(c))) return false;
+      if (filters.regions?.length && !filters.regions.includes(p.region)) return false;
       if (p.price > (filters.maxPrice ?? 1000)) return false;
       return true;
     });
@@ -84,10 +87,19 @@ export default function MarketplacePage({ showToast }) {
     showToast(`Added ${product.name} to cart! 🛒`);
   };
 
+  // Separate promoted and regular products
+  const promotedProducts = useMemo(() => {
+    return filtered.filter(p => p.promoted);
+  }, [filtered]);
+
+  const regularProducts = useMemo(() => {
+    return filtered.filter(p => !p.promoted);
+  }, [filtered]);
+
   return (
     <div className={styles.page}>
       <div className={styles.layout}>
-        <Sidebar filters={filters} onFilterChange={setFilters} />
+        <Sidebar filters={filters} onFilterChange={setFilters} products={products} />
         <main className={styles.main}>
           <SearchBar 
             query={query} 
@@ -105,12 +117,45 @@ export default function MarketplacePage({ showToast }) {
                 <p>Loading market products...</p>
               </div>
             ) : (
-              <ProductGrid 
-                products={filtered} 
-                onAddToCart={handleAddToCart} 
-                onSelectProduct={setSelectedProduct} 
-                showToast={showToast}
-              />
+              <>
+                {promotedProducts.length > 0 && (
+                  <div className={styles.promotedSection}>
+                    <h2 className={styles.promotedTitle}>
+                      <span className={styles.promotedIcon}>⭐</span>
+                      Support Disaster-Struck Farmers & Top Picks
+                    </h2>
+                    <p className={styles.promotedDesc}>
+                      Featured products from regions in need of support
+                    </p>
+                    <ProductGrid 
+                      products={promotedProducts} 
+                      onAddToCart={handleAddToCart} 
+                      onSelectProduct={setSelectedProduct} 
+                      showToast={showToast}
+                      isPromoted={true}
+                    />
+                  </div>
+                )}
+                {regularProducts.length > 0 && (
+                  <div className={styles.regularSection}>
+                    {promotedProducts.length > 0 && (
+                      <h3 className={styles.regularTitle}>All Products</h3>
+                    )}
+                    <ProductGrid 
+                      products={regularProducts} 
+                      onAddToCart={handleAddToCart} 
+                      onSelectProduct={setSelectedProduct} 
+                      showToast={showToast}
+                      isPromoted={false}
+                    />
+                  </div>
+                )}
+                {promotedProducts.length === 0 && regularProducts.length === 0 && (
+                  <div className={styles.emptyState}>
+                    <p>No products found matching your filters</p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </main>
