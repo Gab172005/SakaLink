@@ -108,7 +108,7 @@ export default function Hero({ openModal }) {
             <div className="stat-value">
               <AnimatedCounter target={300} suffix="+" />
             </div>
-            <div className="stat-label">Product Types</div>
+            <div className="stat-label">Local Products</div>
           </div>
           <div>
             <div className="stat-value">
