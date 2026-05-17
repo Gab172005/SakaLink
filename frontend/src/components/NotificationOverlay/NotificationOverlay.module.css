@@ -1,0 +1,192 @@
+/* Semi-transparent backdrop, clicking it closes the overlay */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 30, 10, 0.18);
+  z-index: 300;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+
+/* Slide-in panel anchored to the top-right */
+.panel {
+  margin-top: 68px;       /* clears the navbar */
+  margin-right: 20px;
+  width: 360px;
+  max-height: calc(100vh - 88px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideDown 0.18s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.closeBtn {
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  transition: color var(--transition);
+}
+.closeBtn:hover { color: var(--text-primary); }
+
+/* Tab row */
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.tab {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition), background var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.tab:hover    { color: var(--accent); }
+.tabActive    { color: var(--accent); background: var(--green-100); }
+
+.badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 999px;
+  padding: 1px 6px;
+}
+
+.markAllBtn {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity var(--transition);
+}
+.markAllBtn:hover { opacity: 0.75; }
+
+/* Scrollable notification list */
+.list {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.row:last-child { border-bottom: none; }
+.row:hover { background: var(--green-50); }
+
+/* Slightly highlighted background for unread rows */
+.rowUnread { background: var(--green-50); }
+
+.iconWrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--green-100);
+  border: 2px solid var(--green-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.body { flex: 1; }
+
+.message {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.time {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Red dot for unread */
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e05c2a;
+}
+
+/* Empty / loading state */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+  gap: 10px;
+}
+.emptyText { font-size: 0.88rem; color: var(--text-muted); }
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--green-200);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }

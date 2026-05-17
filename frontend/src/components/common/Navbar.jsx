@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom"; 
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
+import { notificationsAPI } from '../../services/api';
+import NotificationOverlay from '../NotificationOverlay/NotificationOverlay';
 import styles from './Navbar.module.css';
 
 export default function Navbar({ openModal, openCart }) {
@@ -10,6 +12,8 @@ export default function Navbar({ openModal, openCart }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [notifOpen,    setNotifOpen]    = useState(false);
+  const [unreadCount,  setUnreadCount]  = useState(0);
   const dropdownRef = useRef(null);
 
   // close dropdown when clicking outside
@@ -35,6 +39,11 @@ export default function Navbar({ openModal, openCart }) {
 
   const goTo = (path) => navigate(path);
   const isActive = (path) => location.pathname === path;
+
+  const handleNotifClose = () => {
+    setNotifOpen(false);
+    setUnreadCount(0); // clear badge after user views notifications
+  };
 
   return (
     <nav className={styles.navbar}>
@@ -104,16 +113,23 @@ export default function Navbar({ openModal, openCart }) {
                 </div>
               )}
             </div>
-
-            <button 
-              className={`${styles.iconBtn} ${isActive('/notifications') ? styles.activeLink : ''}`} 
-              title="Notifications" 
-              onClick={() => goTo('/notifications')}
+            
+            {/* Bell button — opens notification overlay */}
+            <button
+              className={`${styles.iconBtn} ${notifOpen ? styles.activeLink : ''}`}
+              title="Notifications"
+              style={{ position: 'relative' }}
+              onClick={() => setNotifOpen((o) => !o)}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
               </svg>
+              {unreadCount > 0 && <span className={styles.cartBadge}>{unreadCount}</span>}
             </button>
+ 
+            {/* Notification overlay — rendered outside the navGroup so it can overflow freely */}
+            {notifOpen && <NotificationOverlay onClose={handleNotifClose} />}
           </div>
         ) : (
           <div className={styles.navGroup}>
