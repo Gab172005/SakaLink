@@ -5,7 +5,10 @@ import styles from './ProductCard.module.css';
 const LEAF_COLORS = ['#7acc5f', '#8dd96a', '#6abb52', '#93d96f', '#5fb848'];
 
 function ProductImage({ id }) {
-  const color = LEAF_COLORS[id % LEAF_COLORS.length];
+  const hash = typeof id === 'string' 
+    ? id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+    : (id || 0);
+  const color = LEAF_COLORS[hash % LEAF_COLORS.length];
   return (
     <div className={styles.imagePlaceholder} style={{ background: `linear-gradient(135deg, ${color}dd, ${color}99)` }}>
       <svg width="52" height="52" viewBox="0 0 64 64" fill="none">

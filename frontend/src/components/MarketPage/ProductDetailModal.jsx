@@ -6,7 +6,10 @@ const LEAF_COLORS = [
 ];
 
 function ProductImage({ id, name }) {
-  const color = LEAF_COLORS[id % LEAF_COLORS.length];
+  const hash = typeof id === 'string' 
+    ? id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+    : (id || 0);
+  const color = LEAF_COLORS[hash % LEAF_COLORS.length];
   return (
     <div className={styles.imagePlaceholder} style={{ background: `linear-gradient(135deg, ${color}dd, ${color}99)`, borderColor: '#92ce49' }}>
       <svg width="80" height="80" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">

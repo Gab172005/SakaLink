@@ -8,7 +8,7 @@ const router = Router();
 
 // GET /api/products?sortBy=price&order=asc
 router.get('/', async (req: Request, res: Response): Promise<void> => {
-  const sortBy  = (req.query.sortBy  as string) || 'productName';
+  const sortBy  = (req.query.sortBy  as string) || 'name';
   const order   = (req.query.order   as SortOrder) || 'asc';
   const sortVal = order === 'desc' ? -1 : 1;
 

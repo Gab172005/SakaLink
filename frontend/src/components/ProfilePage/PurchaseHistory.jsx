@@ -6,8 +6,9 @@ import styles from './PurchaseHistory.module.css';
 
 const STATUS_MAP = {
   0: { label: 'Pending',   cls: 'pending'   },
-  1: { label: 'Delivered', cls: 'delivered' },
-  2: { label: 'Cancelled', cls: 'cancelled' },
+  1: { label: 'Out for Delivery', cls: 'pending' },
+  2: { label: 'Delivered', cls: 'delivered' },
+  3: { label: 'Cancelled', cls: 'cancelled' },
 };
 
 export default function PurchaseHistory({ orders, loading, error, onBack }) {
@@ -90,12 +91,17 @@ export default function PurchaseHistory({ orders, loading, error, onBack }) {
 }
 
 function HistoryRow({ order }) {
-  const product = order.productId;
+  const firstItem = order.items?.[0];
+  const product = firstItem?.productId;
+  const otherItemsCount = (order.items?.length || 1) - 1;
+
   const date = new Date(order.createdAt).toLocaleDateString('en-PH', {
     month: 'long', day: 'numeric', year: 'numeric',
   });
   const shortId = '#' + (order._id?.slice(-4).toUpperCase() ?? 'XXXX');
   const status  = STATUS_MAP[order.status] ?? STATUS_MAP[0];
+
+  const totalItems = order.items?.reduce((acc, item) => acc + item.quantity, 0) || 0;
 
   return (
     <div className={styles.row}>
@@ -109,17 +115,20 @@ function HistoryRow({ order }) {
       <div className={styles.productCell}>
         <div className={styles.thumb}>
           {product?.image
-            ? <img src={product.image} alt={product?.name} />
+            ? <img src={product.image} alt={firstItem?.name} />
             : <span className={styles.thumbPlaceholder}>🌿</span>
           }
         </div>
-        <span className={styles.productName}>{product?.name ?? 'Product'}</span>
+        <span className={styles.productName}>
+          {firstItem?.name ?? 'Product'}
+          {otherItemsCount > 0 && ` + ${otherItemsCount} more`}
+        </span>
       </div>
 
       {/* Price */}
       <div className={styles.priceCell}>
-        <span className={styles.price}>₱{Number(order.totalPrice).toFixed(2)}</span>
-        <span className={styles.qty}>{order.quantity} Item{order.quantity !== 1 ? 's' : ''}</span>
+        <span className={styles.price}>₱{Number(order.totalToPay).toFixed(2)}</span>
+        <span className={styles.qty}>{totalItems} Item{totalItems !== 1 ? 's' : ''}</span>
       </div>
 
       {/* Status */}

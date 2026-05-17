@@ -21,19 +21,20 @@ export default function CartModal({ isOpen, onClose, showToast }) {
 
     setIsSubmitting(true);
     try {
-      // Since backend currently only supports single product orders,
-      // we loop through cart items and create an order for each.
-      const orderPromises = cart.map(item => 
-        ordersAPI.create({
+      const orderData = {
+        items: cart.map(item => ({
           productId: item._id || item.id,
-          orderQuantity: item.quantity,
-          address, 
-          paymentMethod
-        })
-      );
+          quantity: item.quantity
+        })),
+        deliveryAddress: address,
+        paymentMethod
+      };
 
-      await Promise.all(orderPromises);
+      await ordersAPI.create(orderData);
       
+      // Dispatch event to notify other components (like UserProfilePage) to refresh
+      window.dispatchEvent(new CustomEvent('checkout-success'));
+
       showToast('Order placed successfully! 🎉');
       clearCart();
       setStep('cart');
