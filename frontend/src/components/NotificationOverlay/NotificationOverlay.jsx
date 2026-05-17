@@ -43,7 +43,10 @@ export default function NotificationOverlay({ onClose }) {
   };
 
   const handleMarkRead = async (id) => {
-    await notificationsAPI.markRead(id);
+    // 'pending-summary' is a synthetic row with no db entry so skip the API call
+    if (id !== 'pending-summary') {
+      await notificationsAPI.markRead(id);
+    }
     setNotifications((prev) =>
       prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
     );
