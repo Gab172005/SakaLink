@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import styles from './Sidebar.module.css';
-import { CATEGORIES, CERTIFICATIONS, REGIONS } from '../../data/products';
+import { CATEGORIES, CERTIFICATIONS, REGIONS, PRODUCTS } from '../../data/products';
 
 export default function Sidebar({ filters, onFilterChange }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -16,6 +16,11 @@ export default function Sidebar({ filters, onFilterChange }) {
   const handlePriceChange = (e) => {
     onFilterChange({ ...filters, maxPrice: Number(e.target.value) });
   };
+
+  const categoryCounts = PRODUCTS.reduce((acc, p) => {
+  acc[p.category] = (acc[p.category] || 0) + 1;
+  return acc;
+}, {});
 
   return (
     <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
@@ -45,7 +50,7 @@ export default function Sidebar({ filters, onFilterChange }) {
                 <span className={styles.customCheckbox}></span>
               </div>
               <span className={styles.checkText}>{cat.name}</span>
-              <span className={styles.count}>{cat.count}</span>
+              <span className={styles.count}>{categoryCounts[cat.name] ?? 0}</span>
             </label>
           ))}
         </FilterSection>

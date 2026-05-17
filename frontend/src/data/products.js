@@ -1,10 +1,10 @@
 export const CATEGORIES = [
-  { name: 'Vegetables', count: 124 },
-  { name: 'Fruits', count: 82 },
-  { name: 'Grains & Rice', count: 45 },
-  { name: 'Poultry & Meat', count: 38 },
-  { name: 'Seafood', count: 29 },
-  { name: 'Dairy & Eggs', count: 18 },
+  { name: 'Vegetables' },
+  { name: 'Fruits' },
+  { name: 'Grains & Rice' },
+  { name: 'Poultry & Meat' },
+  { name: 'Seafood' },
+  { name: 'Dairy & Eggs' },
 ];
 
 export const CERTIFICATIONS = [
