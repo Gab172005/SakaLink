@@ -8,7 +8,10 @@ export interface userDocument extends Document {
   userType: 'admin' | 'customer'; // Changed from 'role' to 'userType'
   email: string;
   password: string;
-  cart: Map<string, number>;
+  cart: {
+    product: mongoose.Types.ObjectId;
+    quantity: number;
+  }[];
   comparePassword: (password: string) => Promise<boolean>; 
 }
 
@@ -34,11 +37,12 @@ const userSchema = new Schema<userDocument>(
       required: true,
       select: false, // exclude the pw from the query for security stuff
     },
-    cart: { 
-      type: Map, 
-      of: Number,
-      default: {},
-    },
+    cart: [
+      {
+        product: { type: Schema.Types.ObjectId, ref: 'Product' },
+        quantity: { type: Number, default: 1 },
+      },
+    ],
   },
   { timestamps: true }
 );
