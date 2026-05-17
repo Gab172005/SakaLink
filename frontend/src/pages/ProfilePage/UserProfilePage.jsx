@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { ordersAPI, authAPI } from '../../services/api';
+import { ordersAPI} from '../../services/api';
 import EditProfileForm from '../../components/ProfilePage/EditProfileForm';
 import PurchaseHistory from '../../components/ProfilePage/PurchaseHistory';
 import styles from './UserProfilePage.module.css';
