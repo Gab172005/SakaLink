@@ -7,6 +7,7 @@ import authRoutes    from './routes/auth.js';
 import productRoutes from './routes/products.js';
 import orderRoutes   from './routes/orders.js';
 import adminRoutes   from './routes/admin.js';
+import notificationRoutes from './routes/notifications.js';
 
 dotenv.config();
 const app  = express();
@@ -44,6 +45,7 @@ app.use('/api/auth',     authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders',   orderRoutes);
 app.use('/api/admin',    adminRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 console.log('Connecting to MongoDB...');
 mongoose

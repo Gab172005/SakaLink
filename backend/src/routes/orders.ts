@@ -1,6 +1,8 @@
 import { Router, type Response } from 'express';
 import { Order } from '../models/order.model.js';
 import { Product } from '../models/product.model.js';
+import { User } from '../models/user.model.js';
+import { Notification } from '../models/notification.model.js';
 import { protect, adminOnly } from '../middleware/auth.js';
 import { type AuthRequest } from '../types/index.js';
 
@@ -34,6 +36,16 @@ router.post('/', protect, async (req: AuthRequest, res: Response): Promise<void>
     });
 
     res.status(201).json(order);
+
+    // Notify all admins of the new order
+    const admins = await User.find({ userType: 'admin' }).select('_id');
+    await Notification.insertMany(
+      admins.map((a) => ({
+        userId:  a._id,
+        type:    'new_order',
+        message: `New order placed for "${product.name}".`,
+      }))
+    );
   } catch (err) {
     res.status(500).json({ message: (err as Error).message });
   }
@@ -79,6 +91,24 @@ router.patch('/:id/cancel', protect, async (req: AuthRequest, res: Response): Pr
     order.status = 2; // Cancelled
     await order.save();
     res.json(order);
+
+    // Notify the customer their cancellation was processed
+    await Notification.create({
+      userId:  order.user,
+      type:    'order_cancelled',
+      message: 'Your order has been cancelled.',
+    });
+
+    // Also notify admins
+    const admins = await User.find({ userType: 'admin' }).select('_id');
+    await Notification.insertMany(
+      admins.map((a) => ({
+        userId:  a._id,
+        type:    'order_cancelled',
+        message: 'A customer cancelled their order.',
+      }))
+    );
+
   } catch (err) {
     res.status(500).json({ message: (err as Error).message });
   }
@@ -112,6 +142,15 @@ router.patch('/:id/confirm', protect, adminOnly, async (req: AuthRequest, res: R
     order.status = 1; // Completed
     await order.save();
     res.json(order);
+
+    // Notify the customer their order was confirmed
+    const product2 = await Product.findById(order.productId);
+    await Notification.create({
+      userId:  order.user,
+      type:    'order_confirmed',
+      message: `Your order for "${product2?.name ?? 'an item'}" has been confirmed!`,
+    });
+
   } catch (err) {
     res.status(500).json({ message: (err as Error).message });
   }
