@@ -157,11 +157,11 @@ router.get('/profile', async (req: Request, res: Response): Promise<void> => {
     }
 
     res.status(200).json({
-      userType: user.userType,
       user: {
         firstName: user.firstName,
         lastName: user.lastName,
-        email: user.email
+        email: user.email,
+        userType: user.userType
       }
     });
   } catch (err) {

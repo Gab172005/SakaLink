@@ -117,7 +117,7 @@ export default function AdminDashboard({ showToast }) {
         return 'Cancelled';
     };
 
-    if (loading) return <div className={styles.centeredState}><span className={styles.spinner} /> Loading administrative desk...</div>;
+    if (loading) return <div className={styles.centeredState}><span className={styles.spinner} /> Loading dashboard...</div>;
     if (error) return <div className={styles.centeredState}><p className={styles.errorText}>⚠️ {error}</p></div>;
     if (!isVerifiedAdmin) return null;
 

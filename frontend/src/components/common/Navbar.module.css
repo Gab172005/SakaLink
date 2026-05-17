@@ -19,11 +19,19 @@
   font-weight: 700;
 }
 
-/* FIX: The Container that keeps icons tightly packed */
+.logoIcon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.logoAccent {
+  color: #4a8c2a;
+}
+
 .navGroup {
   display: flex;
   align-items: center;
-  gap: 1.25rem; /* This keeps icons at a fixed distance regardless of name length */
+  gap: 1.25rem;
 }
 
 .pillBox {
@@ -31,14 +39,14 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background-color: #2e7d32; /* Example Theme Green */
+  background-color: #2e7d32;
   color: white;
   border-radius: 999px;
   border: none;
   cursor: pointer;
   font-weight: 500;
   transition: opacity 0.2s;
-  white-space: nowrap; /* Prevents name from wrapping to a second line */
+  white-space: nowrap;
 }
 
 .pillBox:hover {
@@ -65,7 +73,6 @@
   transition: all 0.2s;
   font-weight: 500;
 }
-
 
 .activeLink {
   color: #2e7d32;

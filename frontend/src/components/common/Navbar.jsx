@@ -17,7 +17,6 @@ export default function Navbar({ openModal, openCart }) {
   const dropdownRef = useRef(null);
 
   // close dropdown when clicking outside
-  // FIX: useEffect must be called before any early return (Rules of Hooks)
   useEffect(() => {
     const handler = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -28,7 +27,6 @@ export default function Navbar({ openModal, openCart }) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // early return goes here (AFTER all hooks)
   if (loading) return null;
 
   const handleLogout = async () => {
@@ -44,6 +42,7 @@ export default function Navbar({ openModal, openCart }) {
     setNotifOpen(false);
     setUnreadCount(0); // clear badge after user views notifications
   };
+  const isAdmin = user?.userType === 'admin';
 
   return (
     <nav className={styles.navbar}>
@@ -62,15 +61,25 @@ export default function Navbar({ openModal, openCart }) {
               Market
             </button>
 
-            <button 
-              className={`${styles.iconBtn} ${isActive('/settings') ? styles.activeLink : ''}`} 
-              title="Settings" 
-              onClick={() => goTo('/settings')}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-              </svg>
-            </button>
+            {isAdmin ? (
+              <button 
+                className={`${styles.iconBtn} ${isActive('/admin') ? styles.activeLink : ''}`} 
+                onClick={() => goTo('/admin/dashboard')}
+              >
+                Dashboard
+              </button>
+            ) : (
+              <button 
+                className={`${styles.iconBtn} ${isActive('/settings') ? styles.activeLink : ''}`} 
+                title="Settings" 
+                onClick={() => goTo('/settings')}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+              </button>
+            )}
 
             <button 
               className={`${styles.iconBtn} ${isActive('/cart') ? styles.activeLink : ''}`} 
@@ -85,7 +94,6 @@ export default function Navbar({ openModal, openCart }) {
               {cartCount > 0 && <span className={styles.cartBadge}>{cartCount}</span>}
             </button>
 
-            {/* Pill button opens dropdown with My Profile + Logout */}
             <div className={styles.pillWrapper} ref={dropdownRef}>
               <button
                 className={styles.pillBox}
@@ -119,7 +127,6 @@ export default function Navbar({ openModal, openCart }) {
               )}
             </div>
             
-            {/* Bell button — opens notification overlay */}
             <button
               className={`${styles.iconBtn} ${notifOpen ? styles.activeLink : ''}`}
               title="Notifications"
@@ -133,7 +140,6 @@ export default function Navbar({ openModal, openCart }) {
               {unreadCount > 0 && <span className={styles.cartBadge}>{unreadCount}</span>}
             </button>
  
-            {/* Notification overlay — rendered outside the navGroup so it can overflow freely */}
             {notifOpen && <NotificationOverlay onClose={handleNotifClose} />}
           </div>
         ) : (
