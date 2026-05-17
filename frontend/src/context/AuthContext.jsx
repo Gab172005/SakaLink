@@ -1,3 +1,4 @@
+// Provides { user, userType, isAuthenticated, login, logout } to the whole app.
 import { createContext, useContext, useState, useEffect } from "react";
 import { getUserType, saveSession, clearSession, authAPI } from "../services/api";
 
@@ -25,15 +26,22 @@ export function AuthProvider({ children }) {
         return;
       }
       try {
+
         const profileData = await authAPI.getProfile(); 
         if (profileData) {
           // profileData is flat: { firstName, lastName, email, userType }
           setUser(profileData); 
           localStorage.setItem("sakalink_userInfo", JSON.stringify(profileData));
           setUserType(profileData.userType);
+
         }
       } catch (err) {
-        handleLocalLogout();
+        // any auth failure (401 invalid token, 404 user deleted) means the session
+        // is stale. clear local state so the user is prompted to log in again.
+        localStorage.removeItem("user_type");
+        localStorage.removeItem("user_info");
+        setUser(null);
+        setUserType(null);
       } finally {
         setLoading(false); 
       }

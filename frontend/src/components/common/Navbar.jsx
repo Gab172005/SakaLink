@@ -1,6 +1,9 @@
+import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom"; 
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
+import { notificationsAPI } from '../../services/api';
+import NotificationOverlay from '../NotificationOverlay/NotificationOverlay';
 import styles from './Navbar.module.css';
 
 export default function Navbar({ openModal, openCart }) {
@@ -8,16 +11,39 @@ export default function Navbar({ openModal, openCart }) {
   const { cartCount } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [notifOpen,    setNotifOpen]    = useState(false);
+  const [unreadCount,  setUnreadCount]  = useState(0);
+  const dropdownRef = useRef(null);
 
+  // close dropdown when clicking outside
+  // FIX: useEffect must be called before any early return (Rules of Hooks)
+  useEffect(() => {
+    const handler = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // early return goes here (AFTER all hooks)
   if (loading) return null;
 
   const handleLogout = async () => {
+    setDropdownOpen(false);
     await logout();
     navigate("/");
   };
 
   const goTo = (path) => navigate(path);
   const isActive = (path) => location.pathname === path;
+
+  const handleNotifClose = () => {
+    setNotifOpen(false);
+    setUnreadCount(0); // clear badge after user views notifications
+  };
 
   return (
     <nav className={styles.navbar}>
@@ -59,20 +85,56 @@ export default function Navbar({ openModal, openCart }) {
               {cartCount > 0 && <span className={styles.cartBadge}>{cartCount}</span>}
             </button>
 
-            <button className={styles.pillBox} onClick={handleLogout} title="Logout">
-              <span className={styles.pillDot} style={{ background: '#ffffff' }}></span>
-              <span className={styles.pillLabel}>{user?.firstName}</span>
-            </button>
+            {/* Pill button opens dropdown with My Profile + Logout */}
+            <div className={styles.pillWrapper} ref={dropdownRef}>
+              <button
+                className={styles.pillBox}
+                onClick={() => setDropdownOpen((o) => !o)}
+                title="Account"
+              >
+                <span className={styles.pillDot} style={{ background: '#ffffff' }}></span>
+                <span className={styles.pillLabel}>{user?.firstName}</span>
+              </button>
 
-            <button 
-              className={`${styles.iconBtn} ${isActive('/notifications') ? styles.activeLink : ''}`} 
-              title="Notifications" 
-              onClick={() => goTo('/notifications')}
+              {dropdownOpen && (
+                <div className={styles.dropdown}>
+                  <button
+                    className={styles.dropdownItem}
+                    onClick={() => { setDropdownOpen(false); goTo('/profile'); }}
+                  >
+                    My Profile
+                  </button>
+                  <button
+                    className={`${styles.dropdownItem} ${styles.dropdownLogout}`}
+                    onClick={handleLogout}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '7px' }}>
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                      <polyline points="16 17 21 12 16 7"/>
+                      <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    Log Out
+                  </button>
+                </div>
+              )}
+            </div>
+            
+            {/* Bell button — opens notification overlay */}
+            <button
+              className={`${styles.iconBtn} ${notifOpen ? styles.activeLink : ''}`}
+              title="Notifications"
+              style={{ position: 'relative' }}
+              onClick={() => setNotifOpen((o) => !o)}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
               </svg>
+              {unreadCount > 0 && <span className={styles.cartBadge}>{unreadCount}</span>}
             </button>
+ 
+            {/* Notification overlay — rendered outside the navGroup so it can overflow freely */}
+            {notifOpen && <NotificationOverlay onClose={handleNotifClose} />}
           </div>
         ) : (
           <div className={styles.navGroup}>

@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { type AuthRequest, type JwtPayload } from '../types/index.js';
 
 export const protect = (req: AuthRequest, res: Response, next: NextFunction): void => {
+
   // Read strictly from cookies since you dropped authorization headers
   const token = req.cookies?.token;
 
