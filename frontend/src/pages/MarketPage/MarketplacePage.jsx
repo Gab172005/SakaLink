@@ -28,7 +28,7 @@ export default function MarketplacePage({ showToast }) {
     ratings: [],
     units: [],
     sellerTypes: [],
-    maxPrice: 1000, // Increased default for real products
+    maxPrice: 500, // Increased default for real products
   });
   const [selectedProduct, setSelectedProduct] = useState(null);
 

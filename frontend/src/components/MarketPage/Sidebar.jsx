@@ -18,9 +18,9 @@ export default function Sidebar({ filters, onFilterChange, products = PRODUCTS }
   };
 
   const categoryCounts = products.reduce((acc, p) => {
-  acc[p.category] = (acc[p.category] || 0) + 1;
-  return acc;
-}, {});
+    acc[p.category] = (acc[p.category] || 0) + 1;
+    return acc;
+  }, {});
 
   return (
     <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
@@ -60,18 +60,18 @@ export default function Sidebar({ filters, onFilterChange, products = PRODUCTS }
             <input
               type="range"
               min={0}
-              max={500}
+              max={1000}
               value={filters.maxPrice ?? 500}
               onChange={handlePriceChange}
               className={styles.rangeInput}
               style={{
-                background: `linear-gradient(to right, var(--green-600) 0%, var(--green-600) ${((filters.maxPrice ?? 500) / 500) * 100}%, var(--border) ${((filters.maxPrice ?? 500) / 500) * 100}%, var(--border) 100%)`
+                background: `linear-gradient(to right, var(--green-600) 0%, var(--green-600) ${((filters.maxPrice ?? 500) / 1000) * 100}%, var(--border) ${((filters.maxPrice ?? 500) / 1000) * 100}%, var(--border) 100%)`
               }}
             />
             <div className={styles.priceLabels}>
               <span>₱0</span>
               <span>₱{filters.maxPrice ?? 500}</span>
-              <span>₱500</span>
+              <span>₱1000</span>
             </div>
           </div>
         </FilterSection>
