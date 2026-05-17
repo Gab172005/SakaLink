@@ -1,14 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useProducts } from "../../features/useProducts";
+import AnimatedCounter from "../common/AnimatedCounter";
 import "./Hero.css";
-
-const CARD_COLORS = ["#a8d672", "#e8828a", "#d4c97a", "#7ac8a8", "#f0a060", "#8ab8e0"];
-const CARD_EMOJIS = ["🥬", "🍅", "🌽", "🥕", "🧅", "🍆"];
 
 function SkeletonCard() {
   return (
     <div className="product-card card-loading">
-      <div className="card-image-placeholder skeleton-img" />
+      <div className="card-image-container skeleton-img" />
       <div className="card-body">
         <div className="card-name skeleton-line" style={{ width: "80%" }}>&nbsp;</div>
         <div className="card-origin skeleton-line" style={{ width: "55%", height: "11px" }}>&nbsp;</div>
@@ -18,20 +16,26 @@ function SkeletonCard() {
   );
 }
 
-function ProductCard({ product, index }) {
-  const unit = product.productType === 2 ? "pc" : "kg";
-  const origin = product.productDescription || (product.productType === 1 ? "Crop" : "Poultry");
-  return (
+function ProductCard({ product }) {
+  const unit = product.unit || "kg";
+
+  //gets everything after the " / " (e.g., "CALABARZON").
+  const regionName = product.region?.split(" / ")[1] || product.region
+  const defaultImage = "https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&q=80";
+
+  return (  
     <div className="product-card">
-      <div
-        className="card-image-placeholder"
-        style={{ background: CARD_COLORS[index % CARD_COLORS.length] }}
-      >
-        <span>{CARD_EMOJIS[index % CARD_EMOJIS.length]}</span>
+      <div className="card-image-container">
+        <img 
+          src={product.image || defaultImage} 
+          alt={product.name} 
+          className="card-image"
+          onError={(e) => { e.target.src = defaultImage; }}
+        />
       </div>
       <div className="card-body">
-        <div className="card-name">{product.productName}</div>
-        <div className="card-origin">{origin}</div>
+        <div className="card-name">{product.name}</div>
+        <div className="card-origin">{regionName}</div>
         <div className="card-price">₱{product.price} / {unit}</div>
       </div>
     </div>
@@ -39,16 +43,26 @@ function ProductCard({ product, index }) {
 }
 
 export default function Hero({ openModal }) {
-  const { products, loading } = useProducts({ sortBy: "productName", order: "asc" });
+  const { products, loading } = useProducts({ sortBy: "name", order: "asc" });
+  const [displayProducts, setDisplayProducts] = useState([]);
   const [carouselIdx, setCarouselIdx] = useState(0);
   const trackRef = useRef(null);
 
+  //randomize the products shown on the hero page
+  useEffect(() => {
+    if (!products || products.length === 0) return;
+
+    //copies the array then sorts randomly depending if positive or not
+    const shuffled = [...products].sort(() => Math.random() - 0.5);
+    ///... is the spread operator, which creates a copy of our array
+    setDisplayProducts(shuffled);
+    setCarouselIdx(0); 
+  }, [products]);
+
   const slide = (dir) => {
-    const max = Math.max(0, products.length - 3);
+    const max = Math.max(0, displayProducts.length - 3);
     setCarouselIdx((prev) => Math.max(0, Math.min(prev + dir, max)));
   };
-
-  useEffect(() => { setCarouselIdx(0); }, [products]);
 
   useEffect(() => {
     if (!trackRef.current) return;
@@ -57,7 +71,7 @@ export default function Hero({ openModal }) {
     const cardW = card.offsetWidth;
     const gap = 16;
     trackRef.current.style.transform = `translateX(-${carouselIdx * (cardW + gap)}px)`;
-  }, [carouselIdx, products, loading]);
+  }, [carouselIdx, displayProducts, loading]);
 
   return (
     <section className="hero">
@@ -85,15 +99,21 @@ export default function Hero({ openModal }) {
         </div>
         <div className="hero-stats">
           <div>
-            <div className="stat-value">1,200+</div>
+            <div className="stat-value">
+              <AnimatedCounter target={1200} suffix="+" />
+            </div>
             <div className="stat-label">Verified Farmers</div>
           </div>
           <div>
-            <div className="stat-value">300+</div>
-            <div className="stat-label">Product Types</div>
+            <div className="stat-value">
+              <AnimatedCounter target={300} suffix="+" />
+            </div>
+            <div className="stat-label">Local Products</div>
           </div>
           <div>
-            <div className="stat-value">48hr</div>
+            <div className="stat-value">
+              <AnimatedCounter target={48} suffix="hr" />
+            </div>
             <div className="stat-label">Farm to Door</div>
           </div>
         </div>
@@ -105,7 +125,7 @@ export default function Hero({ openModal }) {
           <div className="carousel-track" ref={trackRef}>
             {loading
               ? [0, 1, 2].map((i) => <SkeletonCard key={i} />)
-              : products.map((p, i) => <ProductCard key={p._id || i} product={p} index={i} />)
+              : displayProducts.map((p, i) => <ProductCard key={p._id || i} product={p} index={i} />)
             }
           </div>
         </div>

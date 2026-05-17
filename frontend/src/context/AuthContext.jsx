@@ -1,72 +1,79 @@
-// src/context/AuthContext.jsx
-// Provides { user, userType, isAuthenticated, login, logout } to the whole app.
-
 import { createContext, useContext, useState, useEffect } from "react";
-import { getToken, getUserType, saveSession, clearSession, authAPI } from "../services/api";
+import { getUserType, saveSession, clearSession, authAPI } from "../services/api";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  // We check for userType or a 'loggedIn' flag in localStorage 
-  // since we can't 'read' the HttpOnly cookie via JS.
   const [userType, setUserType] = useState(() => getUserType());
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem("user_info");
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem("sakalink_userInfo");
+      return saved && saved !== "undefined" ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
   });
+  
   const [loading, setLoading] = useState(true);
   const isAuthenticated = !!user;
   
-  //restore user info from token on page load
   useEffect(() => {
     const checkAuth = async () => {
-      const savedType = localStorage.getItem("user_type");
+      const savedType = getUserType();
       if (!savedType) {
         setLoading(false);
         return;
       }
       try {
-        // FIX: getProfile() returns the user object directly, not wrapped in .data.
-        // The original response.data check caused user to be set to undefined,
-        // which made EditProfileForm crash with "firstName?.trim is not a function".
-        const profile = await authAPI.getProfile(); 
-        if (profile && profile.firstName) {
-          setUser(profile); 
-          localStorage.setItem("user_info", JSON.stringify(profile));
+
+        const profileData = await authAPI.getProfile(); 
+        if (profileData) {
+          // profileData is flat: { firstName, lastName, email, userType }
+          setUser(profileData); 
+          localStorage.setItem("sakalink_userInfo", JSON.stringify(profileData));
+          setUserType(profileData.userType);
+
         }
       } catch (err) {
-        if (err.response?.status === 401) {
-          handleLocalLogout();
-        }
+        handleLocalLogout();
       } finally {
-        // Stop the loading state regardless of success or failure
         setLoading(false); 
       }
     };
 
     checkAuth();
   }, []);
+
   const login = (data) => {
-    localStorage.setItem("user_type", data.userType);
-    localStorage.setItem("user_info", JSON.stringify(data.user));
+    if (!data) return;
+    const activeUser = data.user ? data.user : data;
+    const activeType = data.userType || activeUser.userType || "customer";
+
+    saveSession(data.token || "true", activeType);
+    localStorage.setItem("sakalink_userInfo", JSON.stringify(activeUser));
     
-    setUser(data.user);
-    setUserType(data.userType);
+    setUser(activeUser);
+    setUserType(activeType);
+    setLoading(false);
+  };
+
+  const handleLocalLogout = () => {
+    clearSession();
+    localStorage.removeItem("sakalink_userInfo");
+    setUser(null);
+    setUserType(null);
+    setLoading(false);
   };
 
   const logout = async () => {
-    await authAPI.logout(); 
-        localStorage.removeItem("user_type");
-    localStorage.removeItem("user_info");
-    
-    setUser(null);
-    setUserType(null);
+    try { await authAPI.logout(); } catch (err) {} 
+    handleLocalLogout();
   };
 
   return (
-  <AuthContext.Provider value={{ userType, user, isAuthenticated, loading, login, logout }}> 
-    {children}
-  </AuthContext.Provider>
+    <AuthContext.Provider value={{ userType, user, isAuthenticated, loading, login, logout }}> 
+      {children}
+    </AuthContext.Provider>
   );
 }
 
