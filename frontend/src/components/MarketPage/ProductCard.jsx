@@ -1,14 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCart } from '../../context/CartContext';
 import styles from './ProductCard.module.css';
 
 const LEAF_COLORS = ['#7acc5f', '#8dd96a', '#6abb52', '#93d96f', '#5fb848'];
 
-function ProductImage({ id }) {
-  const hash = typeof id === 'string' 
+function ProductImage({ id, src, name }) {
+  const [imgError, setImgError] = useState(false);
+
+  const hash = typeof id === 'string'
     ? id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
     : (id || 0);
   const color = LEAF_COLORS[hash % LEAF_COLORS.length];
+
+  if (src && !imgError) {
+    return (
+      <div className={styles.imagePlaceholder}>
+        <img
+          src={src}
+          alt={name}
+          onError={() => setImgError(true)}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className={styles.imagePlaceholder} style={{ background: `linear-gradient(135deg, ${color}dd, ${color}99)` }}>
       <svg width="52" height="52" viewBox="0 0 64 64" fill="none">
@@ -30,12 +46,16 @@ export default function ProductCard({ product, onSelectProduct, showToast }) {
 
   return (
     <article className={styles.card} onClick={() => onSelectProduct?.(product)}>
-      <ProductImage id={product.id} />
-      
+      <ProductImage
+        id={product.id}
+        src={product.image || product.image_url || product.photo || product.thumbnail}
+        name={product.name}
+      />
+
       <div className={styles.body}>
         <div className={styles.info}>
           <h3 className={styles.name}>{product.name}</h3>
-          
+
           <p className={styles.location}>
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
