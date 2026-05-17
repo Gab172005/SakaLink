@@ -61,7 +61,7 @@ export function CartProvider({ children }) {
     };
   }, [cart, isAuthenticated, isLoaded]);
 
-  const getProductId = (item) => item._id || item.id;
+  const getProductId = (item) => String(item?._id || item?.id || '');
   const addToCart = (product, quantity = 1) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => getProductId(item) === getProductId(product));
@@ -81,17 +81,17 @@ export function CartProvider({ children }) {
   };
 
   const updateQuantity = (productId, quantity) => {
-    if (quantity <= 0) {
-      removeFromCart(productId);
-      return;
-    }
-    setCart((prevCart) =>
-      prevCart.map((item) =>
-        getProductId(item) === productId ? { ...item, quantity } : item
-      )
-    );
-  };
-
+      const targetId = String(productId);
+      if (quantity <= 0) {
+        removeFromCart(targetId);
+        return;
+      }
+      setCart((prevCart) =>
+        prevCart.map((item) =>
+          getProductId(item) === targetId ? { ...item, quantity } : item
+        )
+      );
+    };
   const clearCart = () => {
     setCart([]);
   };
