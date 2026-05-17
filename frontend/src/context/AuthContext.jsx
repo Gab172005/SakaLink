@@ -26,20 +26,21 @@ export function AuthProvider({ children }) {
         return;
       }
       try {
+        const responseData = await authAPI.getProfile(); 
+        
+        // FIX: Extract the nested 'user' and 'userType' keys to match your backend structure
+        if (responseData && responseData.user) {
+          const actualUser = responseData.user;
+          const actualType = responseData.userType || responseData.user.userType || "customer";
 
-        const profileData = await authAPI.getProfile(); 
-        if (profileData) {
-          // profileData is flat: { firstName, lastName, email, userType }
-          setUser(profileData); 
-          localStorage.setItem("sakalink_userInfo", JSON.stringify(profileData));
-          setUserType(profileData.userType);
-
+          setUser(actualUser); 
+          setUserType(actualType);
+          localStorage.setItem("sakalink_userInfo", JSON.stringify(actualUser));
         }
       } catch (err) {
-        // any auth failure (401 invalid token, 404 user deleted) means the session
-        // is stale. clear local state so the user is prompted to log in again.
-        localStorage.removeItem("user_type");
-        localStorage.removeItem("user_info");
+        // FIX: Uniformly clean up your matching localStorage keys on a broken session
+        clearSession(); // Clears user_type and tokens securely
+        localStorage.removeItem("sakalink_userInfo");
         setUser(null);
         setUserType(null);
       } finally {
@@ -52,6 +53,8 @@ export function AuthProvider({ children }) {
 
   const login = (data) => {
     if (!data) return;
+    
+    // Handles data parsing whether it comes from login payload or an updated context format
     const activeUser = data.user ? data.user : data;
     const activeType = data.userType || activeUser.userType || "customer";
 
