@@ -110,6 +110,9 @@ export const ordersAPI = {
    */
   getMyOrders: () => request("/orders/my-orders"),
 
+  // PATCH /api/orders/:id/cancel — cancel a pending order
+  cancelOrder: (id) => request(`/orders/${id}/cancel`, { method: "PATCH" }),
+
   /**
    * POST /api/orders  (requires auth)
    * Body: { items: [{ productId, quantity }], ... }
