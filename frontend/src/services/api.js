@@ -176,10 +176,13 @@ export const adminAPI = {
 export const notificationsAPI = {
   // GET /api/notifications — fetch caller's notifications
   getAll: () => request("/notifications"),
- 
+
+  //GET /api/notifications/unread-count — fetch total unread summary count scalar
+  getUnreadCount: () => request("/notifications/unread-count", { method: "GET" }),
+   
   // PATCH /api/notifications/:id/read — mark one as read
   markRead: (id) => request(`/notifications/${id}/read`, { method: "PATCH" }),
- 
+   
   // PATCH /api/notifications/read-all — mark all as read
   markAllRead: () => request("/notifications/read-all", { method: "PATCH" }),
 };

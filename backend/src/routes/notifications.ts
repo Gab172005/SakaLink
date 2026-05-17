@@ -34,6 +34,25 @@ router.get('/', protect, async (req: AuthRequest, res: Response): Promise<void> 
   }
 });
 
+  router.get('/unread-count', protect, async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+      let unreadCount = await Notification.countDocuments({ 
+        userId: req.user!.id, 
+        isRead: false 
+      });
+
+      if (req.user!.userType === 'admin') {
+        const pendingCount = await Order.countDocuments({ status: 0 });
+        if (pendingCount > 0) {
+          unreadCount += 1; 
+        }
+      }
+
+      res.json({ count: unreadCount });
+    } catch (err) {
+      res.status(500).json({ message: (err as Error).message });
+    }
+  });
 // PATCH /api/notifications/read-all —> Mark all of the caller's notifications as read
 router.patch('/read-all', protect, async (req: AuthRequest, res: Response): Promise<void> => {
   try {

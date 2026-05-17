@@ -25,7 +25,7 @@ function timeAgo(dateStr) {
   return `${Math.floor(h / 24)}d`;
 }
 
-export default function NotificationOverlay({ onClose }) {
+export default function NotificationOverlay({ onClose, setNavbarUnreadCount }) {
   const [notifications, setNotifications] = useState([]);
   const [tab,           setTab]           = useState('all'); // 'all' | 'unread'
   const [loading,       setLoading]       = useState(true);
@@ -40,6 +40,7 @@ export default function NotificationOverlay({ onClose }) {
   const handleMarkAllRead = async () => {
     await notificationsAPI.markAllRead();
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    if (setNavbarUnreadCount) setNavbarUnreadCount(0);
   };
 
   const handleMarkRead = async (id) => {
@@ -50,6 +51,9 @@ export default function NotificationOverlay({ onClose }) {
     setNotifications((prev) =>
       prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
     );
+    if (setNavbarUnreadCount) {
+      setNavbarUnreadCount((currentCount) => Math.max(0, currentCount - 1));
+    }
   };
 
   const visible = tab === 'unread'
@@ -107,22 +111,24 @@ export default function NotificationOverlay({ onClose }) {
               <p className={styles.emptyText}>No notifications</p>
             </div>
           ) : (
-            visible.map((n) => (
-              <div
-                key={n._id}
-                className={`${styles.row} ${!n.isRead ? styles.rowUnread : ''}`}
-                onClick={() => !n.isRead && handleMarkRead(n._id)}
-              >
-                <div className={styles.iconWrap}><BellIcon /></div>
-                <div className={styles.body}>
-                  <p className={styles.message}>{n.message}</p>
+            <div className={styles.map}>
+              {visible.map((n) => (
+                <div
+                  key={n._id}
+                  className={`${styles.row} ${!n.isRead ? styles.rowUnread : ''}`}
+                  onClick={() => !n.isRead && handleMarkRead(n._id)}
+                >
+                  <div className={styles.iconWrap}><BellIcon /></div>
+                  <div className={styles.body}>
+                    <p className={styles.message}>{n.message}</p>
+                  </div>
+                  <div className={styles.meta}>
+                    <span className={styles.time}>{timeAgo(n.createdAt)}</span>
+                    {!n.isRead && <span className={styles.dot} />}
+                  </div>
                 </div>
-                <div className={styles.meta}>
-                  <span className={styles.time}>{timeAgo(n.createdAt)}</span>
-                  {!n.isRead && <span className={styles.dot} />}
-                </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </div>
 

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom"; 
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
-import { notificationsAPI } from '../../services/api';
+import { notificationsAPI } from '../../services/api'; // Ensure this matches your API export
 import NotificationOverlay from '../NotificationOverlay/NotificationOverlay';
 import styles from './Navbar.module.css';
 
@@ -15,6 +15,24 @@ export default function Navbar({ openModal, openCart }) {
   const [notifOpen,    setNotifOpen]    = useState(false);
   const [unreadCount,  setUnreadCount]  = useState(0);
   const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const fetchUnreadCount = async () => {
+      try {
+        const response = await notificationsAPI.getUnreadCount(); 
+        setUnreadCount(response.count || response.data?.count || 0);
+      } catch (err) {
+        console.error("Failed to fetch notification status counts:", err);
+      }
+    };
+
+    fetchUnreadCount();
+    
+    const interval = setInterval(fetchUnreadCount, 60000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
 
   // close dropdown when clicking outside
   useEffect(() => {
@@ -40,7 +58,6 @@ export default function Navbar({ openModal, openCart }) {
 
   const handleNotifClose = () => {
     setNotifOpen(false);
-    setUnreadCount(0); // clear badge after user views notifications
   };
   const isAdmin = user?.userType === 'admin';
 
@@ -137,10 +154,10 @@ export default function Navbar({ openModal, openCart }) {
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
               </svg>
-              {unreadCount > 0 && <span className={styles.cartBadge}>{unreadCount}</span>}
+              {unreadCount > 0 && <span className={styles.notifBadge}>{unreadCount}</span>}
             </button>
  
-            {notifOpen && <NotificationOverlay onClose={handleNotifClose} />}
+            {notifOpen && <NotificationOverlay onClose={handleNotifClose} setNavbarUnreadCount={setUnreadCount} />}
           </div>
         ) : (
           <div className={styles.navGroup}>

@@ -130,3 +130,17 @@
   color: #c0392b;
   border-top: 1px solid #eaeaea;
 }
+
+.notifBadge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #2e7d32 ;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
+  transform: translate(25%, -25%);
+  line-height: 1;
+}
