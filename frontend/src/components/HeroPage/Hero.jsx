@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useProducts } from "../../features/useProducts";
 import AnimatedCounter from "../common/AnimatedCounter";
+import ProductDetailModal from "../MarketPage/ProductDetailModal";
+import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
 import "./Hero.css";
-
 function SkeletonCard() {
   return (
     <div className="product-card card-loading">
@@ -16,7 +18,7 @@ function SkeletonCard() {
   );
 }
 
-function ProductCard({ product }) {
+function ProductCard({ product, onClick }) {
   const unit = product.unit || "kg";
 
   //gets everything after the " / " (e.g., "CALABARZON").
@@ -24,7 +26,7 @@ function ProductCard({ product }) {
   const defaultImage = "https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&q=80";
 
   return (  
-    <div className="product-card">
+    <div className="product-card" onClick={onClick} style={{ cursor: "pointer" }}>
       <div className="card-image-container">
         <img 
           src={product.image || defaultImage} 
@@ -47,7 +49,9 @@ export default function Hero({ openModal }) {
   const [displayProducts, setDisplayProducts] = useState([]);
   const [carouselIdx, setCarouselIdx] = useState(0);
   const trackRef = useRef(null);
-
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const { addToCart } = useCart();
+  const { isAuthenticated } = useAuth();
   //randomize the products shown on the hero page
   useEffect(() => {
     if (!products || products.length === 0) return;
@@ -72,7 +76,14 @@ export default function Hero({ openModal }) {
     const gap = 16;
     trackRef.current.style.transform = `translateX(-${carouselIdx * (cardW + gap)}px)`;
   }, [carouselIdx, displayProducts, loading]);
-
+  
+  const handleProductClick = (product) => {//if your logged in, open the detail modal, if not, open the sign up one
+    if (isAuthenticated) {
+      setSelectedProduct(product);
+    } else {
+      openModal("signup");
+    }
+  };
   return (
     <section className="hero">
       <div className="hero-left">
@@ -125,12 +136,19 @@ export default function Hero({ openModal }) {
           <div className="carousel-track" ref={trackRef}>
             {loading
               ? [0, 1, 2].map((i) => <SkeletonCard key={i} />)
-              : displayProducts.map((p, i) => <ProductCard key={p._id || i} product={p} index={i} />)
+              : displayProducts.map((p, i) => <ProductCard key={p._id || i} product={p} index={i} onClick={() => handleProductClick(p)} />)
             }
           </div>
         </div>
         <button className="carousel-btn" onClick={() => slide(1)}>&#8594;</button>
       </div>
+      {selectedProduct && (
+        <ProductDetailModal 
+          product={selectedProduct} 
+          onClose={() => setSelectedProduct(null)} 
+          onAddToCart={addToCart} 
+        />
+      )}
     </section>
   );
 }

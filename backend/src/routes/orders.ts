@@ -1,5 +1,5 @@
 import { Router, type Response } from 'express';
-import { Order } from '../models/order.model.js';
+import { Order, type OrderItem } from '../models/order.model.js';
 import { Product } from '../models/product.model.js';
 import { User } from '../models/user.model.js';
 import { Notification } from '../models/notification.model.js';
@@ -18,7 +18,7 @@ router.post('/', protect, async (req: AuthRequest, res: Response): Promise<void>
   }
 
   try {
-    const orderItems = [];
+    const orderItems: OrderItem[] = [];
     let totalToPay = 0;
 
     for (const item of items) {
@@ -53,17 +53,33 @@ router.post('/', protect, async (req: AuthRequest, res: Response): Promise<void>
       status: 0 // Pending
     });
 
+    // Send response quickly
     res.status(201).json(order);
 
-    // Notify all admins of the new pending order
-    const admins = await User.find({ userType: 'admin' }).select('_id');
-    await Notification.insertMany(
-      admins.map((a) => ({
-        userId:  a._id,
-        type:    'new_order',
-        message: `A new order has been placed.`,
-      }))
-    );
+    // Safely defer the background notification processing using setImmediate
+    setImmediate(async () => {
+      try {
+        const primaryItemName = orderItems[0]?.name || 'Marketplace Items';
+        const totalItemsCount = orderItems.length;
+        const summaryText = totalItemsCount > 1 
+          ? `"${primaryItemName}" and ${totalItemsCount - 1} other item(s)`
+          : `"${primaryItemName}"`;
+
+        const admins = await User.find({ userType: 'admin' }).select('_id');
+        if (admins.length > 0) {
+          await Notification.insertMany(
+            admins.map((a) => ({
+              userId: a._id,
+              type: 'new_order',
+              message: `New order placed for ${summaryText}.`,
+            }))
+          );
+        }
+      } catch (bgErr) {
+        console.error('Background Notification Processing Error:', bgErr);
+      }
+    });
+
   } catch (err) {
     res.status(500).json({ message: (err as Error).message });
   }
@@ -72,7 +88,6 @@ router.post('/', protect, async (req: AuthRequest, res: Response): Promise<void>
 // GET /api/orders/my-orders — Customer's own orders
 router.get('/my-orders', protect, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    // Search by both user ID and email for robustness and backward compatibility
     const orders = await Order.find({
       $or: [
         { user: req.user!.id },
@@ -86,21 +101,20 @@ router.get('/my-orders', protect, async (req: AuthRequest, res: Response): Promi
     res.status(500).json({ message: (err as Error).message });
   }
 });
+
 // PATCH /api/orders/:id/cancel — Cancel order (customer, pending only)
 router.patch('/:id/cancel', protect, async (req: AuthRequest, res: Response): Promise<void> => {
   const { id } = req.params;
 
-  // 1. Guard clause to satisfy strict TypeScript checks
   if (!id) {
     res.status(400).json({ message: 'Order ID is required' });
     return;
   }
 
   try {
-    // 2. Pass the filter. Casting 'id' to string ensures it's not a string[]
-    const order = await Order.findOne({ 
-      _id: id as string, 
-      email: req.user!.email 
+    const order = await Order.findOne({
+      _id: id as string,
+      email: req.user!.email
     });
 
     if (!order) {
@@ -108,7 +122,6 @@ router.patch('/:id/cancel', protect, async (req: AuthRequest, res: Response): Pr
       return;
     }
 
-    // Use lowercase 'status' to match your order.model.ts
     if (order.status !== 0) {
       res.status(400).json({ message: 'Can only cancel pending orders' });
       return;
@@ -118,22 +131,22 @@ router.patch('/:id/cancel', protect, async (req: AuthRequest, res: Response): Pr
     await order.save();
     res.json(order);
 
-    // Notify the customer their cancellation was processed
-    await Notification.create({
-      userId:  order.user,
-      type:    'order_cancelled',
-      message: 'Your order has been cancelled.',
-    });
-
-    // Also notify admins
+    // Run clean notifications
     const admins = await User.find({ userType: 'admin' }).select('_id');
-    await Notification.insertMany(
-      admins.map((a) => ({
-        userId:  a._id,
-        type:    'order_cancelled',
-        message: 'A customer cancelled their order.',
-      }))
-    );
+    await Promise.all([
+      Notification.create({
+        userId: order.user,
+        type: 'order_cancelled',
+        message: 'Your order has been cancelled.',
+      }),
+      admins.length > 0 ? Notification.insertMany(
+        admins.map((a) => ({
+          userId: a._id,
+          type: 'order_cancelled',
+          message: 'A customer cancelled their order.',
+        }))
+      ) : Promise.resolve()
+    ]);
 
   } catch (err) {
     res.status(500).json({ message: (err as Error).message });
@@ -154,65 +167,95 @@ router.patch('/:id/confirm', protect, adminOnly, async (req: AuthRequest, res: R
       return;
     }
 
-    // Check stock for all items first
-    for (const item of order.items) {
-      const product = await Product.findById(item.productId);
-      if (!product) {
-        res.status(404).json({ message: `Product ${item.name} not found` });
-        return;
-      }
-      if (product.quantity < item.quantity) {
-        res.status(400).json({ message: `Insufficient stock for ${product.name}` });
-        return;
-      }
-    }
+    // Atomic updates array to verify stocks concurrently safely
+    const outOfStockProductIds: string[] = [];
+    const outOfStockProductNames: string[] = [];
 
-    // Decrement stock for all items
     for (const item of order.items) {
-      await Product.findByIdAndUpdate(item.productId, {
-        $inc: { quantity: -item.quantity }
-      });
+      // Find and update item stock atomically while checking if current quantity meets the minimum requirement
+      const updatedProduct = await Product.findOneAndUpdate(
+        { _id: item.productId, quantity: { $gte: item.quantity } },
+        { $inc: { quantity: -item.quantity } },
+        { new: true }
+      );
+
+      if (!updatedProduct) {
+        res.status(400).json({ message: `Insufficient stock or product modified for item: ${item.name}` });
+        return;
+      }
+
+      if (updatedProduct.quantity === 0) {
+        outOfStockProductIds.push(updatedProduct._id.toString());
+        outOfStockProductNames.push(updatedProduct.name);
+      }
     }
 
     order.status = 1; // Out for Delivery
     await order.save();
     res.json(order);
 
-    // Notify the customer their order was confirmed
+    const orderRef = order._id.toString().slice(-6).toUpperCase();
+
+    // Fire confirmation notification
     await Notification.create({
-      userId:  order.user,
-      type:    'order_confirmed',
-      message: `Your order has been confirmed and is now out for delivery!`,
+      userId: order.user,
+      type: 'order_confirmed',
+      message: `Your order #${orderRef} has been confirmed and is preparing for delivery! 🎉`,
     });
- 
-    // If any product is now out of stock, notify all customers with pending orders for it
-    for (const item of order.items) {
-      const product = await Product.findById(item.productId);
-      if (product && product.quantity === 0) {
-        const affectedOrders = await Order.find({
-          'items.productId': product._id,
-          status: 0, // pending only
-        });
-   
-        if (affectedOrders.length > 0) {
-          const userIds = [...new Set(affectedOrders.map(o => o.user.toString()))];
-          await Notification.insertMany(
-            userIds.map((uid) => ({
-              userId:  uid,
-              type:    'out_of_stock',
-              message: `"${product.name}" is now out of stock. Your pending order may be affected.`,
-            }))
-          );
-        }
+
+    // Batch out-of-stock notifications efficiently outside the update loops
+    if (outOfStockProductIds.length > 0) {
+      const affectedOrders = await Order.find({
+        'items.productId': { $in: outOfStockProductIds },
+        status: 0, 
+      });
+
+      if (affectedOrders.length > 0) {
+        // Build clear, human-scannable notification labels
+        const productsLabel = outOfStockProductNames.map(name => `"${name}"`).join(', ');
+        await Notification.insertMany(
+          affectedOrders.map((o) => ({
+            userId: o.user,
+            type: 'out_of_stock',
+            message: `${productsLabel} item(s) are now out of stock. Your pending order may be affected.`,
+          }))
+        );
       }
     }
   } catch (err) {
     res.status(500).json({ message: (err as Error).message });
   }
 });
- 
+
+// PATCH /api/orders/:id/deliver — Mark delivered (admin)
+router.patch('/:id/deliver', protect, adminOnly, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      res.status(404).json({ message: 'Order not found' });
+      return;
+    }
+
+    if (order.status !== 1) {
+      res.status(400).json({ message: 'Only orders out for delivery can be marked as delivered' });
+      return;
+    }
+
+    order.status = 2; // Delivered / Completed
+    await order.save();
+    res.json(order);
+
+    await Notification.create({
+      userId: order.user,
+      type: 'order_delivered',
+      message: `Your order #${order._id.toString().slice(-6).toUpperCase()} has been delivered successfully! Thank you.`,
+    });
+  } catch (err) {
+    res.status(500).json({ message: (err as Error).message });
+  }
+});
+
 // GET /api/orders/pending-count — Pending order count (admin)
-// Used by the notifications route to generate the pending orders summary
 router.get('/pending-count', protect, adminOnly, async (_req: AuthRequest, res: Response): Promise<void> => {
   try {
     const count = await Order.countDocuments({ status: 0 });
@@ -221,5 +264,5 @@ router.get('/pending-count', protect, adminOnly, async (_req: AuthRequest, res: 
     res.status(500).json({ message: (err as Error).message });
   }
 });
- 
+
 export default router;

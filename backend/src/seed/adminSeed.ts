@@ -1,8 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
-import {User} from '../models/user.model.js';
-
+import { User } from '../models/user.model.js';
 dotenv.config();
 
 const seed = async (): Promise<void> => {
@@ -13,10 +12,10 @@ const seed = async (): Promise<void> => {
   if (!existing) {
     await User.create({
       firstName: 'DA',
-      lastName:  'Admin',
-      email:     'admin@da.gov.ph',
-      password:  hashed,
-      userType:  'admin',
+      lastName: 'Admin',
+      email: 'admin@da.gov.ph',
+      password: hashed,
+      userType: 'admin',
     });
     console.log('Admin account seeded!');
   } else {

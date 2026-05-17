@@ -70,27 +70,29 @@
 }
 
 .listWrapper { max-height: calc(100vh - 340px); overflow-y: auto; }
-
 .orderList { display: flex; flex-direction: column; gap: 12px; }
 
+/* Clickable row */
 .row {
   display: grid;
-  grid-template-columns: 160px 1fr 120px 130px;
+  grid-template-columns: 160px 1fr 120px 150px;
   gap: 12px;
   align-items: center;
-  padding: 18px 20px;
+  padding: 16px 20px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  transition: box-shadow var(--transition);
+  cursor: pointer;
+  transition: box-shadow var(--transition), background var(--transition);
+  background: var(--surface);
 }
 
-.row:hover { box-shadow: var(--shadow-md); }
+.row:hover { box-shadow: var(--shadow-md); background: var(--green-50); }
 
 .dateCell { display: flex; flex-direction: column; gap: 2px; }
-.dateText { font-weight: 600; }
+.dateText  { font-weight: 600; font-size: 0.88rem; }
 .idText { font-size: 0.75rem; color: var(--text-muted); }
 
-.productCell { display: flex; align-items: center; gap: 12px; }
+.productCell { display: flex; align-items: center; gap: 12px; min-width: 0; }
 
 .thumb {
   width: 46px;
@@ -108,7 +110,27 @@
 
 .thumb img { width: 100%; height: 100%; object-fit: cover; }
 
-.productName { font-weight: 600; }
+/* Stack item names vertically */
+.itemNames { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+ 
+.itemName {
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+ 
+/* Subtle green tag for additional items */
+.moreTag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--green-100);
+  padding: 2px 8px;
+  border-radius: 999px;
+  width: fit-content;
+}
 
 .priceCell { display: flex; flex-direction: column; gap: 2px; }
 .price { font-weight: 700; }
@@ -127,6 +149,7 @@
 .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
 
 .delivered { background: #e8f5e9; color: #2e7d32; }
+.delivery  { background: #e3f2fd; color: #1565c0; }
 .pending   { background: #fff8e1; color: #f57f17; }
 .cancelled { background: #fce4ec; color: #c62828; }
 

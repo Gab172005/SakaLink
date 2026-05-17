@@ -70,6 +70,17 @@ export const authAPI = {
       method: "PATCH",
       body: JSON.stringify({ firstName, lastName}),
     }),
+
+  getCart: () =>
+    request("/auth/cart", {
+      method: "GET",
+    }),
+
+  syncCart: (cart) =>
+    request("/auth/cart", {
+      method: "POST",
+      body: JSON.stringify({ cart }),
+    }),
 };
 
 // ── Products ───────────────────────────────────────────────────────────────
@@ -98,6 +109,9 @@ export const ordersAPI = {
    * Returns: Order[]
    */
   getMyOrders: () => request("/orders/my-orders"),
+
+  // PATCH /api/orders/:id/cancel — cancel a pending order
+  cancelOrder: (id) => request(`/orders/${id}/cancel`, { method: "PATCH" }),
 
   /**
    * POST /api/orders  (requires auth)
