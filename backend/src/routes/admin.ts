@@ -1,7 +1,6 @@
 import { Router, type Response } from 'express';
 import { User } from '../models/user.model.js';
 import { Order } from '../models/order.model.js';
-import { type productDocument } from '../models/product.model.js'; // Use the interface for typing
 import { protect, adminOnly } from '../middleware/auth.js';
 import { type AuthRequest, type SalesPeriod } from '../types/index.js';
 
@@ -10,7 +9,6 @@ const router = Router();
 // GET /api/admin/users
 router.get('/users', protect, adminOnly, async (_req: AuthRequest, res: Response): Promise<void> => {
   try {
-    // Assuming 'role' or 'userType' exists in your User model
     const users = await User.find({ userType: 'customer' }).select('-password');
     res.json({ total: users.length, users });
   } catch (err) {
@@ -19,9 +17,10 @@ router.get('/users', protect, adminOnly, async (_req: AuthRequest, res: Response
 });
 
 // GET /api/admin/orders
+// FIXED: Removed the broken root .populate() since product details now live in the items array snapshot
 router.get('/orders', protect, adminOnly, async (_req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const orders = await Order.find().populate('productId');
+    const orders = await Order.find().sort({ createdAt: -1 }); // Newest orders first
     res.json(orders);
   } catch (err) {
     res.status(500).json({ message: (err as Error).message });
@@ -40,26 +39,31 @@ router.get('/sales', protect, adminOnly, async (req: AuthRequest, res: Response)
   else startDate = new Date(0);
 
   try {
+    //filter for completed
     const orders = await Order.find({
-      status: 1, // Changed from orderStatus to status
-      createdAt: { $gte: startDate }, // Changed from dateOrdered to createdAt
-    }).populate('productId');
+      status: 2, 
+      createdAt: { $gte: startDate },
+    });
 
     const breakdown: Record<string, { quantitySold: number; income: number }> = {};
     let totalSales = 0;
 
+    //main loop scales through each order envelope, then inner loop counts individual items
     for (const order of orders) {
-      // Cast the populated productId to the ProductDocument type
-      const product = order.productId as unknown as productDocument;
-      const name = product?.name ?? 'Unknown'; // Changed from productName to name
-      
-      // Use the totalPrice already calculated in the Order schema
-      const income = order.totalPrice || 0; 
+      totalSales += order.totalToPay || 0; 
 
-      if (!breakdown[name]) breakdown[name] = { quantitySold: 0, income: 0 };
-      breakdown[name].quantitySold += order.quantity;
-      breakdown[name].income += income;
-      totalSales += income;
+      for (const item of order.items) {
+        const name = item.name ?? 'Unknown Product';
+        //Multiply quantity by purchase price snapshot for true product revenue tracking
+        const itemIncome = item.quantity * item.priceAtPurchase;
+
+        if (!breakdown[name]) {
+          breakdown[name] = { quantitySold: 0, income: 0 };
+        }
+
+        breakdown[name].quantitySold += item.quantity;
+        breakdown[name].income += itemIncome;
+      }
     }
 
     res.json({ period, totalSales, breakdown });

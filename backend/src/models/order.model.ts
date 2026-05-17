@@ -2,19 +2,19 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface OrderItem {
   productId: mongoose.Types.ObjectId;
-  name: string;              // Snapshot of the name at checkout time
+  name: string;            
   quantity: number;
-  priceAtPurchase: number;   // Snapshot of the price at checkout time
+  priceAtPurchase: number; 
 }
 
 export interface OrderDocument extends Document {
   user: mongoose.Types.ObjectId;
   email: string;
-  items: OrderItem[];        // Supports multiple cart items in one checkout
-  deliveryAddress: string;   // FIX: Flat string per your frontend spec
-  paymentMethod: string;     // GCash, Maya, COD, Bank Transfer
-  totalToPay: number;        // Direct mapping to your "Total to Pay" label
-  status: number;            // 0: Pending, 1: Out for Delivery, 2: Completed, 3: Cancelled
+  items: OrderItem[];    
+  deliveryAddress: string;   
+  paymentMethod: string;    
+  totalToPay: number;       
+  status: number;//0: Pending, 1: Out for Delivery, 2: Completed, 3: Cancelled
 }
 
 const orderSchema = new Schema<OrderDocument>(
@@ -29,7 +29,7 @@ const orderSchema = new Schema<OrderDocument>(
       required: true,
       trim: true
     },
-    // Allows checkout of a whole cart at once
+    //allows checkout of a whole cart at once
     items: [
       {
         productId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
@@ -38,7 +38,6 @@ const orderSchema = new Schema<OrderDocument>(
         priceAtPurchase: { type: Number, required: true, min: 0 }
       }
     ],
-    // Saved exactly as the single text string passed from your frontend input
     deliveryAddress: { 
       type: String, 
       required: true 
@@ -62,7 +61,6 @@ const orderSchema = new Schema<OrderDocument>(
   { timestamps: true }
 );
 
-// Performance Indexes
 orderSchema.index({ user: 1 });
 orderSchema.index({ status: 1 });
 orderSchema.index({ createdAt: -1 });

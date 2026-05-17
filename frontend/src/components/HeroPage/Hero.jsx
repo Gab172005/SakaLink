@@ -8,7 +8,8 @@ const CARD_EMOJIS = ["🥬", "🍅", "🌽", "🥕", "🧅", "🍆"];
 function SkeletonCard() {
   return (
     <div className="product-card card-loading">
-      <div className="card-image-placeholder skeleton-img" />
+      {/* Skeleton block matches the new square image footprint */}
+      <div className="card-image skeleton-img" />
       <div className="card-body">
         <div className="card-name skeleton-line" style={{ width: "80%" }}>&nbsp;</div>
         <div className="card-origin skeleton-line" style={{ width: "55%", height: "11px" }}>&nbsp;</div>
@@ -18,20 +19,26 @@ function SkeletonCard() {
   );
 }
 
-function ProductCard({ product, index }) {
-  const unit = product.productType === 2 ? "pc" : "kg";
-  const origin = product.productDescription || (product.productType === 1 ? "Crop" : "Poultry");
+function ProductCard({ product }) {
+  // Map type numbers to units (Type 2 is Poultry/Meat, Type 5 is Seafood)
+  const unit = (product.type === 2 || product.type === 5) ? "kg" : "kg"; // Adjust if you want some as 'pc' or 'pack'
+  
+  // Clean fallback in case image URL is missing or broken
+  const defaultImage = "https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&q=80"; 
+
   return (
     <div className="product-card">
-      <div
-        className="card-image-placeholder"
-        style={{ background: CARD_COLORS[index % CARD_COLORS.length] }}
-      >
-        <span>{CARD_EMOJIS[index % CARD_EMOJIS.length]}</span>
+      <div className="card-image-container">
+        <img 
+          src={product.image || defaultImage} 
+          alt={product.name} 
+          className="card-image"
+          onError={(e) => { e.target.src = defaultImage; }}
+        />
       </div>
       <div className="card-body">
-        <div className="card-name">{product.productName}</div>
-        <div className="card-origin">{origin}</div>
+        <div className="card-name">{product.name}</div>
+        <div className="card-origin">{product.region?.split(" / ")[0] || "Local Farm"}</div>
         <div className="card-price">₱{product.price} / {unit}</div>
       </div>
     </div>

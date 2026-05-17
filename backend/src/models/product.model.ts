@@ -76,7 +76,7 @@ const productSchema = new Schema<productDocument>(
         "Organic / PhilOA", 
         "PGS Certified", 
         "Halal Certified", 
-        "Direct Trade", //todo: add a hover modal so the avg consumer knows what this shit actually means
+        "GAqP Certified",//todo: add a hover modal so the avg consumer knows what this shit actually means
         "NMIS Approved"
       ],
       default: []
@@ -87,13 +87,11 @@ const productSchema = new Schema<productDocument>(
 
 //.index has mongodb kind of pre sort the list so sorting and searching happens practically instantly instead of having
 //to search and sort through the list everytime.
-// High-speed indices for real-time sidebar rendering
 productSchema.index({ name: 1 });
 productSchema.index({ type: 1 });
 productSchema.index({ price: 1 });
 productSchema.index({ quantity: 1 });
 productSchema.index({ region: 1 });
 productSchema.index({ certifications: 1 });
-
 productSchema.index({ type: 1, price: 1, region: 1 });//this optimizes it even further
 export const Product = mongoose.model<productDocument>("Product", productSchema);
