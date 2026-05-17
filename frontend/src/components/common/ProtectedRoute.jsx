@@ -5,9 +5,8 @@ export default function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
-  // Do NOT return a Navbar here. App.jsx already has one.
   if (loading) {
-    return null; 
+    return <div className="loading-spinner">Loading session...</div>; // Or return null;
   }
 
   if (!isAuthenticated) {

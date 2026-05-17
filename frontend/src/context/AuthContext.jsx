@@ -17,31 +17,30 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const isAuthenticated = !!user;
   
-    useEffect(() => {
-      const checkAuth = async () => {
-        const savedType = getUserType();
-        if (!savedType) {
-          setLoading(false);
-          return;
+  useEffect(() => {
+    const checkAuth = async () => {
+      const savedType = getUserType();
+      if (!savedType) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const profileData = await authAPI.getProfile(); 
+        if (profileData) {
+          // profileData is flat: { firstName, lastName, email, userType }
+          setUser(profileData); 
+          localStorage.setItem("sakalink_userInfo", JSON.stringify(profileData));
+          setUserType(profileData.userType);
         }
-        try {
-          // We call your profile endpoint. Because api.js has credentials: "include",
-          // the browser automatically attaches your secure HttpOnly token cookie!
-          const profileData = await authAPI.getProfile(); 
-          if (profileData) {
-            setUser(profileData); 
-            localStorage.setItem("sakalink_userInfo", JSON.stringify(profileData));
-            setUserType(profileData.userType);
-          }
-        } catch (err) {
-          handleLocalLogout();
-        } finally {
-          setLoading(false); 
-        }
-      };
+      } catch (err) {
+        handleLocalLogout();
+      } finally {
+        setLoading(false); 
+      }
+    };
 
-      checkAuth();
-    }, []);
+    checkAuth();
+  }, []);
 
   const login = (data) => {
     if (!data) return;

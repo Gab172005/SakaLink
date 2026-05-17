@@ -3,10 +3,14 @@ import jwt from 'jsonwebtoken';
 import { type AuthRequest, type JwtPayload } from '../types/index.js';
 
 export const protect = (req: AuthRequest, res: Response, next: NextFunction): void => {
+
   const token = req.headers.authorization?.split(' ')[1] ?? req.cookies?.token;
   // FIX: protect previously only read from the Authorization header, but the
   // frontend sends an HttpOnly cookie. Added cookie fallback so protect works
   // for routes like GET /orders/my-orders and PATCH /auth/profile.
+
+  // Read strictly from cookies since you dropped authorization headers
+  const token = req.cookies?.token;
 
   if (!token) {
     res.status(401).json({ message: 'No session token, access denied' });
