@@ -84,7 +84,7 @@
   height: 100%;
   object-fit: cover;    
   object-position: center;
-  display: block; /* Clean layout baseline behavior instead of flex */
+  display: block; 
   border-right: 1px solid #f0f0f0;
 }
 
@@ -234,4 +234,27 @@
 @keyframes slideUp { 
   from { opacity: 0; transform: translateY(30px); } 
   to { opacity: 1; transform: translateY(0); } 
+}
+
+.quantityBtn:disabled {
+  background: #e0e0e0 !important; 
+  color: #a0a0a0 !important;      
+  cursor: not-allowed;            
+  opacity: 1;                     
+}
+
+.quantityBtn:disabled svg {
+  stroke: #a0a0a0 !important;
+}
+
+.addBtn:disabled {
+  background: #cccccc !important;
+  color: #777777 !important;      
+  cursor: not-allowed;
+  transform: none !important;    
+  box-shadow: none !important;    
+}
+
+.addBtn:disabled svg {
+  stroke: #777777 !important;
 }
