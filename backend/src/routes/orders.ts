@@ -5,17 +5,14 @@ import { User } from '../models/user.model.js';
 import { Notification } from '../models/notification.model.js';
 import { protect, adminOnly } from '../middleware/auth.js';
 import { type AuthRequest } from '../types/index.js';
+import { validateBody } from '../middleware/validate.js';
+import { createOrderSchema } from '../validators/order.schema.js';
 
 const router = Router();
 
 // POST /api/orders — Place order (customer)
-router.post('/', protect, async (req: AuthRequest, res: Response): Promise<void> => {
-  const { items, deliveryAddress, paymentMethod } = req.body;
-
-  if (!items || !Array.isArray(items) || items.length === 0) {
-    res.status(400).json({ message: 'No items in order' });
-    return;
-  }
+router.post('/', protect, validateBody(createOrderSchema), async (req: AuthRequest, res: Response): Promise<void> => {
+  const { items, deliveryAddress, paymentMethod } = (req as any).body;
 
   try {
     const orderItems: OrderItem[] = [];

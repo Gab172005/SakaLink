@@ -3,6 +3,8 @@ import jwt from 'jsonwebtoken';
 import { User } from '../models/user.model.js';
 import { protect } from '../middleware/auth.js';
 import { type AuthRequest } from '../types/index.js';
+import { validateBody } from '../middleware/validate.js';
+import { registerSchema, loginSchema, updateProfileSchema } from '../validators/auth.schema.js';
 
 const router = Router();
 
@@ -16,7 +18,7 @@ const getJwtSecret = (res: Response): string | null => {
 };
 
 // POST /api/auth/register — Register a new customer
-router.post('/register', async (req: Request, res: Response): Promise<void> => {
+router.post('/register', validateBody(registerSchema), async (req: Request, res: Response): Promise<void> => {
   try {
     const { firstName, middleName, lastName, email, password } = req.body;
 
@@ -71,7 +73,7 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
 });
 
 // POST /api/auth/login — Authenticate user & issue cookie
-router.post('/login', async (req: Request, res: Response): Promise<void> => {
+router.post('/login', validateBody(loginSchema), async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 
@@ -170,7 +172,7 @@ router.get('/profile', async (req: Request, res: Response): Promise<void> => {
 });
 
 // PATCH /api/auth/profile — Updates first name and last name safely
-router.patch('/profile', async (req: Request, res: Response): Promise<void> => {
+router.patch('/profile', validateBody(updateProfileSchema), async (req: Request, res: Response): Promise<void> => {
   try {
     const token = req.cookies.token;
 

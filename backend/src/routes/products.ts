@@ -2,6 +2,8 @@ import { Router, type Request, type Response } from 'express';
 import {Product} from '../models/product.model.js';
 import { protect, adminOnly } from '../middleware/auth.js';
 import { type AuthRequest, type SortOrder } from '../types/index.js';
+import { validateBody } from '../middleware/validate.js';
+import { createProductSchema, updateProductSchema } from '../validators/product.schema.js';
 
 const router = Router();
 
@@ -21,9 +23,10 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
 });
 
 // POST /api/products
-router.post('/', protect, adminOnly, async (req: AuthRequest, res: Response): Promise<void> => {
+router.post('/', protect, adminOnly, validateBody(createProductSchema), async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const product = await Product.create(req.body);
+    // req.body has been validated and coerced by middleware
+    const product = await Product.create((req as any).body);
     res.status(201).json(product);
   } catch (err) {
     res.status(500).json({ message: (err as Error).message });
@@ -31,9 +34,9 @@ router.post('/', protect, adminOnly, async (req: AuthRequest, res: Response): Pr
 });
 
 // PUT /api/products/:id
-router.put('/:id', protect, adminOnly, async (req: AuthRequest, res: Response): Promise<void> => {
+router.put('/:id', protect, adminOnly, validateBody(updateProductSchema), async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const product = await Product.findByIdAndUpdate(req.params.id, (req as any).body, { new: true });
     if (!product) {
       res.status(404).json({ message: 'Product not found' });
       return;
