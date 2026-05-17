@@ -30,11 +30,11 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
     }
 
     const newUser = await User.create({
-      firstName, 
-      middleName, 
+      firstName,
+      middleName,
       lastName,
-      email, 
-      password, 
+      email,
+      password,
       userType: 'customer',
     });
 
@@ -48,13 +48,13 @@ router.post('/register', async (req: Request, res: Response): Promise<void> => {
     );
 
     res.cookie('token', token, {
-      httpOnly: true, 
+      httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax', 
-      maxAge: 7 * 24 * 60 * 60 * 1000 
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
-    res.status(201).json({ 
+    res.status(201).json({
       userType: newUser.userType,
       user: {
         firstName: newUser.firstName,
@@ -80,7 +80,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
 
     // FIX: Added .select('+password') because you have select: false in your schema!
     const user = await User.findOne({ email }).select('+password');
-    
+
     if (!user) {
       res.status(400).json({ message: 'User not found' });
       return;
@@ -109,7 +109,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
       maxAge: 7 * 24 * 60 * 60 * 1000 //xprires after a week
 
     });
-    res.status(200).json({ 
+    res.status(200).json({
       userType: user.userType,
       user: {
         firstName: user.firstName,
@@ -135,7 +135,7 @@ router.post('/logout', (req: Request, res: Response) => {
 
 router.get('/profile', async (req: Request, res: Response): Promise<void> => {
   try {
-    const token = req.cookies.token; 
+    const token = req.cookies.token;
 
     if (!token) {
       res.status(401).json({ message: 'Not authenticated' });
@@ -153,46 +153,71 @@ router.get('/profile', async (req: Request, res: Response): Promise<void> => {
       res.status(404).json({ message: 'User not found' });
       return;
     }
-    
-    res.status(200).json(user);
+
+    // FIX: Match the structured response design pattern of your /login endpoint!
+    res.status(200).json({
+      userType: user.userType,
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email
+      }
+    });
   } catch (err) {
     res.status(401).json({ message: 'Invalid session' });
   }
 });
 
 // PATCH /api/auth/profile
-// Updates first name and last name.
+// Updates first name and last name safely.
 router.patch('/profile', async (req: Request, res: Response): Promise<void> => {
   try {
     const token = req.cookies.token;
- 
+
     if (!token) {
       res.status(401).json({ message: 'Not authenticated' });
       return;
     }
- 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
- 
-    // explicit string cast: prevents ".trim is not a function" if body sends non-strings
+
+    // FIX: Use your dynamic function getJwtSecret instead of a hardcoded environment fallback
+    const jwtSecret = getJwtSecret(res);
+    if (!jwtSecret) return;
+
+    const decoded = jwt.verify(token, jwtSecret) as { id: string };
+
+    // Explicit string cast: prevents ".trim is not a function" if body sends non-strings
     const firstName = String(req.body.firstName ?? '');
-    const lastName  = String(req.body.lastName  ?? '');
- 
+    const lastName = String(req.body.lastName ?? '');
+
     if (!firstName.trim() || !lastName.trim()) {
       res.status(400).json({ message: 'First name and last name are required.' });
       return;
     }
- 
-    // only name fields are updated (email and password are intentionally excluded)
+
+    // Only name fields are updated (email and password are intentionally excluded)
     const updated = await User.findByIdAndUpdate(
       decoded.id,
       {
         firstName: firstName.trim(),
-        lastName:  lastName.trim(),
+        lastName: lastName.trim(),
       },
       { new: true, runValidators: true }
     ).select('firstName lastName email userType');
- 
-    res.status(200).json(updated);
+
+    if (!updated) {
+      res.status(404).json({ message: 'Target profile user not found' });
+      return;
+    }
+
+    // FIX: Match response envelope footprint symmetry here too
+    res.status(200).json({
+      userType: updated.userType,
+      user: {
+        firstName: updated.firstName,
+        lastName: updated.lastName,
+        email: updated.email
+      }
+    });
   } catch (err) {
     res.status(500).json({ message: (err as Error).message });
   }

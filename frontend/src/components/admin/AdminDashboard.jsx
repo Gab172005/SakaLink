@@ -5,13 +5,13 @@ export default function AdminDashboard({ showToast }) {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [activeTab, setActiveTab] = useState('all'); // 'all', 'pending', 'completed', 'cancelled'
+    const [activeTab, setActiveTab] = useState('all');
 
-    // Fetch orders from the protected admin route on load
+
     const fetchOrders = async () => {
         try {
             setLoading(true);
-            // Fetching from your exact backend route registry
+
             const response = await fetch('http://localhost:5000/api/admin/orders', {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
@@ -34,7 +34,6 @@ export default function AdminDashboard({ showToast }) {
         fetchOrders();
     }, []);
 
-    // Handler for Updating status (Confirm/Ship vs Cancel)
     const handleUpdateStatus = async (orderId, newStatus) => {
         try {
             const response = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
@@ -49,14 +48,14 @@ export default function AdminDashboard({ showToast }) {
             }
 
             showToast?.(`Order updated successfully! 🎉`);
-            // Refresh local view data arrays to maintain sync
+
             fetchOrders();
         } catch (err) {
             showToast?.(`Error: ${err.message}`);
         }
     };
 
-    // Compute metric blocks displayed at top cards
+
     const totalOrdersCount = orders.length;
     const pendingCount = orders.filter(o => o.status === 0 || o.status === 1).length;
     const completedCount = orders.filter(o => o.status === 2).length;
@@ -94,7 +93,7 @@ export default function AdminDashboard({ showToast }) {
 
     return (
         <div className={styles.dashboardContainer}>
-            {/* Upper Navigation Row Header */}
+
             <header className={styles.dashHeader}>
                 <div>
                     <h1 className={styles.mainTitle}>SakaLink Management Console</h1>
@@ -102,7 +101,7 @@ export default function AdminDashboard({ showToast }) {
                 </div>
             </header>
 
-            {/* Metric Cards Section */}
+
             <section className={styles.metricsGrid}>
                 <div className={styles.metricCard}>
                     <div className={styles.metricMeta}>
