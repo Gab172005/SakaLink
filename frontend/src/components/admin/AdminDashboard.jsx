@@ -11,20 +11,31 @@ export default function AdminDashboard({ showToast }) {
     const fetchOrders = async () => {
         try {
             setLoading(true);
+            setError(''); // Clear any previous errors
 
             const response = await fetch('http://localhost:5000/api/admin/orders', {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
+                // 💡 CRITICAL FIX: Forces the browser to send your HttpOnly JWT cookie to the backend
+                credentials: 'include',
             });
 
             if (!response.ok) {
+                // Handle HTTP errors like 401, 403, 404, etc.
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error('Access denied. You are not authorized to view this dashboard.');
+                }
                 throw new Error('Failed to fetch administrative records.');
             }
 
             const data = await response.json();
-            setOrders(data);
+
+            // Safety fallback just in case data isn't a direct array
+            setOrders(Array.isArray(data) ? data : []);
+
         } catch (err) {
             setError(err.message);
+            if (showToast) showToast(err.message, 'error');
         } finally {
             setLoading(false);
         }
