@@ -47,40 +47,48 @@ export default function AdminDashboard({ showToast }) {
 
     const handleStatusChange = async (orderId, targetStatus) => {
         try {
-            const isConfirming = targetStatus === 1;
-            const actionText = isConfirming ? 'confirm' : 'cancel';
-            if (!window.confirm(`Are you sure you want to ${actionText} this order?`)) return;
 
-            // 🟢 FIX: Dynamically target the exact endpoints your backend is listening for
-            const endpoint = isConfirming
-                ? `http://localhost:5000/api/orders/${orderId}/confirm`
-                : `http://localhost:5000/api/orders/${orderId}/admin-cancel`;
+            let actionText = '';
+            let endpoint = '';
+
+            if (targetStatus === 1) {
+                actionText = 'confirm';
+                endpoint = `http://localhost:5000/api/orders/${orderId}/confirm`;
+            } else if (targetStatus === 2) {
+                actionText = 'deliver';
+                endpoint = `http://localhost:5000/api/orders/${orderId}/deliver`;
+            } else if (targetStatus === 3) {
+                actionText = 'cancel';
+                endpoint = `http://localhost:5000/api/orders/${orderId}/admin-cancel`;
+            }
+
+            if (!window.confirm(`Are you sure you want to ${actionText} this order?`)) return;
 
             const response = await fetch(endpoint, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                credentials: 'include' // Attaches your admin auth credentials seamlessly
+                credentials: 'include'
             });
 
-            // Safe check for structural HTML error page returns
             if (!response.ok) {
                 const contentType = response.headers.get("content-type");
                 if (contentType && contentType.includes("application/json")) {
                     const errorData = await response.json();
                     throw new Error(errorData.message || `Failed to ${actionText} order.`);
                 } else {
-                    throw new Error(`Server error (${response.status}). Ensure backend process is awake.`);
+                    throw new Error(`Server error (${response.status}). Check backend build process status.`);
                 }
             }
 
             if (showToast) {
-                showToast(
-                    isConfirming ? 'Order confirmed successfully! ' : 'Order cancelled.',
-                    isConfirming ? 'success' : 'info'
-                );
+                let successMsg = 'Status updated successfully!';
+                if (targetStatus === 1) successMsg = 'Order confirmed successfully! 🚛';
+                if (targetStatus === 2) successMsg = 'Order marked as Delivered! 🎉';
+                if (targetStatus === 3) successMsg = 'Order cancelled.';
+
+                showToast(successMsg, targetStatus === 3 ? 'info' : 'success');
             }
 
-            // 🔄 Refresh the table grid to update layout states immediately
             fetchOrders();
 
         } catch (err) {

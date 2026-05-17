@@ -224,7 +224,7 @@ router.patch('/:id/admin-cancel', protect, adminOnly, async (req: AuthRequest, r
   }
 
   try {
-    // 1. Look up the order strictly by its primary tracking ID
+
     const order = await Order.findById(id);
 
     if (!order) {
@@ -232,11 +232,9 @@ router.patch('/:id/admin-cancel', protect, adminOnly, async (req: AuthRequest, r
       return;
     }
 
-    // 2. Set status directly to 3 (Cancelled)
     order.status = 3;
     await order.save();
 
-    // 3. Send a single clean customer notification update
     await Notification.create({
       userId: order.user,
       type: 'order_cancelled',
@@ -251,8 +249,47 @@ router.patch('/:id/admin-cancel', protect, adminOnly, async (req: AuthRequest, r
     res.status(500).json({ message: (err as Error).message });
   }
 });
+
+
+router.patch('/:id/deliver', protect, adminOnly, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      res.status(404).json({ message: 'Order not found' });
+      return;
+    }
+
+    if (order.status !== 1) {
+      res.status(400).json({ message: 'Only orders marked "Out for Delivery" can be set to Delivered' });
+      return;
+    }
+
+
+    order.status = 2;
+    await order.save();
+
+
+    await Notification.create({
+      userId: order.user,
+      type: 'order_delivered',
+      message: `Your order has been successfully delivered! Thank you for shopping with us.`,
+    });
+
+
+    res.json(order);
+    return;
+
+  } catch (err) {
+    res.status(500).json({ message: (err as Error).message });
+  }
+});
+
+
 // GET /api/orders/pending-count — Pending order count (admin)
 // Used by the notifications route to generate the pending orders summary
+
+
 router.get('/pending-count', protect, adminOnly, async (_req: AuthRequest, res: Response): Promise<void> => {
   try {
     const count = await Order.countDocuments({ status: 0 });
