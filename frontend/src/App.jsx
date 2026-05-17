@@ -26,7 +26,8 @@ function LandingPage({ openModal }) {
 }
 
 function AppContent() {
-  const { user } = useAuth();
+  // FIX: Destructure userType directly from the hook context
+  const { user, userType } = useAuth();
   const [modal, setModal] = useState(null);
   const [toast, setToast] = useState({ visible: false, message: "" });
 
@@ -82,7 +83,8 @@ function AppContent() {
           path="/admin/dashboard"
           element={
             <ProtectedRoute>
-              {user?.userType === "admin" ? (
+              {/* FIX: Evaluate userType directly instead of user?.userType */}
+              {userType === "admin" ? (
                 <AdminDashboard />
               ) : (
                 <Navigate to="/" replace />
@@ -92,7 +94,9 @@ function AppContent() {
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      
       <Toast visible={toast.visible} message={toast.message} />
+      
       <LoginModal
         active={modal === "login"}
         onClose={closeModal}

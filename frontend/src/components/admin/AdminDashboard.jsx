@@ -1,10 +1,15 @@
 import { useState, useEffect } from 'react';
 import styles from './AdminDashboard.module.css';
+import { useNavigate } from 'react-router-dom';
+
 export default function AdminDashboard({ showToast }) {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [activeTab, setActiveTab] = useState('all');
+    const [isVerifiedAdmin, setIsVerifiedAdmin] = useState(false);
+    
+    const navigate = useNavigate();
 
     const fetchOrders = async () => {
         try {
@@ -16,15 +21,16 @@ export default function AdminDashboard({ showToast }) {
                 credentials: 'include',
             });
 
-            if (!response.ok) {
-                if (response.status === 401 || response.status === 403) {
-                    throw new Error('Access denied. You are not authorized to view this dashboard.');
-                }
-                throw new Error('Failed to fetch administrative records.');
+            if (response.status === 401 || response.status === 403) {
+                console.error("You are not authorized to view this");
+                if (showToast) showToast('Access denied. Booting to home...', 'error');
+                navigate('/', { replace: true });
+                return;
             }
 
             const data = await response.json();
             setOrders(Array.isArray(data) ? data : []);
+            setIsVerifiedAdmin(true);
 
         } catch (err) {
             setError(err.message);
@@ -51,8 +57,6 @@ export default function AdminDashboard({ showToast }) {
                 throw new Error(`Unsupported status targeted: ${newStatus}`);
             }
 
-            console.log(`📡 Dispatching request to endpoint: ${endpoint}`);
-
             const response = await fetch(endpoint, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
@@ -64,7 +68,7 @@ export default function AdminDashboard({ showToast }) {
                 throw new Error(fallback.message || 'Server rejected status progression.');
             }
 
-            showToast?.(`Order status updated successfully! 🎉`);
+            showToast?.('Order status updated successfully!');
 
             //force reactive UI state array updates
             setOrders(prevOrders => 
@@ -81,13 +85,16 @@ export default function AdminDashboard({ showToast }) {
 
     const totalOrdersCount = orders.length;
     const pendingCount = orders.filter(o => o.status === 0 || o.status === 1).length;
+    const reviewCount = orders.filter(o => o.status === 0).length;
+    const shippingCount = orders.filter(o => o.status === 1).length;
     const completedCount = orders.filter(o => o.status === 2).length;
     const totalRevenue = orders
         .filter(o => o.status === 2)
         .reduce((sum, o) => sum + (o.totalToPay || 0), 0);
 
     const filteredOrders = orders.filter(order => {
-        if (activeTab === 'pending') return order.status === 0 || order.status === 1;
+        if (activeTab === 'pending') return order.status === 0;
+        if (activeTab === 'shipping') return order.status === 1;
         if (activeTab === 'completed') return order.status === 2;
         if (activeTab === 'cancelled') return order.status === 3;
         return true; 
@@ -112,6 +119,7 @@ export default function AdminDashboard({ showToast }) {
 
     if (loading) return <div className={styles.centeredState}><span className={styles.spinner} /> Loading administrative desk...</div>;
     if (error) return <div className={styles.centeredState}><p className={styles.errorText}>⚠️ {error}</p></div>;
+    if (!isVerifiedAdmin) return null;
 
     return (
         <div className={styles.dashboardContainer}>
@@ -139,7 +147,7 @@ export default function AdminDashboard({ showToast }) {
                 </div>
                 <div className={styles.metricCard}>
                     <div className={styles.metricMeta}>
-                        <span className={styles.metricLabel}>Fulfillments Completed</span>
+                        <span className={styles.metricLabel}>Orders Completed</span>
                         <span className={styles.metricIcon}>✅</span>
                     </div>
                     <h3 className={`${styles.metricValue} ${styles.textSuccess}`}>{completedCount}</h3>
@@ -156,7 +164,8 @@ export default function AdminDashboard({ showToast }) {
             <div className={styles.tableControlsCard}>
                 <div className={styles.tabGroup}>
                     <button className={`${styles.tabBtn} ${activeTab === 'all' ? styles.tabActive : ''}`} onClick={() => setActiveTab('all')}>All Logs</button>
-                    <button className={`${styles.tabBtn} ${activeTab === 'pending' ? styles.tabActive : ''}`} onClick={() => setActiveTab('pending')}>Pending Review ({pendingCount})</button>
+                    <button className={`${styles.tabBtn} ${activeTab === 'pending' ? styles.tabActive : ''}`} onClick={() => setActiveTab('pending')}>Pending Review ({reviewCount})</button>
+                    <button className={`${styles.tabBtn} ${activeTab === 'shipping' ? styles.tabActive : ''}`} onClick={() => setActiveTab('shipping')}>Out for Delivery ({shippingCount})</button>
                     <button className={`${styles.tabBtn} ${activeTab === 'completed' ? styles.tabActive : ''}`} onClick={() => setActiveTab('completed')}>Completed</button>
                     <button className={`${styles.tabBtn} ${activeTab === 'cancelled' ? styles.tabActive : ''}`} onClick={() => setActiveTab('cancelled')}>Cancelled</button>
                 </div>

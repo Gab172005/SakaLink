@@ -87,6 +87,7 @@
     background: #f1f5f9;
     padding: 6px 6px 0 6px;
     border-bottom: 1px solid #e2e8f0;
+    flex-wrap: wrap;
 }
 
 .tabBtn {
