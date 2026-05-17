@@ -15,8 +15,8 @@ export const CERTIFICATIONS = [
 ];
 
 export const REGIONS = [
-  'CAR / Cordillera',
-  'Region I / Ilocos',
+  'CAR / Cordillera Administrative Region',
+  'Region I / Ilocos Region',
   'Region II / Cagayan Valley',
   'Region III / Central Luzon',
   'Region IV-A / CALABARZON',

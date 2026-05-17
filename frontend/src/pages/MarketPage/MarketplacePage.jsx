@@ -41,17 +41,19 @@ export default function MarketplacePage({ showToast }) {
       rating: p.rating || 5,
       seller: p.seller || 'Local Farmer',
       location: p.location || p.region,
+      region: p.region || p.location,   // ← add this line
       stock: p.stock ?? p.quantity ?? 0,
       unit: p.unit || 'kg'
     }));
   }, [rawProducts]);
 
+  console.log(rawProducts[0]);
   const filtered = useMemo(() => {
     let result = products.filter(p => {
       if (query && !p.name.toLowerCase().includes(query.toLowerCase())) return false;
       if (filters.categories?.length && !filters.categories.includes(p.category)) return false;
       if (filters.certifications?.length && !filters.certifications.some(c => (p.certifications || []).includes(c))) return false;
-      if (filters.regions?.length && !filters.regions.includes(p.location)) return false;
+      if (filters.regions?.length && !filters.regions.includes(p.region)) return false;
       if (p.price > (filters.maxPrice ?? 1000)) return false;
       return true;
     });
