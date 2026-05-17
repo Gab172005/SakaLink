@@ -2,16 +2,17 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import cookieParser from 'cookie-parser'
-import authRoutes    from './routes/auth.js';
+import cookieParser from 'cookie-parser';
+dotenv.config();
+import authRoutes from './routes/auth.js';
 import productRoutes from './routes/products.js';
-import orderRoutes   from './routes/orders.js';
-import adminRoutes   from './routes/admin.js';
+import orderRoutes from './routes/orders.js';
+import adminRoutes from './routes/admin.js'; 
 import notificationRoutes from './routes/notifications.js';
 
-dotenv.config();
-const app  = express();
+const app = express();
 const PORT = process.env.PORT || 5000;
+const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI || "mongodb://localhost:27017/test";
 
 const ALLOWED_ORIGINS = [
   "http://localhost:3000",
@@ -20,9 +21,7 @@ const ALLOWED_ORIGINS = [
   "http://localhost:4173",
 ];
 
-const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI || "mongodb://localhost:27017/test";
-
-
+// 4. Global Middleware Configuration
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -38,13 +37,14 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 app.use(cookieParser());
 app.use(express.json());
 
-app.use('/api/auth',     authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
-app.use('/api/orders',   orderRoutes);
-app.use('/api/admin',    adminRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/admin', adminRoutes); 
 app.use('/api/notifications', notificationRoutes);
 
 console.log('Connecting to MongoDB...');
@@ -57,6 +57,6 @@ mongoose
   .catch((err) => {
     console.error('CRITICAL: DB connection error:', err.message);
     console.log('Ensure MongoDB is running and your MONGO_URI is correct.');
-    // Start server anyway so frontend can at least get a 500 instead of "failed to fetch"
+    // Start server anyway so frontend can receive clean 500 responses instead of connection drops
     app.listen(PORT, () => console.log(`Server running on port ${PORT} (WITHOUT DB CONNECTION)`));
   });
