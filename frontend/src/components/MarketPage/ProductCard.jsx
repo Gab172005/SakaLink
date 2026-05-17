@@ -46,6 +46,11 @@ export default function ProductCard({ product, onSelectProduct, showToast }) {
 
   return (
     <article className={styles.card} onClick={() => onSelectProduct?.(product)}>
+      {product.promoted && (
+        <div className={styles.promotedBadge}>
+          <span className={styles.promotedIcon}>⭐</span>
+        </div>
+      )}
       <ProductImage
         id={product.id}
         src={product.image || product.image_url || product.photo || product.thumbnail}

@@ -30,3 +30,58 @@
   border: 1px solid var(--border-light);
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
 }
+
+.promotedSection {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid var(--green-200);
+}
+
+.promotedTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--green-700);
+  margin: 0 0 0.5rem 0;
+}
+
+.promotedIcon {
+  font-size: 1.75rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.promotedDesc {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin: 0 0 1.5rem 0;
+  padding-left: 2.5rem;
+}
+
+.regularSection {
+  margin-top: 1rem;
+}
+
+.regularTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 1.5rem 0;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}

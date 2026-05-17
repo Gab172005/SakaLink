@@ -87,6 +87,15 @@ export default function MarketplacePage({ showToast }) {
     showToast(`Added ${product.name} to cart! 🛒`);
   };
 
+  // Separate promoted and regular products
+  const promotedProducts = useMemo(() => {
+    return filtered.filter(p => p.promoted);
+  }, [filtered]);
+
+  const regularProducts = useMemo(() => {
+    return filtered.filter(p => !p.promoted);
+  }, [filtered]);
+
   return (
     <div className={styles.page}>
       <div className={styles.layout}>
@@ -108,12 +117,45 @@ export default function MarketplacePage({ showToast }) {
                 <p>Loading market products...</p>
               </div>
             ) : (
-              <ProductGrid 
-                products={filtered} 
-                onAddToCart={handleAddToCart} 
-                onSelectProduct={setSelectedProduct} 
-                showToast={showToast}
-              />
+              <>
+                {promotedProducts.length > 0 && (
+                  <div className={styles.promotedSection}>
+                    <h2 className={styles.promotedTitle}>
+                      <span className={styles.promotedIcon}>⭐</span>
+                      Support Disaster-Struck Farmers & Top Picks
+                    </h2>
+                    <p className={styles.promotedDesc}>
+                      Featured products from regions in need of support
+                    </p>
+                    <ProductGrid 
+                      products={promotedProducts} 
+                      onAddToCart={handleAddToCart} 
+                      onSelectProduct={setSelectedProduct} 
+                      showToast={showToast}
+                      isPromoted={true}
+                    />
+                  </div>
+                )}
+                {regularProducts.length > 0 && (
+                  <div className={styles.regularSection}>
+                    {promotedProducts.length > 0 && (
+                      <h3 className={styles.regularTitle}>All Products</h3>
+                    )}
+                    <ProductGrid 
+                      products={regularProducts} 
+                      onAddToCart={handleAddToCart} 
+                      onSelectProduct={setSelectedProduct} 
+                      showToast={showToast}
+                      isPromoted={false}
+                    />
+                  </div>
+                )}
+                {promotedProducts.length === 0 && regularProducts.length === 0 && (
+                  <div className={styles.emptyState}>
+                    <p>No products found matching your filters</p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </main>

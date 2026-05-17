@@ -1,6 +1,7 @@
 // src/hooks/useProducts.js
 import { useState, useEffect } from "react";
 import { productsAPI } from "../services/api";
+import { PRODUCTS as FALLBACK_PRODUCTS } from "../data/products";
 
 export function useProducts(params = { sortBy: "name", order: "asc" }) { // Use "name" instead of "productName"
   const [products, setProducts] = useState([]);

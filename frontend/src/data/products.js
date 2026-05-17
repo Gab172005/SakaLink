@@ -41,6 +41,48 @@ export const RATINGS = [5, 4, 3, 2, 1];
 export const PRODUCTS = [
   {
     id: 1,
+    name: "Baguio Wombok (Napa Cabbage)",
+    category: "Vegetables",
+    price: 75,
+    unit: "kg",
+    location: "Baguio City, Benguet",
+    region: "CAR / Cordillera",
+    certifications: ["Organic", "GAP Certified"],
+    rating: 5,
+    seller: "Individual Farmer",
+    image: "🥬",
+    promoted: true
+  },
+  {
+    id: 2,
+    name: "Guimaras Bananas (Moko)",
+    category: "Fruits",
+    price: 120,
+    unit: "kg",
+    location: "Guimaras",
+    region: "Region VI / Western Visayas",
+    certifications: ["GAP Certified"],
+    rating: 5,
+    seller: "Cooperative",
+    image: "🍌",
+    promoted: true
+  },
+  {
+    id: 3,
+    name: "Laguna Fresh Carabao Milk",
+    category: "Dairy & Eggs",
+    price: 95,
+    unit: "liter",
+    location: "San Pablo, Laguna",
+    region: "Region IV-A / CALABARZON",
+    certifications: ["Halal Certified"],
+    rating: 5,
+    seller: "Cooperative",
+    image: "🥛",
+    promoted: true
+  },
+  {
+    id: 4,
     name: "Benguet Highland Lettuce",
     category: "Vegetables",
     price: 85,
@@ -50,10 +92,11 @@ export const PRODUCTS = [
     certifications: ["Organic", "GAP Certified"],
     rating: 5,
     seller: "Individual Farmer",
-    image: "🥬"
+    image: "🥬",
+    promoted: false
   },
   {
-    id: 2,
+    id: 5,
     name: "Red Carabao Mangoes",
     category: "Fruits",
     price: 180,
@@ -63,10 +106,11 @@ export const PRODUCTS = [
     certifications: ["GAP Certified"],
     rating: 5,
     seller: "Cooperative",
-    image: "🥭"
+    image: "🥭",
+    promoted: false
   },
   {
-    id: 3,
+    id: 6,
     name: "Dinorado Rice (Premium)",
     category: "Grains & Rice",
     price: 55,
@@ -76,10 +120,11 @@ export const PRODUCTS = [
     certifications: ["Halal Certified"],
     rating: 4,
     seller: "Local Farm",
-    image: "🌾"
+    image: "🌾",
+    promoted: false
   },
   {
-    id: 4,
+    id: 7,
     name: "Free-range Native Chicken",
     category: "Poultry & Meat",
     price: 320,
@@ -89,10 +134,11 @@ export const PRODUCTS = [
     certifications: ["Organic"],
     rating: 4,
     seller: "Individual Farmer",
-    image: "🍗"
+    image: "🍗",
+    promoted: false
   },
   {
-    id: 5,
+    id: 8,
     name: "Fresh Catch Tilapia",
     category: "Seafood",
     price: 140,
@@ -102,10 +148,11 @@ export const PRODUCTS = [
     certifications: ["GAP Certified"],
     rating: 4,
     seller: "Cooperative",
-    image: "🐟"
+    image: "🐟",
+    promoted: false
   },
   {
-    id: 6,
+    id: 9,
     name: "Organic Brown Eggs",
     category: "Dairy & Eggs",
     price: 12,
@@ -115,7 +162,8 @@ export const PRODUCTS = [
     certifications: ["Organic"],
     rating: 5,
     seller: "Individual Farmer",
-    image: "🥚"
+    image: "🥚",
+    promoted: false
   },
 ];
 
