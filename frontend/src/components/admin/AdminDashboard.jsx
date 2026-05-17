@@ -45,24 +45,47 @@ export default function AdminDashboard({ showToast }) {
         fetchOrders();
     }, []);
 
-    const handleUpdateStatus = async (orderId, newStatus) => {
+    const handleStatusChange = async (orderId, targetStatus) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+            const isConfirming = targetStatus === 1;
+            const actionText = isConfirming ? 'confirm' : 'cancel';
+            if (!window.confirm(`Are you sure you want to ${actionText} this order?`)) return;
+
+            // 🟢 FIX: Dynamically target the exact endpoints your backend is listening for
+            const endpoint = isConfirming
+                ? `http://localhost:5000/api/orders/${orderId}/confirm`
+                : `http://localhost:5000/api/orders/${orderId}/admin-cancel`;
+
+            const response = await fetch(endpoint, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: newStatus })
+                credentials: 'include' // Attaches your admin auth credentials seamlessly
             });
 
+            // Safe check for structural HTML error page returns
             if (!response.ok) {
-                const fallback = await response.json();
-                throw new Error(fallback.message || 'Failed to update order step.');
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `Failed to ${actionText} order.`);
+                } else {
+                    throw new Error(`Server error (${response.status}). Ensure backend process is awake.`);
+                }
             }
 
-            showToast?.(`Order updated successfully! 🎉`);
+            if (showToast) {
+                showToast(
+                    isConfirming ? 'Order confirmed successfully! ' : 'Order cancelled.',
+                    isConfirming ? 'success' : 'info'
+                );
+            }
 
+            // 🔄 Refresh the table grid to update layout states immediately
             fetchOrders();
+
         } catch (err) {
-            showToast?.(`Error: ${err.message}`);
+            console.error(err);
+            if (showToast) showToast(err.message, 'error');
         }
     };
 
@@ -153,7 +176,7 @@ export default function AdminDashboard({ showToast }) {
                     <button className={`${styles.tabBtn} ${activeTab === 'cancelled' ? styles.tabActive : ''}`} onClick={() => setActiveTab('cancelled')}>Cancelled</button>
                 </div>
 
-                {/* Orders Table Display */}
+
                 <div className={styles.tableWrapper}>
                     <table className={styles.mainTable}>
                         <thead>
@@ -209,14 +232,14 @@ export default function AdminDashboard({ showToast }) {
                                                     <>
                                                         <button
                                                             className={`${styles.btnAction} ${styles.btnConfirm}`}
-                                                            onClick={() => handleUpdateStatus(order._id, 1)}
+                                                            onClick={() => handleStatusChange(order._id, 1)}
                                                             title="Confirm and mark out for delivery"
                                                         >
                                                             Confirm
                                                         </button>
                                                         <button
                                                             className={`${styles.btnAction} ${styles.btnCancel}`}
-                                                            onClick={() => handleUpdateStatus(order._id, 3)}
+                                                            onClick={() => handleStatusChange(order._id, 3)}
                                                             title="Reject and cancel transaction"
                                                         >
                                                             Cancel
@@ -226,7 +249,7 @@ export default function AdminDashboard({ showToast }) {
                                                 {order.status === 1 && (
                                                     <button
                                                         className={`${styles.btnAction} ${styles.btnDeliver}`}
-                                                        onClick={() => handleUpdateStatus(order._id, 2)}
+                                                        onClick={() => handleStatusChange(order._id, 2)}
                                                         title="Mark as successfully received"
                                                     >
                                                         Mark Delivered

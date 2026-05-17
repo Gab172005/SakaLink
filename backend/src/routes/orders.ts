@@ -61,7 +61,7 @@ router.post('/', protect, async (req: AuthRequest, res: Response): Promise<void>
       admins.map((a) => ({
         userId: a._id,
         type: 'new_order',
-        message: `New order placed for "${product.name}".`,
+        message: `A new order has been placed.`,
       }))
     );
   } catch (err) {
@@ -114,7 +114,7 @@ router.patch('/:id/cancel', protect, async (req: AuthRequest, res: Response): Pr
       return;
     }
 
-    order.status = 2; // Cancelled
+    order.status = 3; // Cancelled
     await order.save();
     res.json(order);
 
@@ -145,7 +145,7 @@ router.patch('/:id/confirm', protect, adminOnly, async (req: AuthRequest, res: R
   try {
     const order = await Order.findById(req.params.id);
     if (!order) {
-      res.status(404).json({ message: 'Order found' });
+      res.status(404).json({ message: 'Order not found' });
       return;
     }
 
@@ -174,43 +174,83 @@ router.patch('/:id/confirm', protect, adminOnly, async (req: AuthRequest, res: R
       });
     }
 
-    order.status = 1; // Completed (or Out for Delivery depending on enum)
-    // Model says 1: Out for Delivery, 2: Completed. 
-    // Wait, let me check model status enum again.
-    // 0: Pending, 1: Out for Delivery, 2: Completed, 3: Cancelled
-
+    order.status = 1; // Out for Delivery
     await order.save();
-    res.json(order);
+
 
     // Notify the customer their order was confirmed
     await Notification.create({
       userId: order.user,
       type: 'order_confirmed',
-      message: `Your order for "${product.name}" has been confirmed!`,
+      message: `Your order has been confirmed and is now out for delivery!`,
     });
 
-    // If product is now out of stock, notify all customers with pending orders for it
-    if (product.quantity === 0) {
-      const affectedOrders = await Order.find({
-        productId: product._id,
-        status: 0, // pending only
-      });
+    // If any product is now out of stock, notify all customers with pending orders for it
+    for (const item of order.items) {
+      const product = await Product.findById(item.productId);
+      if (product && product.quantity === 0) {
+        const affectedOrders = await Order.find({
+          'items.productId': product._id,
+          status: 0, // pending only
+        });
 
-      if (affectedOrders.length > 0) {
-        await Notification.insertMany(
-          affectedOrders.map((o) => ({
-            userId: o.user,
-            type: 'out_of_stock',
-            message: `"${product.name}" is now out of stock. Your pending order may be affected.`,
-          }))
-        );
+        if (affectedOrders.length > 0) {
+          const userIds = [...new Set(affectedOrders.map(o => o.user.toString()))];
+          await Notification.insertMany(
+            userIds.map((uid) => ({
+              userId: uid,
+              type: 'out_of_stock',
+              message: `"${product.name}" is now out of stock. Your pending order may be affected.`,
+            }))
+          );
+        }
       }
     }
+    res.json(order);
+    return;
   } catch (err) {
     res.status(500).json({ message: (err as Error).message });
   }
 });
 
+// PATCH /api/orders/:id/admin-cancel — Cancel order (Admin Isolation)
+// Put this right underneath your working confirmation route block!
+router.patch('/:id/admin-cancel', protect, adminOnly, async (req: AuthRequest, res: Response): Promise<void> => {
+  const { id } = req.params;
+
+  if (!id) {
+    res.status(400).json({ message: 'Order ID is required' });
+    return;
+  }
+
+  try {
+    // 1. Look up the order strictly by its primary tracking ID
+    const order = await Order.findById(id);
+
+    if (!order) {
+      res.status(404).json({ message: 'Order not found' });
+      return;
+    }
+
+    // 2. Set status directly to 3 (Cancelled)
+    order.status = 3;
+    await order.save();
+
+    // 3. Send a single clean customer notification update
+    await Notification.create({
+      userId: order.user,
+      type: 'order_cancelled',
+      message: 'Your order has been cancelled by the system administration.',
+    });
+
+    res.status(200).json({
+      message: 'Order cancelled by admin successfully.',
+      order
+    });
+  } catch (err) {
+    res.status(500).json({ message: (err as Error).message });
+  }
+});
 // GET /api/orders/pending-count — Pending order count (admin)
 // Used by the notifications route to generate the pending orders summary
 router.get('/pending-count', protect, adminOnly, async (_req: AuthRequest, res: Response): Promise<void> => {
@@ -221,5 +261,8 @@ router.get('/pending-count', protect, adminOnly, async (_req: AuthRequest, res: 
     res.status(500).json({ message: (err as Error).message });
   }
 });
+
+
+
 
 export default router;

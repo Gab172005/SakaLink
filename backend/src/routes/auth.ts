@@ -1,6 +1,8 @@
 import { Router, type Request, type Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/user.model.js';
+import { protect } from '../middleware/auth.js';
+import { type AuthRequest } from '../types/index.js';
 
 const router = Router();
 
@@ -218,6 +220,54 @@ router.patch('/profile', async (req: Request, res: Response): Promise<void> => {
         email: updated.email
       }
     });
+  } catch (err) {
+    res.status(500).json({ message: (err as Error).message });
+  }
+});
+
+// GET /api/auth/cart
+// Fetches the current user's cart, populated with product details.
+router.get('/cart', protect, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const user = await User.findById(req.user?.id).populate('cart.product');
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+    res.status(200).json(user.cart);
+  } catch (err) {
+    res.status(500).json({ message: (err as Error).message });
+  }
+});
+
+// POST /api/auth/cart
+// Syncs the frontend cart with the backend.
+// Body: { cart: [ { productId, quantity } ] }
+router.post('/cart', protect, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { cart } = req.body;
+    if (!Array.isArray(cart)) {
+      res.status(400).json({ message: 'Cart must be an array' });
+      return;
+    }
+
+    const formattedCart = cart.map((item: any) => ({
+      product: item.productId || item._id,
+      quantity: item.quantity
+    }));
+
+    const user = await User.findByIdAndUpdate(
+      req.user?.id,
+      { cart: formattedCart },
+      { new: true }
+    ).populate('cart.product');
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    res.status(200).json(user.cart);
   } catch (err) {
     res.status(500).json({ message: (err as Error).message });
   }

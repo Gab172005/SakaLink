@@ -3,14 +3,16 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser'
-import authRoutes    from './routes/auth.js';
+import authRoutes from './routes/auth.js';
 import productRoutes from './routes/products.js';
-import orderRoutes   from './routes/orders.js';
-import adminRoutes   from './routes/admin.js';
+import orderRoutes from './routes/orders.js';
+import adminRoutes from './routes/admin.js';
 import notificationRoutes from './routes/notifications.js';
+import listEndpoints from 'express-list-endpoints';
+import dns from 'node:dns';
+dns.setServers(['1.1.1.1', '8.8.8.8']);
 
-dotenv.config();
-const app  = express();
+const app = express();
 const PORT = process.env.PORT || 5000;
 
 const ALLOWED_ORIGINS = [
@@ -41,13 +43,15 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 
-app.use('/api/auth',     authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
-app.use('/api/orders',   orderRoutes);
-app.use('/api/admin',    adminRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
 
+
 console.log('Connecting to MongoDB...');
+dotenv.config();
 mongoose
   .connect(MONGO_URI)
   .then(() => {

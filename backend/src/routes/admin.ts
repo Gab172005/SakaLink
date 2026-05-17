@@ -73,4 +73,5 @@ router.get('/sales', protect, adminOnly, async (req: AuthRequest, res: Response)
   }
 });
 
+
 export default router;
