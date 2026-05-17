@@ -37,7 +37,7 @@ export default function SearchBar({ query, onSearch, total, sortBy, onSortChange
             <input
               type="text"
               className={styles.input}
-              placeholder="    Search products..."
+              placeholder="Search products..."
               value={value}
               onChange={handleChange}
             />
