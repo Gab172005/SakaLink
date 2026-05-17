@@ -49,23 +49,23 @@ const productSchema = new Schema<productDocument>(
     region: {
       type: String,
       enum: [
-        "NCR / National Capital Region",
-        "CAR / Cordillera Administrative Region",
-        "Region I / Ilocos Region",
+        "NCR / Metro Manila",
+        "CAR / Cordillera",
+        "Region I / Ilocos",
         "Region II / Cagayan Valley",
         "Region III / Central Luzon",
         "Region IV-A / CALABARZON",
-        "MIMAROPA Region",
-        "Region V / Bicol Region",
+        "REGION IV-B / MIMAROPA",
+        "Region V / Bicol",
         "Region VI / Western Visayas",
         "Region VII / Central Visayas",
         "Region VIII / Eastern Visayas",
-        "Region IX / Zamboanga Peninsula",
+        "Region IX / Zamboanga",
         "Region X / Northern Mindanao",
-        "Region XI / Davao Region",
+        "Region XI / Davao",
         "Region XII / SOCCSKSARGEN",
         "Region XIII / Caraga",
-        "BARMM / Bangsamoro Autonomous Region in Muslim Mindanao"
+        "BARMM / Bangsamoro"
       ],
       required: true
     },

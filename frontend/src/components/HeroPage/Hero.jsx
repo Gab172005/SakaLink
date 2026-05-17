@@ -2,14 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import { useProducts } from "../../features/useProducts";
 import "./Hero.css";
 
-const CARD_COLORS = ["#a8d672", "#e8828a", "#d4c97a", "#7ac8a8", "#f0a060", "#8ab8e0"];
-const CARD_EMOJIS = ["🥬", "🍅", "🌽", "🥕", "🧅", "🍆"];
-
 function SkeletonCard() {
   return (
     <div className="product-card card-loading">
-      {/* Skeleton block matches the new square image footprint */}
-      <div className="card-image skeleton-img" />
+      <div className="card-image-container skeleton-img" />
       <div className="card-body">
         <div className="card-name skeleton-line" style={{ width: "80%" }}>&nbsp;</div>
         <div className="card-origin skeleton-line" style={{ width: "55%", height: "11px" }}>&nbsp;</div>
@@ -20,13 +16,13 @@ function SkeletonCard() {
 }
 
 function ProductCard({ product }) {
-  // Map type numbers to units (Type 2 is Poultry/Meat, Type 5 is Seafood)
-  const unit = (product.type === 2 || product.type === 5) ? "kg" : "kg"; // Adjust if you want some as 'pc' or 'pack'
-  
-  // Clean fallback in case image URL is missing or broken
-  const defaultImage = "https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&q=80"; 
+  const unit = product.unit || "kg";
 
-  return (
+  //gets everything after the " / " (e.g., "CALABARZON").
+  const regionName = product.region?.split(" / ")[1] || product.region
+  const defaultImage = "https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&q=80";
+
+  return (  
     <div className="product-card">
       <div className="card-image-container">
         <img 
@@ -38,7 +34,7 @@ function ProductCard({ product }) {
       </div>
       <div className="card-body">
         <div className="card-name">{product.name}</div>
-        <div className="card-origin">{product.region?.split(" / ")[0] || "Local Farm"}</div>
+        <div className="card-origin">{regionName}</div>
         <div className="card-price">₱{product.price} / {unit}</div>
       </div>
     </div>
@@ -46,16 +42,26 @@ function ProductCard({ product }) {
 }
 
 export default function Hero({ openModal }) {
-  const { products, loading } = useProducts({ sortBy: "productName", order: "asc" });
+  const { products, loading } = useProducts({ sortBy: "name", order: "asc" });
+  const [displayProducts, setDisplayProducts] = useState([]);
   const [carouselIdx, setCarouselIdx] = useState(0);
   const trackRef = useRef(null);
 
+  //randomize the products shown on the hero page
+  useEffect(() => {
+    if (!products || products.length === 0) return;
+
+    //copies the array then sorts randomly depending if positive or not
+    const shuffled = [...products].sort(() => Math.random() - 0.5);
+    ///... is the spread operator, which creates a copy of our array
+    setDisplayProducts(shuffled);
+    setCarouselIdx(0); 
+  }, [products]);
+
   const slide = (dir) => {
-    const max = Math.max(0, products.length - 3);
+    const max = Math.max(0, displayProducts.length - 3);
     setCarouselIdx((prev) => Math.max(0, Math.min(prev + dir, max)));
   };
-
-  useEffect(() => { setCarouselIdx(0); }, [products]);
 
   useEffect(() => {
     if (!trackRef.current) return;
@@ -64,7 +70,7 @@ export default function Hero({ openModal }) {
     const cardW = card.offsetWidth;
     const gap = 16;
     trackRef.current.style.transform = `translateX(-${carouselIdx * (cardW + gap)}px)`;
-  }, [carouselIdx, products, loading]);
+  }, [carouselIdx, displayProducts, loading]);
 
   return (
     <section className="hero">
@@ -112,7 +118,7 @@ export default function Hero({ openModal }) {
           <div className="carousel-track" ref={trackRef}>
             {loading
               ? [0, 1, 2].map((i) => <SkeletonCard key={i} />)
-              : products.map((p, i) => <ProductCard key={p._id || i} product={p} index={i} />)
+              : displayProducts.map((p, i) => <ProductCard key={p._id || i} product={p} index={i} />)
             }
           </div>
         </div>
