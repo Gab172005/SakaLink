@@ -8,10 +8,12 @@ export const CATEGORIES = [
 ];
 
 export const CERTIFICATIONS = [
-  'Organic',
-  'GAP Certified',
+  'PhilGAP Certified',
+  'Organic / PhilOA',
+  'PGS Certified',
   'Halal Certified',
-  'Fair Trade',
+  'GAqP Certified',
+  'NMIS Approved',
 ];
 
 export const REGIONS = [
@@ -20,7 +22,16 @@ export const REGIONS = [
   'Region II / Cagayan Valley',
   'Region III / Central Luzon',
   'Region IV-A / CALABARZON',
-  'Region V / Bicol',
+  'Region V / Bicol Region',
+  'Region VI / Western Visayas',
+  'Region VII / Central Visayas',
+  'Region VIII / Eastern Visayas',
+  'Region IX / Zamboanga Peninsula',
+  'Region X / Northern Mindanao',
+  'Region XI / Davao Region',
+  'Region XII / SOCCSKSARGEN',
+  'Region XIII / Caraga',
+  'BARMM / Bangsamoro',
 ];
 
 export const SELLER_TYPES = ['Individual Farmer', 'Cooperative', 'Local Farm'];
