@@ -61,11 +61,10 @@ export default function UserProfilePage() {
         {/* ── Left column: account details ── */}
         <aside className={styles.sidebar}>
           <div className={styles.avatarRing}>
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="1.5">
-              <circle cx="12" cy="8" r="4" />
-              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-            </svg>
+            <span className={styles.avatarInitials}>
+              {(user?.firstName?.[0] ?? '').toUpperCase()}
+              {(user?.lastName?.[0] ?? '').toUpperCase()}
+            </span>
           </div>
 
           <h2 className={styles.welcome}>
