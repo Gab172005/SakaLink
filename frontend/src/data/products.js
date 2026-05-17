@@ -17,7 +17,6 @@ export const CERTIFICATIONS = [
 ];
 
 export const REGIONS = [
-  'CAR / Cordillera Administrative Region',
   'Region I / Ilocos Region',
   'Region II / Cagayan Valley',
   'Region III / Central Luzon',
@@ -32,6 +31,9 @@ export const REGIONS = [
   'Region XII / SOCCSKSARGEN',
   'Region XIII / Caraga',
   'BARMM / Bangsamoro',
+  'CAR / Cordillera Administrative Region',
+  'NCR / Metro Manila',
+
 ];
 
 export const SELLER_TYPES = ['Individual Farmer', 'Cooperative', 'Local Farm'];

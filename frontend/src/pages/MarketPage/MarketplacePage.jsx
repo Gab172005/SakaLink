@@ -1,9 +1,11 @@
 import { useState, useMemo } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import Sidebar from '../../components/MarketPage/Sidebar';
 import SearchBar from '../../components/MarketPage/SearchBar';
 import ProductGrid from '../../components/MarketPage/ProductGrid';
 import ProductDetailModal from '../../components/MarketPage/ProductDetailModal';
+import AddProductModal from '../../components/MarketPage/AddProductModal';
 import { useProducts } from '../../hooks/useProducts';
 import styles from './MarketplacePage.module.css';
 
@@ -17,8 +19,12 @@ const TYPE_MAP = {
 };
 
 export default function MarketplacePage({ showToast }) {
+  const { userType, user } = useAuth();
   const { addToCart } = useCart();
-  const { products: rawProducts, loading } = useProducts();
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const { products: rawProducts, loading } = useProducts({ sortBy: 'name', order: 'asc', refreshKey });
+  const isAdmin = userType === 'admin' || user?.userType === 'admin';
   const [query, setQuery] = useState('');
   const [sortBy, setSortBy] = useState('name-asc');
   const [filters, setFilters] = useState({
@@ -28,7 +34,7 @@ export default function MarketplacePage({ showToast }) {
     ratings: [],
     units: [],
     sellerTypes: [],
-    maxPrice: 500, // Increased default for real products
+    maxPrice: 1000,
   });
   const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -47,7 +53,6 @@ export default function MarketplacePage({ showToast }) {
     }));
   }, [rawProducts]);
 
-  console.log(rawProducts[0]);
   const filtered = useMemo(() => {
     let result = products.filter(p => {
       if (query && !p.name.toLowerCase().includes(query.toLowerCase())) return false;
@@ -101,6 +106,19 @@ export default function MarketplacePage({ showToast }) {
       <div className={styles.layout}>
         <Sidebar filters={filters} onFilterChange={setFilters} products={products} />
         <main className={styles.main}>
+            <div className={styles.pageHeader}>
+            <div>
+              <h1 className={styles.pageTitle}>Marketplace</h1>
+              <p className={styles.pageIntro}>Browse the freshest goods that our local farmers have to offer!</p>
+            </div>
+            {isAdmin && (
+              <button className={styles.adminAddBtn} onClick={() => setShowAddModal(true)}>
+                <span className={styles.adminBtnIcon}>+</span>
+                Add product
+              </button>
+            )}
+          </div>
+
           <SearchBar 
             query={query} 
             onSearch={setQuery} 
@@ -122,10 +140,10 @@ export default function MarketplacePage({ showToast }) {
                   <div className={styles.promotedSection}>
                     <h2 className={styles.promotedTitle}>
                       <span className={styles.promotedIcon}>⭐</span>
-                      Support Disaster-Struck Farmers & Top Picks
+                      Support Disaster-Struck Farmers
                     </h2>
                     <p className={styles.promotedDesc}>
-                      Featured products from regions in need of support
+                      Featured products from regions in need of our support
                     </p>
                     <ProductGrid 
                       products={promotedProducts} 
@@ -160,6 +178,15 @@ export default function MarketplacePage({ showToast }) {
           </div>
         </main>
       </div>
+      {showAddModal && (
+        <AddProductModal
+          open={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          onCreated={() => setRefreshKey((current) => current + 1)}
+          showToast={showToast}
+        />
+      )}
+
       {selectedProduct && (
         <ProductDetailModal 
           product={selectedProduct} 

@@ -87,7 +87,6 @@
   color: var(--text-muted);
 }
 
-/* Price Range */
 .sidebar-price-slider {
   display: flex;
   flex-direction: column;

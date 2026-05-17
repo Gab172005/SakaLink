@@ -1,4 +1,3 @@
-// Provides { user, userType, isAuthenticated, login, logout } to the whole app.
 import { createContext, useContext, useState, useEffect } from "react";
 import { getUserType, saveSession, clearSession, authAPI } from "../services/api";
 
@@ -28,7 +27,6 @@ export function AuthProvider({ children }) {
       try {
         const responseData = await authAPI.getProfile(); 
         
-        // FIX: Extract the nested 'user' and 'userType' keys to match your backend structure
         if (responseData && responseData.user) {
           const actualUser = responseData.user;
           const actualType = responseData.userType || responseData.user.userType || "customer";
@@ -38,8 +36,7 @@ export function AuthProvider({ children }) {
           localStorage.setItem("sakalink_userInfo", JSON.stringify(actualUser));
         }
       } catch (err) {
-        // FIX: Uniformly clean up your matching localStorage keys on a broken session
-        clearSession(); // Clears user_type and tokens securely
+        clearSession(); 
         localStorage.removeItem("sakalink_userInfo");
         setUser(null);
         setUserType(null);
@@ -54,7 +51,6 @@ export function AuthProvider({ children }) {
   const login = (data) => {
     if (!data) return;
     
-    // Handles data parsing whether it comes from login payload or an updated context format
     const activeUser = data.user ? data.user : data;
     const activeType = data.userType || activeUser.userType || "customer";
 
