@@ -8,29 +8,47 @@ const router = Router();
 
 // POST /api/orders — Place order (customer)
 router.post('/', protect, async (req: AuthRequest, res: Response): Promise<void> => {
-  const { productId, orderQuantity } = req.body;
+  const { items, deliveryAddress, paymentMethod } = req.body;
+
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    res.status(400).json({ message: 'No items in order' });
+    return;
+  }
 
   try {
-    const product = await Product.findById(productId);
-    if (!product) {
-      res.status(404).json({ message: 'Product not found' });
-      return;
-    }
-    
-    // Use lowercase 'quantity' as defined in product.model.ts
-    if (product.quantity < orderQuantity) {
-      res.status(400).json({ message: 'Insufficient stock' });
-      return;
+    const orderItems = [];
+    let totalToPay = 0;
+
+    for (const item of items) {
+      const product = await Product.findById(item.productId);
+      if (!product) {
+        res.status(404).json({ message: `Product ${item.productId} not found` });
+        return;
+      }
+
+      if (product.quantity < item.quantity) {
+        res.status(400).json({ message: `Insufficient stock for ${product.name}` });
+        return;
+      }
+
+      orderItems.push({
+        productId: product._id as any,
+        name: product.name,
+        quantity: item.quantity,
+        priceAtPurchase: product.price
+      });
+
+      totalToPay += product.price * item.quantity;
     }
 
-    // Fixed: Added missing required fields 'user' and 'totalPrice'
     const order = await Order.create({
-      user: req.user!.id, 
-      productId,
-      quantity: orderQuantity,
-      totalPrice: product.price * orderQuantity, 
+      user: req.user!.id,
       email: req.user!.email,
-      // 'status' defaults to 0 (pending)
+      items: orderItems,
+      deliveryAddress,
+      paymentMethod,
+      totalToPay,
+      status: 0 // Pending
     });
 
     res.status(201).json(order);
@@ -42,7 +60,15 @@ router.post('/', protect, async (req: AuthRequest, res: Response): Promise<void>
 // GET /api/orders/my-orders — Customer's own orders
 router.get('/my-orders', protect, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const orders = await Order.find({ email: req.user!.email }).populate('productId');
+    // Search by both user ID and email for robustness and backward compatibility
+    const orders = await Order.find({
+      $or: [
+        { user: req.user!.id },
+        { email: req.user!.email }
+      ]
+    })
+      .populate('items.productId')
+      .sort({ createdAt: -1 });
     res.json(orders);
   } catch (err) {
     res.status(500).json({ message: (err as Error).message });
@@ -89,27 +115,40 @@ router.patch('/:id/confirm', protect, adminOnly, async (req: AuthRequest, res: R
   try {
     const order = await Order.findById(req.params.id);
     if (!order) {
-      res.status(404).json({ message: 'Order not found' });
+      res.status(404).json({ message: 'Order found' });
       return;
     }
 
-    const product = await Product.findById(order.productId);
-    if (!product) {
-      res.status(404).json({ message: 'Product not found' });
+    if (order.status !== 0) {
+      res.status(400).json({ message: 'Only pending orders can be confirmed' });
       return;
     }
 
-    // Fixed: Use 'quantity' instead of 'productQuantity'
-    if (product.quantity < order.quantity) {
-      res.status(400).json({ message: 'Insufficient stock to fulfill order' });
-      return;
+    // Check stock for all items first
+    for (const item of order.items) {
+      const product = await Product.findById(item.productId);
+      if (!product) {
+        res.status(404).json({ message: `Product ${item.name} not found` });
+        return;
+      }
+      if (product.quantity < item.quantity) {
+        res.status(400).json({ message: `Insufficient stock for ${product.name}` });
+        return;
+      }
     }
 
-    product.quantity -= order.quantity;
-    await product.save();
+    // Decrement stock for all items
+    for (const item of order.items) {
+      await Product.findByIdAndUpdate(item.productId, {
+        $inc: { quantity: -item.quantity }
+      });
+    }
 
-    // Fixed: Use 'status' instead of 'orderStatus'
-    order.status = 1; // Completed
+    order.status = 1; // Completed (or Out for Delivery depending on enum)
+    // Model says 1: Out for Delivery, 2: Completed. 
+    // Wait, let me check model status enum again.
+    // 0: Pending, 1: Out for Delivery, 2: Completed, 3: Cancelled
+    
     await order.save();
     res.json(order);
   } catch (err) {

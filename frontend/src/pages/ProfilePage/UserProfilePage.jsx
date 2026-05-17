@@ -19,10 +19,12 @@ export default function UserProfilePage() {
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [ordersError, setOrdersError] = useState('');
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // fetch the user's orders once on mount
+  // fetch the user's orders whenever the component mounts or refreshTrigger changes
   useEffect(() => {
     const load = async () => {
+      setOrdersLoading(true);
       try {
         const data = await ordersAPI.getMyOrders();
         // API returns array directly or wrapped — handle both shapes
@@ -34,6 +36,15 @@ export default function UserProfilePage() {
       }
     };
     load();
+  }, [refreshTrigger]);
+
+  // Listen for successful checkouts from other components
+  useEffect(() => {
+    const handleCheckoutSuccess = () => {
+      setRefreshTrigger(prev => prev + 1);
+    };
+    window.addEventListener('checkout-success', handleCheckoutSuccess);
+    return () => window.removeEventListener('checkout-success', handleCheckoutSuccess);
   }, []);
 
   // show the 3 most recent orders on the summary view
@@ -151,15 +162,19 @@ export default function UserProfilePage() {
 
 // a single order row used in the summary view
 function OrderRow({ order }) {
-  const product = order.productId;
+  const firstItem = order.items?.[0];
+  const product = firstItem?.productId;
+  const otherItemsCount = (order.items?.length || 1) - 1;
+
   const date = new Date(order.createdAt).toLocaleDateString('en-PH', {
     month: 'long', day: 'numeric', year: 'numeric',
   });
 
   const STATUS_MAP = {
     0: { label: 'Pending',   cls: 'pending'   },
-    1: { label: 'Delivered', cls: 'delivered' },
-    2: { label: 'Cancelled', cls: 'cancelled' },
+    1: { label: 'Out for Delivery', cls: 'pending' },
+    2: { label: 'Delivered', cls: 'delivered' },
+    3: { label: 'Cancelled', cls: 'cancelled' },
   };
   const status = STATUS_MAP[order.status] ?? STATUS_MAP[0];
 
@@ -168,13 +183,16 @@ function OrderRow({ order }) {
       {/* Product image or placeholder */}
       <div className={styles.productThumb}>
         {product?.image
-          ? <img src={product.image} alt={product?.name} />
+          ? <img src={product.image} alt={firstItem?.name} />
           : <span className={styles.thumbPlaceholder}>🌿</span>
         }
       </div>
 
       <div className={styles.orderInfo}>
-        <span className={styles.productName}>{product?.name ?? 'Product'}</span>
+        <span className={styles.productName}>
+          {firstItem?.name ?? 'Product'}
+          {otherItemsCount > 0 && ` + ${otherItemsCount} more`}
+        </span>
         <span className={styles.orderMeta}>
           ORDER #{order._id?.slice(-6).toUpperCase()} · {date}
         </span>
@@ -182,7 +200,7 @@ function OrderRow({ order }) {
 
       <div className={styles.orderRight}>
         <span className={styles.orderPrice}>
-          ₱{Number(order.totalPrice).toFixed(2)}
+          ₱{Number(order.totalToPay).toFixed(2)}
         </span>
         <span className={`${styles.statusBadge} ${styles[status.cls]}`}>
           {status.label}
