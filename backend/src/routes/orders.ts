@@ -61,7 +61,7 @@ router.post('/', protect, async (req: AuthRequest, res: Response): Promise<void>
       admins.map((a) => ({
         userId:  a._id,
         type:    'new_order',
-        message: `New order placed for "${product.name}".`,
+        message: `A new order has been placed.`,
       }))
     );
   } catch (err) {
@@ -114,7 +114,7 @@ router.patch('/:id/cancel', protect, async (req: AuthRequest, res: Response): Pr
       return;
     }
 
-    order.status = 2; // Cancelled
+    order.status = 3; // Cancelled
     await order.save();
     res.json(order);
 
@@ -145,7 +145,7 @@ router.patch('/:id/confirm', protect, adminOnly, async (req: AuthRequest, res: R
   try {
     const order = await Order.findById(req.params.id);
     if (!order) {
-      res.status(404).json({ message: 'Order found' });
+      res.status(404).json({ message: 'Order not found' });
       return;
     }
 
@@ -174,11 +174,7 @@ router.patch('/:id/confirm', protect, adminOnly, async (req: AuthRequest, res: R
       });
     }
 
-    order.status = 1; // Completed (or Out for Delivery depending on enum)
-    // Model says 1: Out for Delivery, 2: Completed. 
-    // Wait, let me check model status enum again.
-    // 0: Pending, 1: Out for Delivery, 2: Completed, 3: Cancelled
-    
+    order.status = 1; // Out for Delivery
     await order.save();
     res.json(order);
 
@@ -186,24 +182,28 @@ router.patch('/:id/confirm', protect, adminOnly, async (req: AuthRequest, res: R
     await Notification.create({
       userId:  order.user,
       type:    'order_confirmed',
-      message: `Your order for "${product.name}" has been confirmed!`,
+      message: `Your order has been confirmed and is now out for delivery!`,
     });
  
-    // If product is now out of stock, notify all customers with pending orders for it
-    if (product.quantity === 0) {
-      const affectedOrders = await Order.find({
-        productId: product._id,
-        status:    0, // pending only
-      });
- 
-      if (affectedOrders.length > 0) {
-        await Notification.insertMany(
-          affectedOrders.map((o) => ({
-            userId:  o.user,
-            type:    'out_of_stock',
-            message: `"${product.name}" is now out of stock. Your pending order may be affected.`,
-          }))
-        );
+    // If any product is now out of stock, notify all customers with pending orders for it
+    for (const item of order.items) {
+      const product = await Product.findById(item.productId);
+      if (product && product.quantity === 0) {
+        const affectedOrders = await Order.find({
+          'items.productId': product._id,
+          status: 0, // pending only
+        });
+   
+        if (affectedOrders.length > 0) {
+          const userIds = [...new Set(affectedOrders.map(o => o.user.toString()))];
+          await Notification.insertMany(
+            userIds.map((uid) => ({
+              userId:  uid,
+              type:    'out_of_stock',
+              message: `"${product.name}" is now out of stock. Your pending order may be affected.`,
+            }))
+          );
+        }
       }
     }
   } catch (err) {
