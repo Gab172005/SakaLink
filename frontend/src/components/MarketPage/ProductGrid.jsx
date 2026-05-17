@@ -19,7 +19,7 @@ export default function ProductGrid({ products, onAddToCart, onSelectProduct, on
             product={product} 
             onAddToCart={onAddToCart} 
             onSelectProduct={onSelectProduct} 
-            onDeleteProduct={onRequestDelete}
+            onRequestDelete={onRequestDelete}
             isAdmin={isAdmin}
             showToast={showToast}
           />
