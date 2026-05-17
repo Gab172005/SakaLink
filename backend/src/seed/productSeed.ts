@@ -202,7 +202,8 @@ const mockProducts = [
     "certifications": ["PGS Certified"]
   }
 ];
-
+import dns from 'node:dns';
+dns.setServers(['1.1.1.1', '8.8.8.8']);
 const ATLAS_URI = process.env.MONGODB_URI;
 
 async function seedDatabase() {

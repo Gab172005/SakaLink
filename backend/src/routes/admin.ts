@@ -3,7 +3,8 @@ import { User } from '../models/user.model.js';
 import { Order } from '../models/order.model.js';
 import { protect, adminOnly } from '../middleware/auth.js';
 import { type AuthRequest, type SalesPeriod } from '../types/index.js';
-
+import dns from 'node:dns';
+dns.setServers(['1.1.1.1', '8.8.8.8']);
 const router = Router();
 
 // GET /api/admin/users
@@ -41,7 +42,7 @@ router.get('/sales', protect, adminOnly, async (req: AuthRequest, res: Response)
   try {
     //filter for completed
     const orders = await Order.find({
-      status: 2, 
+      status: 2,
       createdAt: { $gte: startDate },
     });
 
@@ -50,7 +51,7 @@ router.get('/sales', protect, adminOnly, async (req: AuthRequest, res: Response)
 
     //main loop scales through each order envelope, then inner loop counts individual items
     for (const order of orders) {
-      totalSales += order.totalToPay || 0; 
+      totalSales += order.totalToPay || 0;
 
       for (const item of order.items) {
         const name = item.name ?? 'Unknown Product';

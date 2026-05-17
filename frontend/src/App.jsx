@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import ProtectedRoute from "./components/common/ProtectedRoute";
+import { useAuth } from "./context/AuthContext";
 import Navbar from "./components/common/Navbar";
 import Hero from "./components/HeroPage/Hero";
 import Footer from "./components/HeroPage/Footer";
@@ -13,6 +14,7 @@ import MarketplacePage from "./pages/MarketPage/MarketplacePage";
 import CartModal from "./components/MarketPage/CartModal";
 import UserProfilePage from "./pages/ProfilePage/UserProfilePage";
 import "./App.css";
+import AdminDashboard from "./components/admin/AdminDashboard";
 
 function LandingPage({ openModal }) {
   return (
@@ -24,6 +26,7 @@ function LandingPage({ openModal }) {
 }
 
 function AppContent() {
+  const { user } = useAuth();
   const [modal, setModal] = useState(null);
   const [toast, setToast] = useState({ visible: false, message: "" });
 
@@ -48,17 +51,17 @@ function AppContent() {
   return (
     <>
       <Navbar openModal={openModal} openCart={() => openModal("cart")} />
-      
+
       <Routes>
         <Route path="/" element={<LandingPage openModal={openModal} />} />
-        
-        <Route 
-          path="/shop" 
+
+        <Route
+          path="/shop"
           element={
             <ProtectedRoute>
               <MarketplacePage showToast={showToast} />
             </ProtectedRoute>
-          } 
+          }
         />
         <Route
           path="/profile"
@@ -68,11 +71,25 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute>
+              {user?.userType === 'admin' ? (
+                <AdminDashboard />
+              ) : (
+                // Redirect customers attempting layout breaches to home
+                <Navigate to="/" replace />
+              )}
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
       <Toast visible={toast.visible} message={toast.message} />
-      
+
       <LoginModal
         active={modal === "login"}
         onClose={closeModal}
@@ -85,10 +102,10 @@ function AppContent() {
         onSwitch={() => openModal("login")}
         showToast={showToast}
       />
-      <CartModal 
-        isOpen={modal === "cart"} 
-        onClose={closeModal} 
-        showToast={showToast} 
+      <CartModal
+        isOpen={modal === "cart"}
+        onClose={closeModal}
+        showToast={showToast}
       />
     </>
   );
