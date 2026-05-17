@@ -91,7 +91,7 @@ export default function SettingsPage({ showToast }) {
           </div>
         </div>
 
-        <div className={styles.section}>
+        {/* <div className={styles.section}>
           <h2 className={styles.sectionTitle}>Preferences</h2>
           <div className={styles.settingItem}>
             <div className={styles.settingLabel}>
@@ -139,7 +139,7 @@ export default function SettingsPage({ showToast }) {
               <span className={styles.slider}></span>
             </label>
           </div>
-        </div>
+        </div> */}
 
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>Account</h2>
