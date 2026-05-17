@@ -2,7 +2,7 @@ import { useState } from 'react';
 import styles from './Sidebar.module.css';
 import { CATEGORIES, CERTIFICATIONS, REGIONS, PRODUCTS } from '../../data/products';
 
-export default function Sidebar({ filters, onFilterChange }) {
+export default function Sidebar({ filters, onFilterChange, products = PRODUCTS }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const toggle = (group, value) => {
@@ -17,7 +17,7 @@ export default function Sidebar({ filters, onFilterChange }) {
     onFilterChange({ ...filters, maxPrice: Number(e.target.value) });
   };
 
-  const categoryCounts = PRODUCTS.reduce((acc, p) => {
+  const categoryCounts = products.reduce((acc, p) => {
   acc[p.category] = (acc[p.category] || 0) + 1;
   return acc;
 }, {});

@@ -87,7 +87,7 @@ export default function MarketplacePage({ showToast }) {
   return (
     <div className={styles.page}>
       <div className={styles.layout}>
-        <Sidebar filters={filters} onFilterChange={setFilters} />
+        <Sidebar filters={filters} onFilterChange={setFilters} products={products} />
         <main className={styles.main}>
           <SearchBar 
             query={query} 
