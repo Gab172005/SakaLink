@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useProducts } from "../../features/useProducts";
+import AnimatedCounter from "../common/AnimatedCounter";
 import "./Hero.css";
 
 function SkeletonCard() {
@@ -98,15 +99,21 @@ export default function Hero({ openModal }) {
         </div>
         <div className="hero-stats">
           <div>
-            <div className="stat-value">1,200+</div>
+            <div className="stat-value">
+              <AnimatedCounter target={1200} suffix="+" />
+            </div>
             <div className="stat-label">Verified Farmers</div>
           </div>
           <div>
-            <div className="stat-value">300+</div>
+            <div className="stat-value">
+              <AnimatedCounter target={300} suffix="+" />
+            </div>
             <div className="stat-label">Product Types</div>
           </div>
           <div>
-            <div className="stat-value">48hr</div>
+            <div className="stat-value">
+              <AnimatedCounter target={48} suffix="hr" />
+            </div>
             <div className="stat-label">Farm to Door</div>
           </div>
         </div>
