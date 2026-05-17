@@ -12,6 +12,7 @@ import Toast from "./components/HeroPage/Toast";
 import MarketplacePage from "./pages/MarketPage/MarketplacePage";
 import CartModal from "./components/MarketPage/CartModal";
 import UserProfilePage from "./pages/ProfilePage/UserProfilePage";
+import SettingsPage from "./pages/SettingsPage/SettingsPage";
 import "./App.css";
 
 function LandingPage({ openModal }) {
@@ -65,6 +66,14 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <UserProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <SettingsPage showToast={showToast} />
             </ProtectedRoute>
           }
         />
