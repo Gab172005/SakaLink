@@ -10,6 +10,7 @@ export interface productDocument extends Document {
   promoted: boolean;//allows the department of agriculture to promote specific crops ideally in frontend implementation there'll be an additional top picks or support disaster struck farmers this is inspired by the rescue by section from rural rising.
   certifications: string[];
   region: string;
+  unit: string; //i.e 50/kg, 50/piece, 50/5 cartons
 }               
                   
                   
@@ -80,6 +81,11 @@ const productSchema = new Schema<productDocument>(
         "NMIS Approved"
       ],
       default: []
+    },
+    unit: {
+      type: String,
+      required: true,
+      trim: true
     }
   },
   { timestamps: true }
