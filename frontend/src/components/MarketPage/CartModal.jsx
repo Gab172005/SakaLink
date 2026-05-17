@@ -4,6 +4,7 @@ import { ordersAPI } from '../../services/api';
 import styles from './CartModal.module.css';
 
 export default function CartModal({ isOpen, onClose, showToast }) {
+  const defaultImage = "https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&q=80";
   const { cart, removeFromCart, updateQuantity, totalAmount, clearCart } = useCart();
   const [step, setStep] = useState('cart'); // 'cart' or 'checkout'
   const [address, setAddress] = useState('');
@@ -55,7 +56,17 @@ export default function CartModal({ isOpen, onClose, showToast }) {
         <div className={styles.cartList}>
           {cart.map((item) => (
             <div key={item._id || item.id} className={styles.cartItem}>
-              <div className={styles.itemImage}>🌿</div>
+              <div className={styles.itemImageContainer}>
+                <img 
+                  src={item.image || defaultImage} 
+                  alt={item.name} 
+                  className={styles.itemImage}
+                  onError={(e) => {
+                    e.target.src = defaultImage;
+                  }}
+                />
+              </div>
+
               <div className={styles.itemInfo}>
                 <h3 className={styles.itemName}>{item.name}</h3>
                 <span className={styles.itemPrice}>₱{item.price} / {item.unit || 'unit'}</span>

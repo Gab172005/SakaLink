@@ -41,7 +41,7 @@ export default function LoginModal({ active, onClose, onSwitch, showToast }) {
       // Persist token + userType via context
       login(data);
       onClose();
-      showToast("Welcome back! 🌿");
+      showToast("Welcome back!");
 
       setTimeout(() => {
         window.location.href = data.userType === "admin" ? "/admin/dashboard" : "/shop";
