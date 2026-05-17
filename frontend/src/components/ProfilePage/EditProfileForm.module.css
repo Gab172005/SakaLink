@@ -30,7 +30,7 @@
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
-  padding: 44px 48px;
+  padding: 44px clamp(20px, 5vw, 48px);
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -41,7 +41,7 @@
 
 .formRow { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
-.group { display: flex; flex-direction: column; gap: 6px; }
+.group { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 
 .label {
   font-size: 0.75rem;
