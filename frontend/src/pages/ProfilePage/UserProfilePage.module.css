@@ -99,44 +99,52 @@
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
-  padding: 36px;
+  padding: 0;
   min-height: 420px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  overflow: hidden;
 }
 
 .sectionHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 24px 28px 20px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--green-600);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
-.sectionTitle { font-weight: 700; }
+.sectionTitle { font-weight: 700; color: #ffffff;}
 
 .viewAllBtn {
   color: #c0392b;
+  background: #fce4ec;
   font-size: 0.82rem;
   font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 999px;
   transition: opacity var(--transition);
 }
 
 .viewAllBtn:hover { opacity: 0.75; }
 
-.orderList { display: flex; flex-direction: column; gap: 14px; }
+.orderList { display: flex; flex-direction: column; gap: 10px; padding: 20px 28px 28px; }
 
 .orderRow {
   display: flex;
   align-items: center;
   gap: 18px;
-  padding: 18px 20px;
+  padding: 16px 18px;
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--surface-muted);
-  transition: box-shadow var(--transition);
+  cursor: pointer;
+  transition: box-shadow var(--transition), background var(--transition);
 }
 
-.orderRow:hover { box-shadow: var(--shadow-md); }
+.orderRow:hover { box-shadow: var(--shadow-md); background: var(--green-50); }
 
 .productThumb {
   width: 54px;
@@ -158,15 +166,29 @@
 
 .productName { font-weight: 600; }
 
+/* Inline tag for additional items in a multi-product order */
+.moreTag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--green-100);
+  padding: 1px 7px;
+  border-radius: 999px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
 .orderMeta { font-size: 0.75rem; color: var(--text-muted); }
 
 .orderRight { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; }
 
 .orderPrice { font-weight: 700; }
 
-.statusBadge { font-size: 0.7rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+.statusBadge { display: inline-flex; align-items: center; gap: 6px; font-size: 0.7rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
 .delivered { background: #e8f5e9; color: #2e7d32; }
 .pending   { background: #fff8e1; color: #f57f17; }
+.delivery  { background: #e3f2fd; color: #1565c0; }
 .cancelled { background: #fce4ec; color: #c62828; }
 
 .stateBox,
