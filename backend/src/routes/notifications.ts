@@ -1,5 +1,6 @@
 import { Router, type Response } from 'express';
 import { Notification } from '../models/notification.model.js';
+import { Order } from '../models/order.model.js';
 import { protect } from '../middleware/auth.js';
 import { type AuthRequest } from '../types/index.js';
 
@@ -11,6 +12,22 @@ router.get('/', protect, async (req: AuthRequest, res: Response): Promise<void> 
     const notifications = await Notification.find({ userId: req.user!.id })
       .sort({ createdAt: -1 })
       .limit(50);
+
+    // add a live pending-orders summary for admins
+    if (req.user!.userType === 'admin') {
+      const pendingCount = await Order.countDocuments({ status: 0 });
+      if (pendingCount > 0) {
+        const summary = {
+          _id:       'pending-summary',
+          type:      'pending_orders',
+          message:   `There are ${pendingCount} pending order${pendingCount > 1 ? 's' : ''} from customers.`,
+          isRead:    false,
+          createdAt: new Date(),
+        };
+        return res.json([summary, ...notifications]) as any;
+      }
+    }
+    
     res.json(notifications);
   } catch (err) {
     res.status(500).json({ message: (err as Error).message });
