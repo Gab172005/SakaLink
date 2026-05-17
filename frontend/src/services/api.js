@@ -146,30 +146,30 @@ export const adminAPI = {
   getAllOrders: () => request("/admin/orders"),
 
   /**
-   * POST /api/admin/products  (requires admin)
+   * POST /api/products  (requires admin)
    * Body: product fields
    * Returns: Product
    */
   createProduct: (productData) =>
-    request("/admin/products", {
+    request("/products", {
       method: "POST",
       body: JSON.stringify(productData),
     }),
 
   /**
-   * PUT /api/admin/products/:id  (requires admin)
+   * PUT /api/products/:id  (requires admin)
    */
   updateProduct: (id, productData) =>
-    request(`/admin/products/${id}`, {
+    request(`/products/${id}`, {
       method: "PUT",
       body: JSON.stringify(productData),
     }),
 
   /**
-   * DELETE /api/admin/products/:id  (requires admin)
+   * DELETE /api/products/:id  (requires admin)
    */
   deleteProduct: (id) =>
-    request(`/admin/products/${id}`, { method: "DELETE" }),
+    request(`/products/${id}`, { method: "DELETE" }),
 };
 
 // ── Notifications ──────────────────────────────────────────────────────────

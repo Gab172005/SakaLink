@@ -6,6 +6,9 @@ import SearchBar from '../../components/MarketPage/SearchBar';
 import ProductGrid from '../../components/MarketPage/ProductGrid';
 import ProductDetailModal from '../../components/MarketPage/ProductDetailModal';
 import AddProductModal from '../../components/MarketPage/AddProductModal';
+import EditProductModal from '../../components/MarketPage/EditProductModal';
+import DeleteProductModal from '../../components/MarketPage/DeleteProductModal';
+import { adminAPI } from '../../services/api';
 import { useProducts } from '../../hooks/useProducts';
 import styles from './MarketplacePage.module.css';
 
@@ -23,6 +26,8 @@ export default function MarketplacePage({ showToast }) {
   const { addToCart } = useCart();
   const [showAddModal, setShowAddModal] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { products: rawProducts, loading } = useProducts({ sortBy: 'name', order: 'asc', refreshKey });
   const isAdmin = userType === 'admin' || user?.userType === 'admin';
   const [query, setQuery] = useState('');
@@ -92,6 +97,31 @@ export default function MarketplacePage({ showToast }) {
     showToast(`Added ${product.name} to cart! 🛒`);
   };
 
+  const handleDeleteProduct = async (id) => {
+    try {
+      setIsDeleting(true);
+      await adminAPI.deleteProduct(id);
+      showToast("Product removed successfully.");
+      setRefreshKey((current) => current + 1);
+      setDeleteTarget(null);
+    } catch (err) {
+      showToast(err.message || "Failed to delete product.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleRequestDelete = (product) => setDeleteTarget(product);
+  const handleCancelDelete = () => {
+    if (isDeleting) return;
+    setDeleteTarget(null);
+  };
+
+  const handleProductUpdated = () => {
+    setRefreshKey((current) => current + 1);
+    setSelectedProduct(null);
+  };
+
   // Separate promoted and regular products
   const promotedProducts = useMemo(() => {
     return filtered.filter(p => p.promoted);
@@ -149,6 +179,8 @@ export default function MarketplacePage({ showToast }) {
                       products={promotedProducts} 
                       onAddToCart={handleAddToCart} 
                       onSelectProduct={setSelectedProduct} 
+                      onRequestDelete={handleRequestDelete}
+                      isAdmin={isAdmin}
                       showToast={showToast}
                       isPromoted={true}
                     />
@@ -163,6 +195,8 @@ export default function MarketplacePage({ showToast }) {
                       products={regularProducts} 
                       onAddToCart={handleAddToCart} 
                       onSelectProduct={setSelectedProduct} 
+                      onRequestDelete={handleRequestDelete}
+                      isAdmin={isAdmin}
                       showToast={showToast}
                       isPromoted={false}
                     />
@@ -187,13 +221,29 @@ export default function MarketplacePage({ showToast }) {
         />
       )}
 
-      {selectedProduct && (
-        <ProductDetailModal 
-          product={selectedProduct} 
-          onClose={() => setSelectedProduct(null)} 
-          onAddToCart={handleAddToCart} 
+      <DeleteProductModal
+        open={Boolean(deleteTarget)}
+        product={deleteTarget}
+        onConfirm={handleDeleteProduct}
+        onCancel={handleCancelDelete}
+        loading={isDeleting}
+      />
+
+      {selectedProduct && isAdmin ? (
+        <EditProductModal
+          open={Boolean(selectedProduct)}
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onUpdated={handleProductUpdated}
+          showToast={showToast}
         />
-      )}
+      ) : selectedProduct ? (
+        <ProductDetailModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onAddToCart={handleAddToCart}
+        />
+      ) : null}
     </div>
   );
 }

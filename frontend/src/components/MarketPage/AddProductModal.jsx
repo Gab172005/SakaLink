@@ -50,20 +50,35 @@ const DEFAULT_FORM = {
   region: "NCR / Metro Manila",
   image: "",
   promoted: false,
-  certifications: [] 
+  certifications: []
 };
 
-export default function AddProductModal({ open, onClose, onCreated, showToast }) {
+export default function AddProductModal({ open, onClose, onCreated, onSaved, showToast, product, mode = 'add' }) {
   const [form, setForm] = useState(DEFAULT_FORM);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (open) {
-      setForm(DEFAULT_FORM);
+      if (mode === 'edit' && product) {
+        setForm({
+          name: product.name || "",
+          description: product.description || "",
+          type: product.type || 1,
+          price: product.price?.toString() || "50",
+          quantity: product.quantity?.toString() || "",
+          unit: product.unit || "kg",
+          region: product.region || "NCR / Metro Manila",
+          image: product.image || "",
+          promoted: Boolean(product.promoted),
+          certifications: product.certifications || [],
+        });
+      } else {
+        setForm(DEFAULT_FORM);
+      }
       setError("");
     }
-  }, [open]);
+  }, [open, mode, product]);
 
   if (!open) return null;
 
@@ -110,12 +125,18 @@ export default function AddProductModal({ open, onClose, onCreated, showToast })
     }
 
     try {
-      await adminAPI.createProduct(payload);
-      showToast("Product added successfully.");
-      onCreated?.();
+      if (mode === 'edit' && product) {
+        await adminAPI.updateProduct(product.id || product._id, payload);
+        showToast("Product updated successfully.");
+        onSaved?.();
+      } else {
+        await adminAPI.createProduct(payload);
+        showToast("Product added successfully.");
+        onCreated?.();
+      }
       onClose();
     } catch (err) {
-      setError(err?.message || "Unable to add the product. Please try again.");
+      setError(err?.message || "Unable to save the product. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -127,8 +148,12 @@ export default function AddProductModal({ open, onClose, onCreated, showToast })
         <div className={styles.header}>
           <div>
             <p className={styles.label}>Admin action</p>
-            <h2 className={styles.title}>Add a new marketplace product</h2>
-            <p className={styles.subtitle}>Create a fresh product listing for customers to browse.</p>
+            <h2 className={styles.title}>{mode === 'edit' ? 'Edit marketplace product' : 'Add a new marketplace product'}</h2>
+            <p className={styles.subtitle}>
+              {mode === 'edit'
+                ? 'Update the product details used for customer listings.'
+                : 'Create a fresh product listing for customers to browse.'}
+            </p>
           </div>
           <button className={styles.closeBtn} onClick={onClose} aria-label="Close add product modal">
             ✕
@@ -256,7 +281,7 @@ export default function AddProductModal({ open, onClose, onCreated, showToast })
                 checked={form.promoted}
                 onChange={handleChange("promoted")}
               />
-              <span>Feature this item on the marketplace</span>
+              <span>Promoted Product</span>
             </label>
           </div>
 
@@ -267,7 +292,7 @@ export default function AddProductModal({ open, onClose, onCreated, showToast })
               Cancel
             </button>
             <button type="submit" className={styles.submitBtn} disabled={loading}>
-              {loading ? "Saving..." : "Add product"}
+              {loading ? "Saving..." : mode === 'edit' ? 'Save changes' : 'Add product'}
             </button>
           </div>
         </form>

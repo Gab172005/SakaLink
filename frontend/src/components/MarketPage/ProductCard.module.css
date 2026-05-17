@@ -127,6 +127,28 @@
   animation: bounce 2s ease-in-out infinite;
 }
 
+.adminDeleteBtn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(220, 38, 38, 0.92);
+  color: white;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+  z-index: 15;
+}
+
+.adminDeleteBtn:hover {
+  transform: scale(1.05);
+  background: rgba(220, 38, 38, 1);
+}
+
 .promotedIcon {
   font-size: 1.4rem;
   display: flex;

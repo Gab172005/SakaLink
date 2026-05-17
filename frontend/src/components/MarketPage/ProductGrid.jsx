@@ -1,7 +1,7 @@
 import ProductCard from './ProductCard';
 import styles from './ProductGrid.module.css';
 
-export default function ProductGrid({ products, onAddToCart, onSelectProduct, showToast }) {
+export default function ProductGrid({ products, onAddToCart, onSelectProduct, onRequestDelete, isAdmin, showToast }) {
   if (products.length === 0) {
     return (
       <div className={styles.empty}>
@@ -19,6 +19,8 @@ export default function ProductGrid({ products, onAddToCart, onSelectProduct, sh
             product={product} 
             onAddToCart={onAddToCart} 
             onSelectProduct={onSelectProduct} 
+            onDeleteProduct={onRequestDelete}
+            isAdmin={isAdmin}
             showToast={showToast}
           />
         </div>
