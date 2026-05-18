@@ -229,6 +229,73 @@
     gap: 8px;
 }
 
+.salesReportSection {
+    padding: 20px;
+}
+
+.salesHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed #e2e8f0;
+}
+
+.periodPicker {
+    display: flex;
+    gap: 10px;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 8px;
+}
+
+.periodBtn {
+    padding: 8px 16px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #64748b;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.periodBtn:hover {
+    color: #1e293b;
+}
+
+.periodActive {
+    background: #ffffff;
+    color: #4a8c2a;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.totalSalesSummary {
+    text-align: right;
+}
+
+.summaryLabel {
+    display: block;
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 4px;
+}
+
+.summaryValue {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.tablePlaceholder {
+    padding: 60px;
+    text-align: center;
+    color: #94a3b8;
+    font-style: italic;
+}
+
 .btnAction {
     padding: 6px 12px;
     font-size: 0.82rem;
