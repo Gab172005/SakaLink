@@ -84,7 +84,6 @@ function AppContent() {
           path="/admin/dashboard"
           element={
             <ProtectedRoute>
-              {/* FIX: Evaluate userType directly instead of user?.userType */}
               {userType === "admin" ? (
                 <AdminDashboard />
               ) : (
@@ -118,7 +117,7 @@ function AppContent() {
         showToast={showToast}
       />
 
-      <ChatBot />
+      {user && <ChatBot />}
     </>
   );
 }

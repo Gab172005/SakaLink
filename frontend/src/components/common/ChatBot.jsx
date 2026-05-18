@@ -64,7 +64,12 @@ const ChatBot = () => {
     if (text.includes("help") || text.includes("what can you do")) {
       return { text: "I can help you navigate to the Shop, check your Profile, or manage your Settings. Just ask!" };
     }
-    
+    if (text.includes("best group") || text.includes("team")) {
+      return { text: "The best group for C-3L is 5Star!" };
+    }
+    if (text.includes("best lab prof")) {
+      return { text: "Ma'am Dani of course!" };
+    }
     return { text: "I'm not sure I understand. Try asking about 'shop', 'profile', or 'settings'!" };
   };
 
