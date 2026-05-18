@@ -1,5 +1,3 @@
-CMSC100_C3L_5STAR
-
 # Sakalink
 
 ## Features
