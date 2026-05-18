@@ -1,5 +1,5 @@
 .hero {
-  background: var(--bg-hero);
+  background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), var(--bg-hero, #1a2615);
   min-height: calc(100vh - 68px);
   display: grid;
   grid-template-columns: minmax(0, 42fr) minmax(0, 58fr);
@@ -9,14 +9,25 @@
   position: relative;
   overflow: hidden;
 }
-/* Subtle grain texture */
+
+/*Subtle grain texture*/
 .hero::before {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  background-image: 
+    linear-gradient(rgba(18, 28, 14, 0.7), rgba(18, 28, 14, 0.7)), 
+    url("https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=2070"), 
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  
+  background-size: cover, cover, auto;
+  background-position: center, center, top left;
+  background-repeat: no-repeat, no-repeat, repeat;
+  
   pointer-events: none;
-  opacity: 0.5;
+  /* 5. Set opacity of the entire background stack if needed (or leave at 1 and adjust linear-gradient) */
+  opacity: 0.85; 
+  z-index: 0;
 }
 
 /* ── Left Panel ── */
@@ -30,12 +41,12 @@
   font-size: clamp(2.4rem, 4vw, 3.5rem);
   font-weight: 900;
   line-height: 1.15;
-  color: var(--text-dark);
+  color: #ffffff;
   margin-bottom: 32px;
 }
 
 .hero-tagline .highlight {
-  color: var(--green-mid);
+  color: #4caf4c  
 }
 
 .hero-buttons {
@@ -92,14 +103,14 @@
   font-family: var(--font-display);
   font-size: 1.4rem;
   font-weight: 700;
-  color: var(--text-dark);
+  color: #ffffff;
 }
 
 .stat-label {
-  font-size: 0.8rem;
-  color: var(--text-muted);
+  font-size: 0.90rem; 
+  color: #5cb85c;
   margin-top: 2px;
-  font-weight: 400;
+  font-weight: 800;
 }
 
 /* ── Right Panel / Carousel ── */
