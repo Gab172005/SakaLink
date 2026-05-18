@@ -67,11 +67,17 @@ router.get('/sales', protect, adminOnly, async (req: AuthRequest, res: Response)
     });
 
     const breakdown: Record<string, { quantitySold: number; income: number }> = {};
+    const dailyTrendMap: Record<string, number> = {};
     let totalSales = 0;
 
     //main loop scales through each order envelope, then inner loop counts individual items
     for (const order of orders) {
-      totalSales += order.totalToPay || 0; 
+      const orderTotal = order.totalToPay || 0;
+      totalSales += orderTotal; 
+
+      // Track daily trend
+      const dateKey = new Date(order.createdAt).toISOString().split('T')[0];
+      dailyTrendMap[dateKey] = (dailyTrendMap[dateKey] || 0) + orderTotal;
 
       for (const item of order.items) {
         const name = item.name ?? 'Unknown Product';
@@ -87,7 +93,12 @@ router.get('/sales', protect, adminOnly, async (req: AuthRequest, res: Response)
       }
     }
 
-    res.json({ period, totalSales, breakdown });
+    // Convert dailyTrendMap to sorted array
+    const dailyTrend = Object.entries(dailyTrendMap)
+      .map(([date, sales]) => ({ date, sales }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    res.json({ period, totalSales, breakdown, dailyTrend });
   } catch (err) {
     res.status(500).json({ message: (err as Error).message });
   }

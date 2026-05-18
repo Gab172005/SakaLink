@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import styles from './AdminDashboard.module.css';
 import { useNavigate } from 'react-router-dom';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 export default function AdminDashboard({ showToast }) {
     const [orders, setOrders] = useState([]);
@@ -272,7 +273,55 @@ export default function AdminDashboard({ showToast }) {
                             {salesLoading ? (
                                 <div className={styles.tablePlaceholder}><span className={styles.spinner} /> Loading sales analytics...</div>
                             ) : (
-                                <table className={styles.mainTable}>
+                                <>
+                                    <div className={styles.chartContainer}>
+                                        <h4 className={styles.chartTitle}>Sales Revenue Trend</h4>
+                                        <div style={{ width: '100%', height: 300 }}>
+                                            <ResponsiveContainer>
+                                                <AreaChart data={salesData?.dailyTrend || []} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                                    <defs>
+                                                        <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                                                            <stop offset="5%" stopColor="#4a8c2a" stopOpacity={0.1}/>
+                                                            <stop offset="95%" stopColor="#4a8c2a" stopOpacity={0}/>
+                                                        </linearGradient>
+                                                    </defs>
+                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                                    <XAxis 
+                                                        dataKey="date" 
+                                                        axisLine={false} 
+                                                        tickLine={false} 
+                                                        tick={{ fontSize: 12, fill: '#64748b' }}
+                                                        minTickGap={30}
+                                                        tickFormatter={(str) => {
+                                                            const date = new Date(str);
+                                                            return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                                                        }}
+                                                    />
+                                                    <YAxis 
+                                                        axisLine={false} 
+                                                        tickLine={false} 
+                                                        tick={{ fontSize: 12, fill: '#64748b' }}
+                                                        tickFormatter={(val) => `₱${val}`}
+                                                    />
+                                                    <Tooltip 
+                                                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                                                        formatter={(value) => [`₱${value.toLocaleString()}`, 'Sales']}
+                                                        labelFormatter={(label) => new Date(label).toLocaleDateString(undefined, { dateStyle: 'long' })}
+                                                    />
+                                                    <Area 
+                                                        type="monotone" 
+                                                        dataKey="sales" 
+                                                        stroke="#4a8c2a" 
+                                                        strokeWidth={3}
+                                                        fillOpacity={1} 
+                                                        fill="url(#colorSales)" 
+                                                    />
+                                                </AreaChart>
+                                            </ResponsiveContainer>
+                                        </div>
+                                    </div>
+
+                                    <table className={styles.mainTable}>
                                     <thead>
                                         <tr>
                                             <th>Product Name</th>
@@ -296,6 +345,7 @@ export default function AdminDashboard({ showToast }) {
                                         )}
                                     </tbody>
                                 </table>
+                                </>
                             )}
                         </div>
                     ) : activeTab === 'users' ? (
