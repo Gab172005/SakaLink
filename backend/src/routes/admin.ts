@@ -38,10 +38,9 @@ router.delete('/users/:id', protect, adminOnly, async (req: AuthRequest, res: Re
 });
 
 // GET /api/admin/orders
-// FIXED: Removed the broken root .populate() since product details now live in the items array snapshot
 router.get('/orders', protect, adminOnly, async (_req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const orders = await Order.find().sort({ createdAt: -1 }); // Newest orders first
+    const orders = await Order.find().sort({ createdAt: -1 }); 
     res.json(orders);
   } catch (err) {
     res.status(500).json({ message: (err as Error).message });
@@ -60,22 +59,29 @@ router.get('/sales', protect, adminOnly, async (req: AuthRequest, res: Response)
   else startDate = new Date(0);
 
   try {
-    //filter for completed
     const orders = await Order.find({
       status: 2, 
       createdAt: { $gte: startDate },
     });
 
     const breakdown: Record<string, { quantitySold: number; income: number }> = {};
+    const dailyTrendMap: Record<string, number> = {};
     let totalSales = 0;
 
-    //main loop scales through each order envelope, then inner loop counts individual items
     for (const order of orders) {
-      totalSales += order.totalToPay || 0; 
+      const orderTotal = order.totalToPay || 0;
+      totalSales += orderTotal; 
 
+      const rawDate = order.get('createdAt') as Date | undefined;
+      const orderDate = rawDate ?? new Date();
+      
+      const isoString = orderDate.toISOString();
+      const dateKey = isoString.substring(0, 10); 
+
+      dailyTrendMap[dateKey] = (dailyTrendMap[dateKey] || 0) + orderTotal;
+      
       for (const item of order.items) {
         const name = item.name ?? 'Unknown Product';
-        //Multiply quantity by purchase price snapshot for true product revenue tracking
         const itemIncome = item.quantity * item.priceAtPurchase;
 
         if (!breakdown[name]) {
@@ -87,7 +93,11 @@ router.get('/sales', protect, adminOnly, async (req: AuthRequest, res: Response)
       }
     }
 
-    res.json({ period, totalSales, breakdown });
+    const dailyTrend = Object.entries(dailyTrendMap)
+      .map(([date, sales]) => ({ date, sales }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    res.json({ period, totalSales, breakdown, dailyTrend });
   } catch (err) {
     res.status(500).json({ message: (err as Error).message });
   }
