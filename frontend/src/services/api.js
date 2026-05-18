@@ -140,9 +140,14 @@ export const adminAPI = {
   getUsers: () => request("/admin/users"),
 
   /**
-   * GET /api/admin/orders  (requires admin)
-   * Returns: Order[]
+   * DELETE /api/admin/users/:id (requires admin)
    */
+  deleteUser: (id) => request(`/admin/users/${id}`, { method: "DELETE" }),
+
+  /**
+   * GET /api/admin/orders  (requires admin)
+   */
+
   getAllOrders: () => request("/admin/orders"),
 
   /**

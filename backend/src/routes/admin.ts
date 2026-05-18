@@ -16,6 +16,27 @@ router.get('/users', protect, adminOnly, async (_req: AuthRequest, res: Response
   }
 });
 
+// DELETE /api/admin/users/:id
+router.delete('/users/:id', protect, adminOnly, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    if (user.userType === 'admin') {
+      res.status(403).json({ message: 'Cannot delete admin users' });
+      return;
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: 'User deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: (err as Error).message });
+  }
+});
+
 // GET /api/admin/orders
 // FIXED: Removed the broken root .populate() since product details now live in the items array snapshot
 router.get('/orders', protect, adminOnly, async (_req: AuthRequest, res: Response): Promise<void> => {
