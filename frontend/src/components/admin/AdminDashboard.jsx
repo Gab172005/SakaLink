@@ -195,7 +195,7 @@ export default function AdminDashboard({ showToast }) {
                     <button className={`${styles.tabBtn} ${activeTab === 'shipping' ? styles.tabActive : ''}`} onClick={() => setActiveTab('shipping')}>Out for Delivery ({shippingCount})</button>
                     <button className={`${styles.tabBtn} ${activeTab === 'completed' ? styles.tabActive : ''}`} onClick={() => setActiveTab('completed')}>Completed</button>
                     <button className={`${styles.tabBtn} ${activeTab === 'cancelled' ? styles.tabActive : ''}`} onClick={() => setActiveTab('cancelled')}>Cancelled</button>
-                    <button className={`${styles.tabBtn} ${activeTab === 'sales' ? styles.tabActive : ''}`} onClick={() => setActiveTab('sales')}>📊 Sales Report</button>
+                    <button className={`${styles.tabBtn} ${activeTab === 'sales' ? styles.tabActive : ''}`} onClick={() => setActiveTab('sales')}>Sales Report</button>
                 </div>
 
                 <div className={styles.tableWrapper}>
