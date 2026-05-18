@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import styles from './AdminDashboard.module.css';
 import { useNavigate } from 'react-router-dom';
-
+import { adminAPI } from '../../services/api';
 export default function AdminDashboard({ showToast }) {
     const [orders, setOrders] = useState([]);
+    const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [usersLoading, setUsersLoading] = useState(false);
     const [error, setError] = useState('');
     const [activeTab, setActiveTab] = useState('all');
     const [isVerifiedAdmin, setIsVerifiedAdmin] = useState(false);
@@ -13,6 +15,24 @@ export default function AdminDashboard({ showToast }) {
     const [salesLoading, setSalesLoading] = useState(false);
     
     const navigate = useNavigate();
+
+    const fetchUsers = async () => {
+        try {
+            setUsersLoading(true);
+            const response = await fetch('http://localhost:5000/api/admin/users', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+            });
+            const data = await response.json();
+            setUsers(data.users || []);
+        } catch (err) {
+            console.error("Users Fetch Error:", err);
+            showToast?.("Failed to load user list", 'error');
+        } finally {
+            setUsersLoading(false);
+        }
+    };
 
     const fetchOrders = async () => {
         try {
@@ -34,6 +54,9 @@ export default function AdminDashboard({ showToast }) {
             const data = await response.json();
             setOrders(Array.isArray(data) ? data : []);
             setIsVerifiedAdmin(true);
+
+            // Fetch users as well for the total count metric
+            await fetchUsers();
 
         } catch (err) {
             setError(err.message);
@@ -68,8 +91,23 @@ export default function AdminDashboard({ showToast }) {
     useEffect(() => {
         if (activeTab === 'sales') {
             fetchSales(salesPeriod);
+        } else if (activeTab === 'users') {
+            fetchUsers();
         }
     }, [activeTab, salesPeriod]);
+
+    const handleDeleteUser = async (userId) => {
+        if (!window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) return;
+
+        try {
+            await adminAPI.deleteUser(userId);
+            showToast?.('User deleted successfully!');
+            setUsers(prev => prev.filter(u => u._id !== userId));
+        } catch (err) {
+            console.error("User Deletion Failed:", err.message);
+            showToast?.(`Action Failed: ${err.message}`, 'error');
+        }
+    };
 
     const handleUpdateStatus = async (orderId, newStatus) => {
         try {
@@ -181,6 +219,13 @@ export default function AdminDashboard({ showToast }) {
                 </div>
                 <div className={styles.metricCard}>
                     <div className={styles.metricMeta}>
+                        <span className={styles.metricLabel}>Registered Users</span>
+                        <span className={styles.metricIcon}>👥</span>
+                    </div>
+                    <h3 className={styles.metricValue}>{users.length}</h3>
+                </div>
+                <div className={styles.metricCard}>
+                    <div className={styles.metricMeta}>
                         <span className={styles.metricLabel}>Gross Realized Earnings</span>
                         <span className={styles.metricIcon}>₱</span>
                     </div>
@@ -195,6 +240,7 @@ export default function AdminDashboard({ showToast }) {
                     <button className={`${styles.tabBtn} ${activeTab === 'shipping' ? styles.tabActive : ''}`} onClick={() => setActiveTab('shipping')}>Out for Delivery ({shippingCount})</button>
                     <button className={`${styles.tabBtn} ${activeTab === 'completed' ? styles.tabActive : ''}`} onClick={() => setActiveTab('completed')}>Completed</button>
                     <button className={`${styles.tabBtn} ${activeTab === 'cancelled' ? styles.tabActive : ''}`} onClick={() => setActiveTab('cancelled')}>Cancelled</button>
+                    <button className={`${styles.tabBtn} ${activeTab === 'users' ? styles.tabActive : ''}`} onClick={() => setActiveTab('users')}>User Management ({users.length})</button>
                     <button className={`${styles.tabBtn} ${activeTab === 'sales' ? styles.tabActive : ''}`} onClick={() => setActiveTab('sales')}>Sales Report</button>
                 </div>
 
@@ -237,6 +283,53 @@ export default function AdminDashboard({ showToast }) {
                                             <tr>
                                                 <td colSpan="3" className={styles.noDataCell}>No sales data found for the selected {salesPeriod} period.</td>
                                             </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                    ) : activeTab === 'users' ? (
+                        <div className={styles.salesReportSection}>
+                            {usersLoading ? (
+                                <div className={styles.tablePlaceholder}><span className={styles.spinner} /> Loading registered users...</div>
+                            ) : (
+                                <table className={styles.mainTable}>
+                                    <thead>
+                                        <tr>
+                                            <th>User ID</th>
+                                            <th>Full Name</th>
+                                            <th>Email Address</th>
+                                            <th>Joined Date</th>
+                                            <th className={styles.centerAlign}>Action Controls</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {users.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="5" className={styles.noDataCell}>No registered customers found.</td>
+                                            </tr>
+                                        ) : (
+                                            users.map((user) => (
+                                                <tr key={user._id}>
+                                                    <td><span className={styles.orderId}>#{user._id.slice(-6).toUpperCase()}</span></td>
+                                                    <td><strong>{user.firstName} {user.lastName}</strong></td>
+                                                    <td><span className={styles.customerEmail}>{user.email}</span></td>
+                                                    <td>
+                                                        <div className={styles.dateTime}>
+                                                            {new Date(user.createdAt).toLocaleDateString()}
+                                                        </div>
+                                                    </td>
+                                                    <td className={styles.centerAlign}>
+                                                        <button 
+                                                            className={`${styles.btnAction} ${styles.btnCancel}`}
+                                                            onClick={() => handleDeleteUser(user._id)}
+                                                            title="Permanently remove user account"
+                                                        >
+                                                            Delete User
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))
                                         )}
                                     </tbody>
                                 </table>
