@@ -8,6 +8,9 @@ export default function AdminDashboard({ showToast }) {
     const [error, setError] = useState('');
     const [activeTab, setActiveTab] = useState('all');
     const [isVerifiedAdmin, setIsVerifiedAdmin] = useState(false);
+    const [salesData, setSalesData] = useState(null);
+    const [salesPeriod, setSalesPeriod] = useState('monthly');
+    const [salesLoading, setSalesLoading] = useState(false);
     
     const navigate = useNavigate();
 
@@ -43,6 +46,30 @@ export default function AdminDashboard({ showToast }) {
     useEffect(() => {
         fetchOrders();
     }, []);
+
+    const fetchSales = async (period) => {
+        try {
+            setSalesLoading(true);
+            const response = await fetch(`http://localhost:5000/api/admin/sales?period=${period}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+            });
+            const data = await response.json();
+            setSalesData(data);
+        } catch (err) {
+            console.error("Sales Fetch Error:", err);
+            showToast?.("Failed to load sales report", 'error');
+        } finally {
+            setSalesLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === 'sales') {
+            fetchSales(salesPeriod);
+        }
+    }, [activeTab, salesPeriod]);
 
     const handleUpdateStatus = async (orderId, newStatus) => {
         try {
@@ -168,94 +195,140 @@ export default function AdminDashboard({ showToast }) {
                     <button className={`${styles.tabBtn} ${activeTab === 'shipping' ? styles.tabActive : ''}`} onClick={() => setActiveTab('shipping')}>Out for Delivery ({shippingCount})</button>
                     <button className={`${styles.tabBtn} ${activeTab === 'completed' ? styles.tabActive : ''}`} onClick={() => setActiveTab('completed')}>Completed</button>
                     <button className={`${styles.tabBtn} ${activeTab === 'cancelled' ? styles.tabActive : ''}`} onClick={() => setActiveTab('cancelled')}>Cancelled</button>
+                    <button className={`${styles.tabBtn} ${activeTab === 'sales' ? styles.tabActive : ''}`} onClick={() => setActiveTab('sales')}>Sales Report</button>
                 </div>
 
                 <div className={styles.tableWrapper}>
-                    <table className={styles.mainTable}>
-                        <thead>
-                            <tr>
-                                <th>Order Ref / Timestamp</th>
-                                <th>Customer Identity</th>
-                                <th>Items Ordered Summary</th>
-                                <th>Logistics Address</th>
-                                <th>Payout Mode</th>
-                                <th>Total Value</th>
-                                <th>Status</th>
-                                <th className={styles.centerAlign}>Action Controls</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredOrders.length === 0 ? (
-                                <tr>
-                                    <td colSpan="8" className={styles.noDataCell}>No incoming matching entries recorded for this view layout.</td>
-                                </tr>
+                    {activeTab === 'sales' ? (
+                        <div className={styles.salesReportSection}>
+                            <div className={styles.salesHeader}>
+                                <div className={styles.periodPicker}>
+                                    <button className={`${styles.periodBtn} ${salesPeriod === 'weekly' ? styles.periodActive : ''}`} onClick={() => setSalesPeriod('weekly')}>Weekly</button>
+                                    <button className={`${styles.periodBtn} ${salesPeriod === 'monthly' ? styles.periodActive : ''}`} onClick={() => setSalesPeriod('monthly')}>Monthly</button>
+                                    <button className={`${styles.periodBtn} ${salesPeriod === 'annual' ? styles.periodActive : ''}`} onClick={() => setSalesPeriod('annual')}>Annual</button>
+                                </div>
+                                <div className={styles.totalSalesSummary}>
+                                    <span className={styles.summaryLabel}>Total Sales ({salesPeriod}):</span>
+                                    <span className={styles.summaryValue}>₱{salesData?.totalSales?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}</span>
+                                </div>
+                            </div>
+                            
+                            {salesLoading ? (
+                                <div className={styles.tablePlaceholder}><span className={styles.spinner} /> Loading sales analytics...</div>
                             ) : (
-                                filteredOrders.map((order) => (
-                                    <tr key={order._id}>
-                                        <td>
-                                            <span className={styles.orderId}>#{order._id.slice(-6).toUpperCase()}</span>
-                                            <div className={styles.dateTime}>
-                                                {new Date(order.createdAt).toLocaleDateString()} at {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span className={styles.customerEmail}>{order.email}</span>
-                                        </td>
-                                        <td>
-                                            <div className={styles.itemsColumn}>
-                                                {order.items?.map((item, index) => (
-                                                    <div key={index} className={styles.itemRowSummary}>
-                                                        • {item.name} <strong className={styles.qtyMark}>x{item.quantity}</strong>
-                                                        <span className={styles.priceSnapshot}>(₱{item.priceAtPurchase})</span>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </td>
-                                        <td><span className={styles.addressLine}>{order.deliveryAddress}</span></td>
-                                        <td><span className={styles.payoutMode}>{order.paymentMethod}</span></td>
-                                        <td><strong className={styles.totalAmount}>₱{order.totalToPay}</strong></td>
-                                        <td>
-                                            <span className={`${styles.statusBadge} ${getStatusBadgeClass(order.status)}`}>
-                                                {getStatusLabel(order.status)}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div className={styles.actionButtonGroup}>
-                                                {order.status === 0 && (
-                                                    <>
-                                                        <button
-                                                            className={`${styles.btnAction} ${styles.btnConfirm}`}
-                                                            onClick={() => handleUpdateStatus(order._id, 1)}
-                                                            title="Confirm and mark out for delivery"
-                                                        >
-                                                            Confirm
-                                                        </button>
-                                                        <button
-                                                            className={`${styles.btnAction} ${styles.btnCancel}`}
-                                                            onClick={() => handleUpdateStatus(order._id, 3)}
-                                                            title="Reject and cancel transaction"
-                                                        >
-                                                            Cancel
-                                                        </button>
-                                                    </>
-                                                )}
-                                                {order.status === 1 && (
-                                                    <button
-                                                        className={`${styles.btnAction} ${styles.btnDeliver}`}
-                                                        onClick={() => handleUpdateStatus(order._id, 2)}
-                                                        title="Mark as successfully received"
-                                                    >
-                                                        Mark Delivered
-                                                    </button>
-                                                )}
-                                                {order.status >= 2 && <span className={styles.txtMuted}>Archived</span>}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
+                                <table className={styles.mainTable}>
+                                    <thead>
+                                        <tr>
+                                            <th>Product Name</th>
+                                            <th className={styles.centerAlign}>Quantity Sold</th>
+                                            <th className={styles.centerAlign}>Income Generated</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {salesData?.breakdown && Object.keys(salesData.breakdown).length > 0 ? (
+                                            Object.entries(salesData.breakdown).map(([name, stats]) => (
+                                                <tr key={name}>
+                                                    <td><strong>{name}</strong></td>
+                                                    <td className={styles.centerAlign}>{stats.quantitySold}</td>
+                                                    <td className={styles.centerAlign}>₱{stats.income.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="3" className={styles.noDataCell}>No sales data found for the selected {salesPeriod} period.</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
                             )}
-                        </tbody>
-                    </table>
+                        </div>
+                    ) : (
+                        <table className={styles.mainTable}>
+                            <thead>
+                                <tr>
+                                    <th>Order Ref / Timestamp</th>
+                                    <th>Customer Identity</th>
+                                    <th>Items Ordered Summary</th>
+                                    <th>Logistics Address</th>
+                                    <th>Payout Mode</th>
+                                    <th>Total Value</th>
+                                    <th>Status</th>
+                                    <th className={styles.centerAlign}>Action Controls</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredOrders.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="8" className={styles.noDataCell}>No incoming matching entries recorded for this view layout.</td>
+                                    </tr>
+                                ) : (
+                                    filteredOrders.map((order) => (
+                                        <tr key={order._id}>
+                                            <td>
+                                                <span className={styles.orderId}>#{order._id.slice(-6).toUpperCase()}</span>
+                                                <div className={styles.dateTime}>
+                                                    {new Date(order.createdAt).toLocaleDateString()} at {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span className={styles.customerEmail}>{order.email}</span>
+                                            </td>
+                                            <td>
+                                                <div className={styles.itemsColumn}>
+                                                    {order.items?.map((item, index) => (
+                                                        <div key={index} className={styles.itemRowSummary}>
+                                                            • {item.name} <strong className={styles.qtyMark}>x{item.quantity}</strong>
+                                                            <span className={styles.priceSnapshot}>(₱{item.priceAtPurchase})</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </td>
+                                            <td><span className={styles.addressLine}>{order.deliveryAddress}</span></td>
+                                            <td><span className={styles.payoutMode}>{order.paymentMethod}</span></td>
+                                            <td><strong className={styles.totalAmount}>₱{order.totalToPay}</strong></td>
+                                            <td>
+                                                <span className={`${styles.statusBadge} ${getStatusBadgeClass(order.status)}`}>
+                                                    {getStatusLabel(order.status)}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div className={styles.actionButtonGroup}>
+                                                    {order.status === 0 && (
+                                                        <>
+                                                            <button
+                                                                className={`${styles.btnAction} ${styles.btnConfirm}`}
+                                                                onClick={() => handleUpdateStatus(order._id, 1)}
+                                                                title="Confirm and mark out for delivery"
+                                                            >
+                                                                Confirm
+                                                            </button>
+                                                            <button
+                                                                className={`${styles.btnAction} ${styles.btnCancel}`}
+                                                                onClick={() => handleUpdateStatus(order._id, 3)}
+                                                                title="Reject and cancel transaction"
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                    {order.status === 1 && (
+                                                        <button
+                                                            className={`${styles.btnAction} ${styles.btnDeliver}`}
+                                                            onClick={() => handleUpdateStatus(order._id, 2)}
+                                                            title="Mark as successfully received"
+                                                        >
+                                                            Mark Delivered
+                                                        </button>
+                                                    )}
+                                                    {order.status >= 2 && <span className={styles.txtMuted}>Archived</span>}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    )}
                 </div>
             </div>
         </div>

@@ -109,10 +109,12 @@ router.patch('/:id/cancel', protect, async (req: AuthRequest, res: Response): Pr
   }
 
   try {
-    const order = await Order.findOne({
-      _id: id as string,
-      email: req.user!.email
-    });
+    // If admin, they can find any order. If customer, only their own email-matched order.
+    const query = req.user?.userType === 'admin' 
+      ? { _id: id } 
+      : { _id: id, email: req.user!.email };
+
+    const order = await Order.findOne(query);
 
     if (!order) {
       res.status(404).json({ message: 'Order not found' });
@@ -130,13 +132,17 @@ router.patch('/:id/cancel', protect, async (req: AuthRequest, res: Response): Pr
 
     // Run clean notifications
     const admins = await User.find({ userType: 'admin' }).select('_id');
+    const isByAdmin = req.user?.userType === 'admin';
+
     await Promise.all([
       Notification.create({
         userId: order.user,
         type: 'order_cancelled',
-        message: 'Your order has been cancelled.',
+        message: isByAdmin 
+          ? 'Your order has been cancelled by an administrator.' 
+          : 'Your order has been cancelled.',
       }),
-      admins.length > 0 ? Notification.insertMany(
+      (admins.length > 0 && !isByAdmin) ? Notification.insertMany(
         admins.map((a) => ({
           userId: a._id,
           type: 'order_cancelled',
