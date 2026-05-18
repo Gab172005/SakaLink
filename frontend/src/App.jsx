@@ -14,6 +14,7 @@ import CartModal from "./components/MarketPage/CartModal";
 import UserProfilePage from "./pages/ProfilePage/UserProfilePage";
 import SettingsPage from "./pages/SettingsPage/SettingsPage";
 import AdminDashboard from "./components/admin/AdminDashboard"; 
+import ChatBot from "./components/common/ChatBot";
 import "./App.css";
 
 function LandingPage({ openModal }) {
@@ -116,6 +117,8 @@ function AppContent() {
         onClose={closeModal}
         showToast={showToast}
       />
+
+      <ChatBot />
     </>
   );
 }
