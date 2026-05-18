@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import styles from './AdminDashboard.module.css';
 import { useNavigate } from 'react-router-dom';
-
+import { adminAPI } from '../../services/api';
 export default function AdminDashboard({ showToast }) {
     const [orders, setOrders] = useState([]);
     const [users, setUsers] = useState([]);
@@ -100,17 +100,7 @@ export default function AdminDashboard({ showToast }) {
         if (!window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) return;
 
         try {
-            const response = await fetch(`http://localhost:5000/api/admin/users/${userId}`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-            });
-
-            if (!response.ok) {
-                const fallback = await response.json();
-                throw new Error(fallback.message || 'Failed to delete user.');
-            }
-
+            await adminAPI.deleteUser(userId);
             showToast?.('User deleted successfully!');
             setUsers(prev => prev.filter(u => u._id !== userId));
         } catch (err) {
