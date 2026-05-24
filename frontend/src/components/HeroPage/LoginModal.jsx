@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { authAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import "./Modal.css";
 
 export default function LoginModal({ active, onClose, onSwitch, showToast }) {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -44,7 +46,8 @@ export default function LoginModal({ active, onClose, onSwitch, showToast }) {
       showToast("Welcome back!");
 
       setTimeout(() => {
-        window.location.href = data.userType === "admin" ? "/admin/dashboard" : "/shop";
+        const target = data.userType === "admin" ? "/admin/dashboard" : "/shop";
+        navigate(target);
       }, 1000);
     } catch (err) {
       setError(err.message);

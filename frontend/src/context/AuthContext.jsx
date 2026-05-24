@@ -14,7 +14,9 @@ export function AuthProvider({ children }) {
     }
   });
   
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => {
+    return !localStorage.getItem("sakalink_userInfo");
+  });
   const isAuthenticated = !!user;
   
   useEffect(() => {
