@@ -8,13 +8,13 @@ const seed = async (): Promise<void> => {
   await mongoose.connect(process.env.MONGO_URI as string);
 
   const existing = await User.findOne({ userType: 'admin' });
-  const hashed = await bcrypt.hash('admin123', 10);
   if (!existing) {
+    // PASS PLAIN TEXT: The User model pre-save hook handles hashing
     await User.create({
       firstName: 'DA',
       lastName: 'Admin',
       email: 'admin@da.gov.ph',
-      password: hashed,
+      password: 'admin123', 
       userType: 'admin',
     });
     console.log('Admin account seeded!');

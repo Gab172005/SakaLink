@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
-import bcrypt from "bcrypt"; // used for security by hashing the password
+import bcrypt from "bcryptjs"; // used for security by hashing the password
 
 export interface userDocument extends Document {
   firstName: string;

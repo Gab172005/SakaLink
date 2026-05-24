@@ -42,12 +42,15 @@ app.use(
       // Allow requests with no origin (like mobile apps or curl)
       if (!origin) return callback(null, true);
       
-      if (ALLOWED_ORIGINS.includes(origin) || process.env.NODE_ENV !== 'production') {
+      const isAllowed = 
+        ALLOWED_ORIGINS.includes(origin) || 
+        origin.endsWith('.vercel.app') || 
+        process.env.NODE_ENV !== 'production';
+
+      if (isAllowed) {
         callback(null, true);
       } else {
         console.warn(`CORS blocked: ${origin}`);
-        // Instead of returning an error, we return false to let CORS middleware handle it
-        // and avoid potential 500 errors that skip CORS headers
         callback(null, false);
       }
     },
