@@ -16,38 +16,17 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
 
-// 1. Database Connection Logic (Singleton for Serverless)
-let isConnected = false;
-const connectDB = async () => {
-  if (isConnected) return;
-  if (!MONGO_URI) {
-    throw new Error('MONGODB_URI is not defined');
-  }
-
-  try {
-    const db = await mongoose.connect(MONGO_URI, {
-      serverSelectionTimeoutMS: 5000, // Fail fast (5s) instead of hanging
-    });
-    isConnected = db.connections[0].readyState === 1;
-    console.log('✅ MongoDB connected successfully');
-  } catch (err) {
-    console.error('❌ MongoDB connection error:', (err as Error).message);
-    throw err;
-  }
-};
-
-// 2. Middleware to ensure DB is connected before handling requests
-app.use(async (req, res, next) => {
-  try {
-    await connectDB();
-    next();
-  } catch (err) {
-    res.status(500).json({ 
-      message: 'Database connection failed', 
-      error: (err as Error).message 
-    });
-  }
-});
+// 1. Database Connection (Top-level for Serverless)
+// Mongoose handles connection buffering, so we don't need to wait for it before starting the app.
+if (MONGO_URI) {
+  mongoose.connect(MONGO_URI, {
+    serverSelectionTimeoutMS: 5000,
+  })
+  .then(() => console.log('✅ MongoDB connected successfully'))
+  .catch(err => console.error('❌ MongoDB connection error:', err.message));
+} else {
+  console.error('ERROR: MONGODB_URI is not defined');
+}
 
 const ALLOWED_ORIGINS = [
   process.env.CLIENT_URL,
@@ -70,6 +49,7 @@ app.use(
 
 app.use(cookieParser());
 app.use(express.json());
+
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
@@ -84,12 +64,17 @@ app.get('/', (req, res) => {
 });
 
 app.get('/health', (req, res) => {
-...
   res.json({ 
     status: 'ok', 
     db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
     env: process.env.NODE_ENV
   });
+});
+
+// Global Error Handler
+app.use((err: any, req: any, res: any, next: any) => {
+  console.error('Unhandled Error:', err);
+  res.status(500).json({ message: 'Internal Server Error', error: err.message });
 });
 
 if (process.env.NODE_ENV !== 'production') {
