@@ -9,7 +9,7 @@ export default defineConfig({
       // Proxy /api/* → Express backend during development.
       // This avoids CORS issues entirely in dev.
       "/api": {
-        target: env.VITE_REACT_APP_BACKEND_BASEURL,
+        target: "http://localhost:5000",
         changeOrigin: true,
         secure: false,
       },
