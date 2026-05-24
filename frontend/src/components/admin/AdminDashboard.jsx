@@ -18,10 +18,13 @@ export default function AdminDashboard({ showToast }) {
     
     const navigate = useNavigate();
 
+    // Get your backend base URL from Vite's environment system
+    const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_BASEURL;
+
     const fetchUsers = async () => {
         try {
             setUsersLoading(true);
-            const response = await fetch('http://localhost:5000/api/admin/users', {
+            const response = await fetch(`${BACKEND_URL}/api/admin/users`, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -40,7 +43,7 @@ export default function AdminDashboard({ showToast }) {
         try {
             setLoading(true);
             setError(''); 
-            const response = await fetch('http://localhost:5000/api/admin/orders', {
+            const response = await fetch(`${BACKEND_URL}/api/admin/orders`, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -75,7 +78,7 @@ export default function AdminDashboard({ showToast }) {
     const fetchSales = async (period) => {
         try {
             setSalesLoading(true);
-            const response = await fetch(`http://localhost:5000/api/admin/sales?period=${period}`, {
+            const response = await fetch(`${BACKEND_URL}/api/admin/sales?period=${period}`, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -115,11 +118,11 @@ export default function AdminDashboard({ showToast }) {
         try {
             let endpoint = '';
             if (newStatus === 1) {
-                endpoint = `http://localhost:5000/api/orders/${orderId}/confirm`;
+                endpoint = `${BACKEND_URL}/api/orders/${orderId}/confirm`;
             } else if (newStatus === 2) {
-                endpoint = `http://localhost:5000/api/orders/${orderId}/deliver`;
+                endpoint = `${BACKEND_URL}/api/orders/${orderId}/deliver`;
             } else if (newStatus === 3) {
-                endpoint = `http://localhost:5000/api/orders/${orderId}/cancel`;
+                endpoint = `${BACKEND_URL}/api/orders/${orderId}/cancel`;
             } else {
                 throw new Error(`Unsupported status targeted: ${newStatus}`);
             }

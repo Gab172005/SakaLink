@@ -1,8 +1,8 @@
 // src/services/api.js
 // Central API layer — all fetch calls go through here.
-// Base URL reads from Vite env var; falls back to localhost for dev.
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+// FIX: Synchronized to use the same env variable as your AdminDashboard
+const BASE_URL = import.meta.env.VITE_REACT_APP_BACKEND_BASEURL;
 
 // ── Token helpers ──────────────────────────────────────────────────────────
 export const getToken = () => localStorage.getItem("sakalink_token");
@@ -24,10 +24,11 @@ async function request(path, options = {}) {
     ...options.headers,
   };
 
-  const res = await fetch(`${BASE_URL}${path}`, { 
+  // FIX: Explicitly added the '/api' prefix so your endpoints cleanly map to your Express routes
+  const res = await fetch(`${BASE_URL}/api${path}`, { 
     ...options, 
     headers,
-    credentials: "include"//get the cookie
+    credentials: "include" // get the cookie
   });
 
   const data = await res.json().catch(() => ({}));
@@ -63,12 +64,10 @@ export const authAPI = {
       method: "POST",
     }),
 
-  // PATCH /api/auth/profile
-  // FIX: accepts a { firstName, lastName } object, matching the call in EditProfileForm
-  updateProfile: ({ firstName, lastName} ) =>
+  updateProfile: ({ firstName, lastName }) =>
     request("/auth/profile", {
       method: "PATCH",
-      body: JSON.stringify({ firstName, lastName}),
+      body: JSON.stringify({ firstName, lastName }),
     }),
 
   getCart: () =>
@@ -85,109 +84,60 @@ export const authAPI = {
 
 // ── Products ───────────────────────────────────────────────────────────────
 export const productsAPI = {
-  /**
-   * GET /api/products
-   * Optional query params: sortBy, order, type, search
-   * Returns: Product[]
-   */
   getAll: (params = {}) => {
     const qs = new URLSearchParams(params).toString();
     return request(`/products${qs ? `?${qs}` : ""}`);
   },
 
-  /**
-   * GET /api/products/:id
-   * Returns: Product
-   */
   getById: (id) => request(`/products/${id}`),
 };
 
 // ── Orders ─────────────────────────────────────────────────────────────────
 export const ordersAPI = {
-  /**
-   * GET /api/orders  (requires auth)
-   * Returns: Order[]
-   */
   getMyOrders: () => request("/orders/my-orders"),
 
-  // PATCH /api/orders/:id/cancel — cancel a pending order
   cancelOrder: (id) => request(`/orders/${id}/cancel`, { method: "PATCH" }),
 
-  /**
-   * POST /api/orders  (requires auth)
-   * Body: { items: [{ productId, quantity }], ... }
-   * Returns: Order
-   */
   create: (orderData) =>
     request("/orders", {
       method: "POST",
       body: JSON.stringify(orderData),
     }),
 
-  /**
-   * GET /api/orders/:id  (requires auth)
-   * Returns: Order
-   */
   getById: (id) => request(`/orders/${id}`),
 };
 
 // ── Admin ──────────────────────────────────────────────────────────────────
 export const adminAPI = {
-  /**
-   * GET /api/admin/users  (requires admin)
-   * Returns: User[]
-   */
   getUsers: () => request("/admin/users"),
 
-  /**
-   * DELETE /api/admin/users/:id (requires admin)
-   */
   deleteUser: (id) => request(`/admin/users/${id}`, { method: "DELETE" }),
-
-  /**
-   * GET /api/admin/orders  (requires admin)
-   */
 
   getAllOrders: () => request("/admin/orders"),
 
-  /**
-   * POST /api/products  (requires admin)
-   * Body: product fields
-   * Returns: Product
-   */
   createProduct: (productData) =>
     request("/products", {
       method: "POST",
       body: JSON.stringify(productData),
     }),
 
-  /**
-   * PUT /api/products/:id  (requires admin)
-   */
   updateProduct: (id, productData) =>
     request(`/products/${id}`, {
       method: "PUT",
       body: JSON.stringify(productData),
     }),
 
-  /**
-   * DELETE /api/products/:id  (requires admin)
-   */
   deleteProduct: (id) =>
     request(`/products/${id}`, { method: "DELETE" }),
 };
 
 // ── Notifications ──────────────────────────────────────────────────────────
 export const notificationsAPI = {
-  // GET /api/notifications — fetch caller's notifications
   getAll: () => request("/notifications"),
 
-  //GET /api/notifications/unread-count — fetch total unread summary count scalar
   getUnreadCount: () => request("/notifications/unread-count", { method: "GET" }),
    
-  // PATCH /api/notifications/:id/read — mark one as read
   markRead: (id) => request(`/notifications/${id}/read`, { method: "PATCH" }),
    
-  // PATCH /api/notifications/read-all — mark all as read
   markAllRead: () => request("/notifications/read-all", { method: "PATCH" }),
 };
