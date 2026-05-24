@@ -203,21 +203,22 @@
   .actions {
     position: fixed;
     top: 60px;
-    right: -100%;
+    right: 0;
     width: 280px;
     height: calc(100vh - 60px);
     background-color: #ffffff;
     flex-direction: column;
     padding: 2rem 1.5rem;
     box-shadow: -10px 0 30px rgba(0,0,0,0.08);
-    transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 1000;
     align-items: stretch;
     overflow-y: auto;
+    transform: translateX(100%);
   }
 
   .actions.mobileOpen {
-    right: 0;
+    transform: translateX(0);
   }
 
   .navGroup {
