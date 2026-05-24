@@ -25,23 +25,14 @@ export default function EditProfileForm({ onBack }) {
 
     setSaving(true);
     try {
-      const updated = await authAPI.updateProfile({
+      const data = await authAPI.updateProfile({
         firstName: firstName.trim(),
         lastName:  lastName.trim(),
       });
 
-      // Merge the updated fields into the existing user object
-      const merged = { ...user, ...updated };
-
-      // FIX: Added fallback to 'customer' — localStorage.getItem returns null if
-      // the key is missing, and passing null to login() would break auth state.
-      const userType = localStorage.getItem('user_type') ?? 'customer';
-
-      // Sync localStorage so the session survives a page refresh
-      localStorage.setItem('user_info', JSON.stringify(merged));
-
       // Update AuthContext so the navbar reflects the name change immediately
-      login({ userType, user: merged });
+      // The 'data' object now contains both 'user' and 'userType' from the backend fix
+      login(data);
 
       setSuccess('Profile updated successfully!');
     } catch (err) {

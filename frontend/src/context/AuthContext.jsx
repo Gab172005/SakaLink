@@ -53,8 +53,11 @@ export function AuthProvider({ children }) {
   const login = (data) => {
     if (!data) return;
     
-    const activeUser = data.user ? data.user : data;
+    const activeUser = data.user ? { ...data.user } : { ...data };
     const activeType = data.userType || activeUser.userType || "customer";
+
+    // Ensure user object has userType
+    activeUser.userType = activeType;
 
     saveSession(data.token || "true", activeType);
     localStorage.setItem("sakalink_userInfo", JSON.stringify(activeUser));

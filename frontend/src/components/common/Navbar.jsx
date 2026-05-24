@@ -7,7 +7,7 @@ import NotificationOverlay from '../NotificationOverlay/NotificationOverlay';
 import styles from './Navbar.module.css';
 
 export default function Navbar({ openModal, openCart }) {
-  const { isAuthenticated, loading, user, logout } = useAuth();
+  const { isAuthenticated, loading, user, userType, logout } = useAuth();
   const { cartCount } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
@@ -59,7 +59,7 @@ export default function Navbar({ openModal, openCart }) {
   const handleNotifClose = () => {
     setNotifOpen(false);
   };
-  const isAdmin = user?.userType === 'admin';
+  const isAdmin = userType === 'admin';
 
   return (
     <nav className={styles.navbar}>

@@ -63,7 +63,8 @@ router.post('/register', validateBody(registerSchema), async (req: Request, res:
       user: {
         firstName: newUser.firstName,
         lastName: newUser.lastName,
-        email: newUser.email
+        email: newUser.email,
+        userType: newUser.userType
       }
     });
 
@@ -118,7 +119,8 @@ router.post('/login', validateBody(loginSchema), async (req: Request, res: Respo
       user: {
         firstName: user.firstName,
         lastName: user.lastName,
-        email: user.email
+        email: user.email,
+        userType: user.userType
       }
     });
   } catch (err) {
@@ -213,7 +215,8 @@ router.patch('/profile', validateBody(updateProfileSchema), async (req: Request,
       user: {
         firstName: updated.firstName,
         lastName: updated.lastName,
-        email: updated.email
+        email: updated.email,
+        userType: updated.userType
       }
     });
   } catch (err) {
