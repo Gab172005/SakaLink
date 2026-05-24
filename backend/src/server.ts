@@ -3,7 +3,10 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+
+// Load env vars at the very top for ESM
 dotenv.config();
+
 import authRoutes from './routes/auth.js';
 import productRoutes from './routes/products.js';
 import orderRoutes from './routes/orders.js';
@@ -12,21 +15,37 @@ import notificationRoutes from './routes/notifications.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI || "mongodb://localhost:27017/test";
+
+// Log env status (without leaking secrets)
+console.log('Environment check:', {
+  hasMongoUri: !!process.env.MONGODB_URI,
+  hasMongoUriAlt: !!process.env.MONGO_URI,
+  nodeEnv: process.env.NODE_ENV
+});
+
+const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
+
+if (!MONGO_URI) {
+  console.error('ERROR: No MongoDB URI found in environment variables!');
+}
 
 const ALLOWED_ORIGINS = [
-  process.env.VITE_REACT_APP_BACKEND_BASEURL
-];
+  process.env.CLIENT_URL,
+  'http://localhost:5173',
+  'http://localhost:3000'
+].filter(Boolean) as string[];
 
-// 4. Global Middleware Configuration
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+      
+      if (ALLOWED_ORIGINS.includes(origin) || process.env.NODE_ENV !== 'production') {
         callback(null, true);
       } else {
-        console.warn(`CORS: origin ${origin} not allowed`);
-        callback(new Error(`CORS: origin ${origin} not allowed`));
+        console.warn(`CORS blocked: ${origin}`);
+        callback(new Error('Not allowed by CORS'));
       }
     },
     credentials: true,
@@ -44,16 +63,28 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes); 
 app.use('/api/notifications', notificationRoutes);
 
-console.log('Connecting to MongoDB...');
-mongoose
-  .connect(MONGO_URI)
-  .then(() => {
-    console.log('MongoDB connected successfully');
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  })
-  .catch((err) => {
-    console.error('CRITICAL: DB connection error:', err.message);
-    console.log('Ensure MongoDB is running and your MONGO_URI is correct.');
-    // Start server anyway so frontend can receive clean 500 responses instead of connection drops
-    app.listen(PORT, () => console.log(`Server running on port ${PORT} (WITHOUT DB CONNECTION)`));
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' 
   });
+});
+
+console.log('Attempting MongoDB connection...');
+if (MONGO_URI) {
+  mongoose
+    .connect(MONGO_URI)
+    .then(() => {
+      console.log('✅ MongoDB connected successfully');
+    })
+    .catch((err) => {
+      console.error('❌ MongoDB connection error:', err.message);
+    });
+}
+
+// For Vercel, we export the app but also listen for local dev
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+export default app;
