@@ -35,4 +35,11 @@
   --shadow-lg: 0 8px 24px rgba(30,80,20,0.14);
 
   --transition: 0.18s ease;
+
+  /* Breakpoints */
+  --breakpoint-xs: 480px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
 }

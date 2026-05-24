@@ -117,3 +117,19 @@
   background-repeat: no-repeat;
   background-position: right 12px center;
 }
+
+@media (max-width: 640px) {
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .sortBtn {
+    width: 100%;
+  }
+
+  .input {
+    padding: 12px;
+  }
+}

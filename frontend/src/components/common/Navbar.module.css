@@ -144,3 +144,99 @@
   transform: translate(25%, -25%);
   line-height: 1;
 }
+
+.mobileMenuToggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  z-index: 1001;
+}
+
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.hamburger span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background-color: #333;
+  transition: all 0.3s ease;
+}
+
+.hamburger.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.hamburger.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.75rem 1rem;
+  }
+
+  .mobileMenuToggle {
+    display: block;
+  }
+
+  .actions {
+    position: fixed;
+    top: 64px;
+    right: -100%;
+    width: 280px;
+    height: calc(100vh - 64px);
+    background-color: #ffffff;
+    flex-direction: column;
+    padding: 2rem;
+    box-shadow: -4px 0 16px rgba(0,0,0,0.1);
+    transition: right 0.3s ease;
+    z-index: 1000;
+    align-items: flex-start;
+  }
+
+  .actions.mobileOpen {
+    right: 0;
+  }
+
+  .navGroup {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: 1.5rem;
+  }
+
+  .iconBtn {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 0.75rem 0;
+    font-size: 1.1rem;
+  }
+
+  .pillWrapper {
+    width: 100%;
+  }
+
+  .pillBox {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .dropdown {
+    position: static;
+    box-shadow: none;
+    border: none;
+    width: 100%;
+    padding-left: 1rem;
+    margin-top: 0.5rem;
+  }
+}

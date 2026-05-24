@@ -377,3 +377,33 @@
             transform: rotate(360deg);
         }
     }
+
+    @media (max-width: 768px) {
+        .dashboardContainer {
+            padding: 16px;
+        }
+
+        .dashHeader {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .mainTitle {
+            font-size: 1.4rem;
+        }
+
+        .metricsGrid {
+            grid-template-columns: 1fr;
+        }
+
+        .salesHeader {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .totalSalesSummary {
+            text-align: left;
+        }
+    }

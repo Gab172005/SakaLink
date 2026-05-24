@@ -137,3 +137,42 @@
   color: var(--text-secondary);
   font-size: 1rem;
 }
+
+@media (max-width: 1024px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .main {
+    padding: 16px;
+  }
+
+  .pageHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .adminAddBtn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .pageTitle {
+    font-size: 1.5rem;
+  }
+
+  .gridWrapper {
+    padding: 16px;
+  }
+
+  .promotedTitle {
+    font-size: 1.25rem;
+  }
+
+  .promotedDesc {
+    padding-left: 0;
+  }
+}

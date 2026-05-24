@@ -3,7 +3,7 @@ import styles from './Sidebar.module.css';
 import { CATEGORIES, CERTIFICATIONS, REGIONS, PRODUCTS } from '../../data/products';
 
 export default function Sidebar({ filters, onFilterChange, products = PRODUCTS }) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(window.innerWidth <= 1024);
 
   const toggle = (group, value) => {
     const current = filters[group] || [];

@@ -174,3 +174,20 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+@media (max-width: 480px) {
+  .modal {
+    padding: 30px 24px;
+    border-radius: 20px;
+    max-width: 90%;
+  }
+
+  .modal-title {
+    font-size: 1.4rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}

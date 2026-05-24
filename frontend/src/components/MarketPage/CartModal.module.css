@@ -249,3 +249,29 @@
   gap: 5px;
   font-size: 0.9rem;
 }
+
+@media (max-width: 640px) {
+  .modal {
+    padding: 20px;
+    border-radius: 16px;
+    max-height: 95vh;
+  }
+
+  .title {
+    font-size: 1.25rem;
+    margin-bottom: 15px;
+  }
+
+  .itemImageContainer {
+    width: 50px;
+    height: 50px;
+  }
+
+  .itemName {
+    font-size: 0.9rem;
+  }
+
+  .itemPrice {
+    font-size: 0.8rem;
+  }
+}

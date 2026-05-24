@@ -14,7 +14,9 @@ export default function Navbar({ openModal, openCart }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notifOpen,    setNotifOpen]    = useState(false);
   const [unreadCount,  setUnreadCount]  = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const mobileMenuRef = useRef(null);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -40,6 +42,9 @@ export default function Navbar({ openModal, openCart }) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setDropdownOpen(false);
       }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(e.target) && !e.target.closest(`.${styles.mobileMenuToggle}`)) {
+        setMobileMenuOpen(false);
+      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -49,11 +54,15 @@ export default function Navbar({ openModal, openCart }) {
 
   const handleLogout = async () => {
     setDropdownOpen(false);
+    setMobileMenuOpen(false);
     await logout();
     navigate("/");
   };
 
-  const goTo = (path) => navigate(path);
+  const goTo = (path) => {
+    navigate(path);
+    setMobileMenuOpen(false);
+  };
   const isActive = (path) => location.pathname === path;
 
   const handleNotifClose = () => {
@@ -68,7 +77,19 @@ export default function Navbar({ openModal, openCart }) {
         <span className={styles.logoText}>Saka<span className={styles.logoAccent}>Link</span></span>
       </div>
 
-      <div className={styles.actions}>
+      <button 
+        className={styles.mobileMenuToggle} 
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        aria-label="Toggle navigation"
+      >
+        <div className={`${styles.hamburger} ${mobileMenuOpen ? styles.open : ''}`}>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </button>
+
+      <div className={`${styles.actions} ${mobileMenuOpen ? styles.mobileOpen : ''}`} ref={mobileMenuRef}>
         {isAuthenticated ? (
           <div className={styles.navGroup}>
             <button 

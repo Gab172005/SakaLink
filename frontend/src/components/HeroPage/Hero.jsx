@@ -52,6 +52,24 @@ export default function Hero({ openModal }) {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
+  const [visibleCards, setVisibleCards] = useState(3);
+
+  useEffect(() => {
+    const updateVisibleCards = () => {
+      if (window.innerWidth <= 640) {
+        setVisibleCards(1);
+      } else if (window.innerWidth <= 1024) {
+        setVisibleCards(2);
+      } else {
+        setVisibleCards(3);
+      }
+    };
+
+    updateVisibleCards();
+    window.addEventListener('resize', updateVisibleCards);
+    return () => window.removeEventListener('resize', updateVisibleCards);
+  }, []);
+
   //randomize the products shown on the hero page
   useEffect(() => {
     if (!products || products.length === 0) return;
@@ -64,7 +82,7 @@ export default function Hero({ openModal }) {
   }, [products]);
 
   const slide = (dir) => {
-    const max = Math.max(0, displayProducts.length - 3);
+    const max = Math.max(0, displayProducts.length - visibleCards);
     setCarouselIdx((prev) => Math.max(0, Math.min(prev + dir, max)));
   };
 

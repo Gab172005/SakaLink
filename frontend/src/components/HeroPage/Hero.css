@@ -248,3 +248,66 @@
   from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ── Responsive Adjustments ── */
+@media (max-width: 1024px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 100px 40px 60px;
+    text-align: center;
+    gap: 60px;
+  }
+
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-buttons {
+    justify-content: center;
+  }
+
+  .hero-stats {
+    justify-content: center;
+    gap: 30px;
+  }
+
+  .hero-right {
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .product-card {
+    flex: 0 0 calc(50% - 8px); /* 2 cards on tablet */
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding: 80px 20px 40px;
+  }
+
+  .hero-tagline {
+    font-size: 2.2rem;
+  }
+
+  .hero-stats {
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .stat-value {
+    font-size: 1.2rem;
+  }
+
+  .product-card {
+    flex: 0 0 100%; /* Show 1 card on mobile */
+  }
+
+  .carousel-btn {
+    width: 36px;
+    height: 36px;
+  }
+}
