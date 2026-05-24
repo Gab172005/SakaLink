@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { type Request, type Response, type NextFunction } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -29,16 +29,16 @@ if (!MONGO_URI) {
   console.error('ERROR: No MongoDB URI found in environment variables!');
 }
 
-const ALLOWED_ORIGINS = [
+const ALLOWED_ORIGINS: string[] = [
   process.env.CLIENT_URL,
   'https://saka-link.vercel.app',
   'http://localhost:5173',
   'http://localhost:3000'
-].filter(Boolean) as string[];
+].filter((origin): origin is string => Boolean(origin)); // Clean type guard for filtering undefined strings
 
 app.use(
   cors({
-    origin: (origin, callback) => {
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
       // Allow requests with no origin (like mobile apps or curl)
       if (!origin) return callback(null, true);
       
@@ -69,7 +69,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes); 
 app.use('/api/notifications', notificationRoutes);
 
-app.get('/health', (req, res) => {
+app.get('/health', (req: Request, res: Response) => {
   res.json({ 
     status: 'ok', 
     db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' 
@@ -83,7 +83,7 @@ if (MONGO_URI) {
     .then(() => {
       console.log('✅ MongoDB connected successfully');
     })
-    .catch((err) => {
+    .catch((err: any) => {
       console.error('❌ MongoDB connection error:', err.message);
     });
 }
