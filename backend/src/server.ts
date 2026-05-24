@@ -4,6 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 
+// Load env vars at the very top for ESM
 dotenv.config();
 
 import authRoutes from './routes/auth.js';
@@ -14,35 +15,19 @@ import notificationRoutes from './routes/notifications.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Log env status (without leaking secrets)
+console.log('Environment check:', {
+  hasMongoUri: !!process.env.MONGODB_URI,
+  hasMongoUriAlt: !!process.env.MONGO_URI,
+  nodeEnv: process.env.NODE_ENV
+});
+
 const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
 
-let lastError: string | null = null;
-
-// Middleware to ensure DB connection - Most stable for Vercel
-app.use(async (req, res, next) => {
-  if (mongoose.connection.readyState === 1) {
-    return next();
-  }
-  
-  if (!MONGO_URI) {
-    lastError = "MONGODB_URI is missing in environment variables";
-    return next();
-  }
-
-  try {
-    // Adding options to fail faster if the IP is blocked or credentials are wrong
-    await mongoose.connect(MONGO_URI, {
-      serverSelectionTimeoutMS: 5000,
-      connectTimeoutMS: 10000,
-    });
-    lastError = null;
-    next();
-  } catch (err) {
-    lastError = (err as Error).message;
-    console.error('DB Connection Error:', err);
-    next(); 
-  }
-});
+if (!MONGO_URI) {
+  console.error('ERROR: No MongoDB URI found in environment variables!');
+}
 
 const ALLOWED_ORIGINS = [
   process.env.CLIENT_URL,
@@ -53,13 +38,19 @@ const ALLOWED_ORIGINS = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || ALLOWED_ORIGINS.includes(origin) || process.env.NODE_ENV !== 'production') {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+      
+      if (ALLOWED_ORIGINS.includes(origin) || process.env.NODE_ENV !== 'production') {
         callback(null, true);
       } else {
+        console.warn(`CORS blocked: ${origin}`);
         callback(new Error('Not allowed by CORS'));
       }
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
@@ -72,15 +63,26 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes); 
 app.use('/api/notifications', notificationRoutes);
 
-app.get('/', (req, res) => {
+app.get('/health', (req, res) => {
   res.json({ 
-    message: 'SakaLink API is online', 
-    db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-    error: lastError,
-    uri_present: !!MONGO_URI
+    status: 'ok', 
+    db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' 
   });
 });
 
+console.log('Attempting MongoDB connection...');
+if (MONGO_URI) {
+  mongoose
+    .connect(MONGO_URI)
+    .then(() => {
+      console.log('✅ MongoDB connected successfully');
+    })
+    .catch((err) => {
+      console.error('❌ MongoDB connection error:', err.message);
+    });
+}
+
+// For Vercel, we export the app but also listen for local dev
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
