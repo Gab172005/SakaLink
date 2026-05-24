@@ -1,9 +1,13 @@
 // src/services/api.js
 // Central API layer — all fetch calls go through here.
 
-// FIX: Synchronized to use the same env variable as your AdminDashboard
-const BASE_URL = import.meta.env.VITE_REACT_APP_BACKEND_BASEURL;
+/// src/services/api.js
 
+// 1. Get the raw value from environment or fallback
+const rawBaseUrl = import.meta.env.VITE_REACT_APP_BACKEND_BASEURL || 'http://localhost:5000';
+
+// 2. FIX: Automatically strip a trailing slash if it exists
+const BASE_URL = rawBaseUrl.endsWith('/') ? rawBaseUrl.slice(0, -1) : rawBaseUrl;
 // ── Token helpers ──────────────────────────────────────────────────────────
 export const getToken = () => localStorage.getItem("sakalink_token");
 export const getUserType = () => localStorage.getItem("sakalink_userType");
