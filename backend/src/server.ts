@@ -4,7 +4,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 
-// Load env vars at the very top for ESM
 dotenv.config();
 
 import authRoutes from './routes/auth.js';
@@ -15,19 +14,40 @@ import notificationRoutes from './routes/notifications.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
-// Log env status (without leaking secrets)
-console.log('Environment check:', {
-  hasMongoUri: !!process.env.MONGODB_URI,
-  hasMongoUriAlt: !!process.env.MONGO_URI,
-  nodeEnv: process.env.NODE_ENV
-});
-
 const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
 
-if (!MONGO_URI) {
-  console.error('ERROR: No MongoDB URI found in environment variables!');
-}
+// 1. Database Connection Logic (Singleton for Serverless)
+let isConnected = false;
+const connectDB = async () => {
+  if (isConnected) return;
+  if (!MONGO_URI) {
+    throw new Error('MONGODB_URI is not defined');
+  }
+
+  try {
+    const db = await mongoose.connect(MONGO_URI, {
+      serverSelectionTimeoutMS: 5000, // Fail fast (5s) instead of hanging
+    });
+    isConnected = db.connections[0].readyState === 1;
+    console.log('✅ MongoDB connected successfully');
+  } catch (err) {
+    console.error('❌ MongoDB connection error:', (err as Error).message);
+    throw err;
+  }
+};
+
+// 2. Middleware to ensure DB is connected before handling requests
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    res.status(500).json({ 
+      message: 'Database connection failed', 
+      error: (err as Error).message 
+    });
+  }
+});
 
 const ALLOWED_ORIGINS = [
   process.env.CLIENT_URL,
@@ -38,19 +58,13 @@ const ALLOWED_ORIGINS = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl)
-      if (!origin) return callback(null, true);
-      
-      if (ALLOWED_ORIGINS.includes(origin) || process.env.NODE_ENV !== 'production') {
+      if (!origin || ALLOWED_ORIGINS.includes(origin) || process.env.NODE_ENV !== 'production') {
         callback(null, true);
       } else {
-        console.warn(`CORS blocked: ${origin}`);
         callback(new Error('Not allowed by CORS'));
       }
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
@@ -66,23 +80,11 @@ app.use('/api/notifications', notificationRoutes);
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
-    db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' 
+    db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    env: process.env.NODE_ENV
   });
 });
 
-console.log('Attempting MongoDB connection...');
-if (MONGO_URI) {
-  mongoose
-    .connect(MONGO_URI)
-    .then(() => {
-      console.log('✅ MongoDB connected successfully');
-    })
-    .catch((err) => {
-      console.error('❌ MongoDB connection error:', err.message);
-    });
-}
-
-// For Vercel, we export the app but also listen for local dev
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
