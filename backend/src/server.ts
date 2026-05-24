@@ -15,10 +15,7 @@ const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI || "mongodb://localhost:27017/test";
 
 const ALLOWED_ORIGINS = [
-  "http://localhost:3000",
-  "http://localhost:3001",
-  "http://localhost:5173",
-  "http://localhost:4173",
+  process.env.VITE_REACT_APP_BACKEND_BASEURL
 ];
 
 // 4. Global Middleware Configuration
