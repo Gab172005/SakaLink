@@ -57,9 +57,11 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
 
 app.get('/', (req, res) => {
+  const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
   res.json({ 
     message: 'SakaLink API is online', 
-    database: mongoose.connection.readyState === 1 ? 'connected ✅' : 'disconnected ❌' 
+    db_status: states[mongoose.connection.readyState] || 'unknown',
+    db_error: connectionError
   });
 });
 
@@ -79,6 +81,9 @@ app.use((err: any, req: any, res: any, next: any) => {
 
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+export default app;app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
 export default app;
