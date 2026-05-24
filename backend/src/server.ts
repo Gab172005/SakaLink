@@ -12,22 +12,28 @@ import productRoutes from './routes/products.js';
 import orderRoutes from './routes/orders.js';
 import adminRoutes from './routes/admin.js'; 
 import notificationRoutes from './routes/notifications.js';
+import { connectDB } from './config/mongoose.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Middleware to ensure DB connection
+const ensureDbConnection = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err: any) {
+    res.status(500).json({ 
+      message: 'Database connection failed', 
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined 
+    });
+  }
+};
+
 // Log env status (without leaking secrets)
 console.log('Environment check:', {
-  hasMongoUri: !!process.env.MONGODB_URI,
-  hasMongoUriAlt: !!process.env.MONGO_URI,
   nodeEnv: process.env.NODE_ENV
 });
-
-const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
-
-if (!MONGO_URI) {
-  console.error('ERROR: No MongoDB URI found in environment variables!');
-}
 
 const ALLOWED_ORIGINS: string[] = [
   process.env.CLIENT_URL,
@@ -62,6 +68,7 @@ app.use(
 
 app.use(cookieParser());
 app.use(express.json());
+app.use(ensureDbConnection);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
@@ -75,18 +82,6 @@ app.get('/health', (req: Request, res: Response) => {
     db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' 
   });
 });
-
-console.log('Attempting MongoDB connection...');
-if (MONGO_URI) {
-  mongoose
-    .connect(MONGO_URI)
-    .then(() => {
-      console.log('✅ MongoDB connected successfully');
-    })
-    .catch((err: any) => {
-      console.error('❌ MongoDB connection error:', err.message);
-    });
-}
 
 // For Vercel, we export the app but also listen for local dev
 if (process.env.NODE_ENV !== 'production') {
