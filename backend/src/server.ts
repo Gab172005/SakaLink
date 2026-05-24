@@ -7,12 +7,14 @@ import cookieParser from 'cookie-parser';
 // Load env vars at the very top for ESM
 dotenv.config();
 
+// Import DB config early to set global mongoose behaviors
+import { connectDB } from './config/mongoose.js';
+
 import authRoutes from './routes/auth.js';
 import productRoutes from './routes/products.js';
 import orderRoutes from './routes/orders.js';
 import adminRoutes from './routes/admin.js'; 
 import notificationRoutes from './routes/notifications.js';
-import { connectDB } from './config/mongoose.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
