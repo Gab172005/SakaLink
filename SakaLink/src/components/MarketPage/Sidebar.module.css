@@ -210,10 +210,11 @@
   .sidebar {
     width: 100%;
     height: auto;
-    position: relative;
-    top: 0;
+    position: sticky;
+    top: 64px;
     border-right: none;
-    border-bottom: 1.5px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
+    z-index: 100;
   }
 
   .collapsed {
@@ -222,11 +223,21 @@
 
   .sidebarContent {
     display: none;
-    padding: 16px;
+    padding: var(--space-md);
+    background: white;
+    max-height: 60vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
   }
 
   .sidebar:not(.collapsed) .sidebarContent {
     display: block;
+    animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .toggleBtn {
@@ -234,19 +245,65 @@
     top: 0;
     right: 0;
     width: 100%;
-    height: 48px;
+    height: 52px;
     border-radius: 0;
-    justify-content: space-between;
-    padding: 0 16px;
+    justify-content: center;
+    padding: 0 var(--space-md);
+    background: white;
+    color: var(--green-700);
+    border-bottom: 1px solid var(--border-light);
+    gap: 12px;
   }
 
   .toggleBtn::after {
-    content: "Filters";
-    font-weight: 600;
+    content: "Filter & Sort Products";
+    font-weight: 700;
     font-size: 0.9rem;
+    text-transform: none;
+  }
+
+  .hamburger span {
+    background-color: var(--green-600);
   }
 
   .section {
-    margin-bottom: 24px;
+    margin-bottom: var(--space-lg);
+  }
+
+  .sectionTitle {
+    font-size: 0.8rem;
+    color: var(--green-700);
+    border-bottom: 1px solid var(--green-50);
+    padding-bottom: 4px;
+  }
+
+  .sectionContent {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .checkLabel {
+    padding: 6px 14px;
+    background: var(--surface-muted);
+    border: 1px solid var(--border-light);
+    border-radius: 20px;
+    font-size: 0.85rem;
+  }
+
+  .checkboxWrapper {
+    display: none;
+  }
+
+  .checkLabel:has(input:checked) {
+    background: var(--green-600);
+    color: white;
+    border-color: var(--green-600);
+  }
+
+  .checkLabel:has(input:checked) .count {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
   }
 }

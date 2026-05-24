@@ -161,18 +161,27 @@
 
 @media (max-width: 768px) {
   .pageTitle {
-    font-size: 1.5rem;
+    font-size: var(--text-2xl);
+  }
+
+  .pageIntro {
+    font-size: var(--text-sm);
   }
 
   .gridWrapper {
-    padding: 16px;
+    padding: var(--space-md);
+    border-radius: var(--radius-lg);
+    background: transparent;
+    border: none;
+    box-shadow: none;
   }
 
   .promotedTitle {
-    font-size: 1.25rem;
+    font-size: var(--text-lg);
   }
 
   .promotedDesc {
     padding-left: 0;
+    font-size: var(--text-xs);
   }
 }
