@@ -31,6 +31,7 @@ if (!MONGO_URI) {
 
 const ALLOWED_ORIGINS = [
   process.env.CLIENT_URL,
+  'https://saka-link.vercel.app',
   'http://localhost:5173',
   'http://localhost:3000'
 ].filter(Boolean) as string[];
@@ -45,7 +46,9 @@ app.use(
         callback(null, true);
       } else {
         console.warn(`CORS blocked: ${origin}`);
-        callback(new Error('Not allowed by CORS'));
+        // Instead of returning an error, we return false to let CORS middleware handle it
+        // and avoid potential 500 errors that skip CORS headers
+        callback(null, false);
       }
     },
     credentials: true,
