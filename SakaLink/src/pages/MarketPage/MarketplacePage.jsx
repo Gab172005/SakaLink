@@ -43,7 +43,7 @@ export default function MarketplacePage({ showToast }) {
   });
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  // Map backend data to frontend structure
+  // Map backend data to SakaLink structure
   const products = useMemo(() => {
     return rawProducts.map(p => ({
       ...p,

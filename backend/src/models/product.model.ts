@@ -7,7 +7,7 @@ export interface productDocument extends Document {
   quantity: number;
   price: number;
   image?: string;
-  promoted: boolean;//allows the department of agriculture to promote specific crops ideally in frontend implementation there'll be an additional top picks or support disaster struck farmers this is inspired by the rescue by section from rural rising.
+  promoted: boolean;//allows the department of agriculture to promote specific crops ideally in SakaLink implementation there'll be an additional top picks or support disaster struck farmers this is inspired by the rescue by section from rural rising.
   certifications: string[];
   region: string;
   unit: string; //i.e 50/kg, 50/piece, 50/5 cartons

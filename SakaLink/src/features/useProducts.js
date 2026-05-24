@@ -1,6 +1,6 @@
 // src/hooks/useProducts.js
 // Fetches products from the backend. Falls back to static data if the
-// server is unreachable (useful during local frontend-only dev).
+// server is unreachable (useful during local SakaLink-only dev).
 
 import { useState, useEffect } from "react";
 import { productsAPI } from "../services/api";

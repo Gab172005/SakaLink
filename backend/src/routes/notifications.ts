@@ -67,7 +67,7 @@ router.patch('/read-all', protect, async (req: AuthRequest, res: Response): Prom
 router.patch('/:id/read', protect, async (req: AuthRequest, res: Response): Promise<void> => {
   const { id } = req.params;
 
-  // Prevent database crashes if frontend tries to mark the virtual admin summary as read
+  // Prevent database crashes if SakaLink tries to mark the virtual admin summary as read
   if (id === 'pending-summary') {
     res.status(400).json({ message: 'The active dashboard summary cannot be individually marked as read.' });
     return;
