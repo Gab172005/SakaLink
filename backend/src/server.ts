@@ -70,14 +70,21 @@ app.use(
 
 app.use(cookieParser());
 app.use(express.json());
-
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes); 
 app.use('/api/notifications', notificationRoutes);
 
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'SakaLink API is online', 
+    database: mongoose.connection.readyState === 1 ? 'connected ✅' : 'disconnected ❌' 
+  });
+});
+
 app.get('/health', (req, res) => {
+...
   res.json({ 
     status: 'ok', 
     db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
