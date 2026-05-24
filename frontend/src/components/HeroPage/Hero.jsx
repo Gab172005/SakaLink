@@ -93,7 +93,7 @@ export default function Hero({ openModal }) {
     const cardW = card.offsetWidth;
     const gap = 16;
     trackRef.current.style.transform = `translateX(-${carouselIdx * (cardW + gap)}px)`;
-  }, [carouselIdx, displayProducts, loading]);
+  }, [carouselIdx, displayProducts, loading, visibleCards]);
   
   const handleProductClick = (product) => {//if your logged in, open the detail modal, if not, open the sign up one
     if (isAuthenticated) {

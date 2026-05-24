@@ -291,11 +291,17 @@
 
   .hero-tagline {
     font-size: 2.2rem;
+    margin-bottom: 20px;
+  }
+
+  .hero-buttons {
+    margin-bottom: 32px;
   }
 
   .hero-stats {
     flex-wrap: wrap;
     gap: 20px;
+    margin-bottom: 0;
   }
 
   .stat-value {
