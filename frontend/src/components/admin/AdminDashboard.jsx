@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import styles from './AdminDashboard.module.css';
 import { useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
-import { adminAPI } from '../../services/api';
+import { adminAPI, ordersAPI } from '../../services/api';
 
 export default function AdminDashboard({ showToast }) {
     const [orders, setOrders] = useState([]);
@@ -18,18 +18,10 @@ export default function AdminDashboard({ showToast }) {
     
     const navigate = useNavigate();
 
-    // Get your backend base URL from Vite's environment system
-    const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_BASEURL;
-
     const fetchUsers = async () => {
         try {
             setUsersLoading(true);
-            const response = await fetch(`${BACKEND_URL}/api/admin/users`, {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-            });
-            const data = await response.json();
+            const data = await adminAPI.getUsers();
             setUsers(data.users || []);
         } catch (err) {
             console.error("Users Fetch Error:", err);
@@ -43,20 +35,8 @@ export default function AdminDashboard({ showToast }) {
         try {
             setLoading(true);
             setError(''); 
-            const response = await fetch(`${BACKEND_URL}/api/admin/orders`, {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-            });
-
-            if (response.status === 401 || response.status === 403) {
-                console.error("You are not authorized to view this");
-                if (showToast) showToast('Access denied. Booting to home...', 'error');
-                navigate('/', { replace: true });
-                return;
-            }
-
-            const data = await response.json();
+            
+            const data = await adminAPI.getAllOrders();
             setOrders(Array.isArray(data) ? data : []);
             setIsVerifiedAdmin(true);
 
@@ -64,6 +44,12 @@ export default function AdminDashboard({ showToast }) {
             await fetchUsers();
 
         } catch (err) {
+            if (err.status === 401 || err.status === 403) {
+                console.error("You are not authorized to view this");
+                if (showToast) showToast('Access denied. Booting to home...', 'error');
+                navigate('/', { replace: true });
+                return;
+            }
             setError(err.message);
             if (showToast) showToast(err.message, 'error');
         } finally {
@@ -78,12 +64,7 @@ export default function AdminDashboard({ showToast }) {
     const fetchSales = async (period) => {
         try {
             setSalesLoading(true);
-            const response = await fetch(`${BACKEND_URL}/api/admin/sales?period=${period}`, {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-            });
-            const data = await response.json();
+            const data = await adminAPI.getSales(period);
             setSalesData(data);
         } catch (err) {
             console.error("Sales Fetch Error:", err);
@@ -116,26 +97,14 @@ export default function AdminDashboard({ showToast }) {
 
     const handleUpdateStatus = async (orderId, newStatus) => {
         try {
-            let endpoint = '';
             if (newStatus === 1) {
-                endpoint = `${BACKEND_URL}/api/orders/${orderId}/confirm`;
+                await ordersAPI.confirmOrder(orderId);
             } else if (newStatus === 2) {
-                endpoint = `${BACKEND_URL}/api/orders/${orderId}/deliver`;
+                await ordersAPI.deliverOrder(orderId);
             } else if (newStatus === 3) {
-                endpoint = `${BACKEND_URL}/api/orders/${orderId}/cancel`;
+                await ordersAPI.cancelOrder(orderId);
             } else {
                 throw new Error(`Unsupported status targeted: ${newStatus}`);
-            }
-
-            const response = await fetch(endpoint, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include', 
-            });
-
-            if (!response.ok) {
-                const fallback = await response.json();
-                throw new Error(fallback.message || 'Server rejected status progression.');
             }
 
             showToast?.('Order status updated successfully!');

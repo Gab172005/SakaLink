@@ -1,13 +1,12 @@
 // src/services/api.js
 // Central API layer — all fetch calls go through here.
 
-/// src/services/api.js
-
 // 1. Get the raw value from environment or fallback
 const rawBaseUrl = import.meta.env.VITE_REACT_APP_BACKEND_BASEURL || 'http://localhost:5000';
 
-// 2. FIX: Automatically strip a trailing slash if it exists
-const BASE_URL = rawBaseUrl.endsWith('/') ? rawBaseUrl.slice(0, -1) : rawBaseUrl;
+// 2. FIX: Automatically strip trailing slashes if they exist
+const BASE_URL = rawBaseUrl.replace(/\/+$/, "");
+
 // ── Token helpers ──────────────────────────────────────────────────────────
 export const getToken = () => localStorage.getItem("sakalink_token");
 export const getUserType = () => localStorage.getItem("sakalink_userType");
@@ -38,7 +37,9 @@ async function request(path, options = {}) {
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    throw new Error(data.message || `Request failed (${res.status})`);
+    const err = new Error(data.message || `Request failed (${res.status})`);
+    err.status = res.status;
+    throw err;
   }
 
   return data;
@@ -100,6 +101,10 @@ export const productsAPI = {
 export const ordersAPI = {
   getMyOrders: () => request("/orders/my-orders"),
 
+  confirmOrder: (id) => request(`/orders/${id}/confirm`, { method: "PATCH" }),
+
+  deliverOrder: (id) => request(`/orders/${id}/deliver`, { method: "PATCH" }),
+
   cancelOrder: (id) => request(`/orders/${id}/cancel`, { method: "PATCH" }),
 
   create: (orderData) =>
@@ -118,6 +123,8 @@ export const adminAPI = {
   deleteUser: (id) => request(`/admin/users/${id}`, { method: "DELETE" }),
 
   getAllOrders: () => request("/admin/orders"),
+
+  getSales: (period = "monthly") => request(`/admin/sales?period=${period}`),
 
   createProduct: (productData) =>
     request("/products", {
