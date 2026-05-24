@@ -182,7 +182,8 @@
 
 @media (max-width: 768px) {
   .navbar {
-    padding: 0.75rem 1rem;
+    padding: 0.75rem 1.25rem;
+    height: 60px;
   }
 
   .logo {
@@ -191,26 +192,28 @@
   }
 
   .logoIcon {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
   }
 
   .mobileMenuToggle {
     display: block;
+    padding: 8px;
   }
 
   .actions {
     position: fixed;
-    top: 64px;
+    top: 60px;
     right: -100%;
-    width: 300px;
-    height: calc(100vh - 64px);
+    width: 280px;
+    height: calc(100vh - 60px);
     background-color: #ffffff;
     flex-direction: column;
-    padding: var(--space-xl) var(--space-lg);
-    box-shadow: -10px 0 30px rgba(0,0,0,0.05);
+    padding: 2rem 1.5rem;
+    box-shadow: -10px 0 30px rgba(0,0,0,0.08);
     transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 1000;
     align-items: stretch;
+    overflow-y: auto;
   }
 
   .actions.mobileOpen {
@@ -221,25 +224,31 @@
     flex-direction: column;
     align-items: stretch;
     width: 100%;
-    gap: var(--space-md);
+    gap: 1rem;
   }
 
   .iconBtn {
     width: 100%;
     justify-content: flex-start;
-    padding: var(--space-md) 0;
-    font-size: var(--text-lg);
-    border-bottom: 1px solid var(--border-light);
+    padding: 1rem 0.5rem;
+    font-size: 1rem;
+    border-bottom: 1px solid #f0f0f0;
     border-radius: 0;
+  }
+
+  .iconBtn:last-child {
+    border-bottom: none;
   }
 
   .pillWrapper {
     width: 100%;
+    margin-top: 0.5rem;
   }
 
   .pillBox {
     width: 100%;
     justify-content: center;
+    padding: 0.75rem 1rem;
   }
 
   .dropdown {
@@ -249,5 +258,29 @@
     width: 100%;
     padding-left: 1rem;
     margin-top: 0.5rem;
+    background: #f9f9f9;
+    border-radius: 8px;
+  }
+
+  .dropdownItem {
+    padding: 12px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.75rem 1rem;
+  }
+
+  .logoText {
+    display: none;
+  }
+  
+  .logoIcon {
+    font-size: 1.5rem;
+  }
+
+  .actions {
+    width: 100%;
   }
 }

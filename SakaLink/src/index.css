@@ -11,7 +11,7 @@
 /* 3. Base Layout */
 html, body, #root {
   width: 100%;
-  height: 100%; /* Use height: 100% for full-screen layouts */
+  min-height: 100%;
   font-family: var(--font-body);
   background: var(--page-bg);
   color: var(--text-primary);
@@ -35,14 +35,12 @@ button {
 .app-layout {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
 }
 
 .app-body {
   display: flex;
   flex: 1;
-  overflow: hidden;
 }
 
 /* 6. Custom Scrollbar (UPLB Green Style) */

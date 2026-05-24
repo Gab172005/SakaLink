@@ -219,9 +219,11 @@
 @media (max-width: 1024px) {
   .hero {
     grid-template-columns: 1fr;
-    padding: 100px var(--space-lg) var(--space-2xl);
+    padding: 80px var(--space-lg) var(--space-2xl);
     text-align: center;
     gap: var(--space-2xl);
+    min-height: auto;
+    overflow-y: visible;
   }
 
   .hero-left {
@@ -244,11 +246,11 @@
 
 @media (max-width: 640px) {
   .hero {
-    padding: 80px var(--space-md) var(--space-xl);
+    padding: 60px var(--space-md) var(--space-xl);
   }
 
   .hero-tagline {
-    font-size: var(--text-2xl);
+    font-size: clamp(1.75rem, 8vw, 2.5rem);
     margin-bottom: var(--space-md);
   }
 
@@ -256,27 +258,29 @@
     flex-direction: column;
     gap: var(--space-sm);
     width: 100%;
-    max-width: 300px;
+    max-width: 280px;
     margin-left: auto;
     margin-right: auto;
   }
 
   .btn {
     width: 100%;
+    padding: 12px 24px;
   }
 
   .hero-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-sm);
+    gap: var(--space-xs);
+    margin-top: var(--space-lg);
   }
 
   .stat-value {
-    font-size: var(--text-base);
+    font-size: 1.1rem;
   }
 
   .stat-label {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
   }
 
   .product-card {
@@ -284,10 +288,29 @@
   }
 
   .carousel-btn {
-    display: none; /* Hide buttons on small mobile, use swipe feel or just simplify */
+    display: none;
   }
 
   .hero-right {
-    padding: 0 var(--space-sm);
+    padding: 0;
+    width: 100%;
+  }
+  
+  .carousel-wrapper {
+    padding: 5px 0;
+  }
+}
+
+@media (max-width: 380px) {
+  .hero-tagline {
+    font-size: 1.5rem;
+  }
+  
+  .hero-stats {
+    gap: 4px;
+  }
+  
+  .stat-value {
+    font-size: 0.95rem;
   }
 }

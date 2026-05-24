@@ -52,7 +52,8 @@
 }
 
 html, body, #root {
-  height: 100%;
+  width: 100%;
+  min-height: 100%;
   font-family: var(--font-body);
   background: var(--page-bg);
   color: var(--text-primary);
@@ -63,14 +64,12 @@ html, body, #root {
 .app-layout {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
 }
 
 .app-body {
   display: flex;
   flex: 1;
-  overflow: hidden;
 }
 
 /* ===== Scrollbar ===== */
